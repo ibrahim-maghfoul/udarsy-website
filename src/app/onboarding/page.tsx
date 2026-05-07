@@ -284,7 +284,7 @@ export default function OnboardingPage() {
                                             <div className="absolute inset-x-1 -inset-y-2 bg-gradient-to-tr from-green/20 to-emerald-400/20 rounded-[2rem] -z-10 blur-xl group-hover:blur-2xl transition-all duration-500" />
                                             {photoPreview || user?.photoURL ? (
                                                 <img
-                                                    src={photoPreview || (user.photoURL.startsWith('http') ? user.photoURL : `/data/images/profile-picture/${user.photoURL}`)}
+                                                    src={photoPreview || (user?.photoURL?.startsWith('http') ? user.photoURL : `/data/images/profile-picture/${user?.photoURL}`)}
                                                     alt="Profile"
                                                     className="w-full h-full object-cover rounded-[2rem] border-[3px] border-green shadow-lg bg-white relative z-10"
                                                 />
