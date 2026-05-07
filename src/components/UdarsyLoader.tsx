@@ -16,9 +16,9 @@ export function UdarsyLoader({ size = 80, color = "#3aaa6a", className = "" }: U
     const rafRef      = useRef<number | null>(null);
 
     useEffect(() => {
-        const arcBack  = arcBackRef.current;
-        const arcFront = arcFrontRef.current;
-        const ball     = ballRef.current;
+        const arcBack  = arcBackRef.current!;
+        const arcFront = arcFrontRef.current!;
+        const ball     = ballRef.current!;
         if (!arcBack || !arcFront || !ball) return;
 
         const cx = 100, cy = 100;

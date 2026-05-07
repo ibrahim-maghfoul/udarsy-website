@@ -108,6 +108,8 @@ export interface TeacherRoom {
     lastMessagePreview?: string;
     lastMessageAt?: string;
     createdAt: string;
+    averageRating?: number;
+    totalRatings?: number;
 }
 
 export interface InstructorCourse {

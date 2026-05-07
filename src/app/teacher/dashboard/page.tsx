@@ -401,7 +401,7 @@ export default function TeacherDashboardPage() {
                                                             <span className="text-xs font-mono bg-green/10 text-green px-2.5 py-1 rounded-lg border border-green/15">
                                                                 {room.roomCode}
                                                             </span>
-                                                            {(room.totalRatings > 0) && (
+                                                            {((room.totalRatings ?? 0) > 0) && (
                                                                 <span className="flex items-center gap-1 text-xs font-bold bg-amber-50 text-amber-600 px-2.5 py-1 rounded-lg border border-amber-100">
                                                                     <Star size={10} className="fill-amber-400 text-amber-400" />
                                                                     {room.averageRating?.toFixed(1)} <span className="font-normal text-amber-500/70">({room.totalRatings})</span>
