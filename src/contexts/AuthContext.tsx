@@ -15,6 +15,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     checkAuth: () => Promise<void>;
     refreshUser: () => void;
+    updateUser: (userData: User) => void;
     getPhotoURL: (url: string | undefined | null) => string | null;
     getResourceURL: (url: string | undefined | null) => string | null;
     sessionError: string | null;
@@ -177,18 +178,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [router]);
 
+    const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+
     const getPhotoURL = useCallback((url: string | undefined | null) => {
         if (!url) return null;
         if (url.startsWith('http')) return url;
-        if (!url.includes('/')) return `/data/images/profile-picture/${url}`;
-        return url.startsWith('/') ? url : `/${url}`;
-    }, []);
+        if (!url.includes('/')) return `${BACKEND}/data/images/profile-picture/${url}`;
+        return url.startsWith('/') ? `${BACKEND}${url}` : `${BACKEND}/${url}`;
+    }, [BACKEND]);
 
     const getResourceURL = useCallback((url: string | undefined | null) => {
         if (!url) return null;
         if (url.startsWith('http')) return url;
-        if (!url.includes('/')) return `/data/resources/${url}`;
-        return url.startsWith('/') ? url : `/${url}`;
+        if (!url.includes('/')) return `${BACKEND}/data/resources/${url}`;
+        return url.startsWith('/') ? `${BACKEND}${url}` : `${BACKEND}/${url}`;
+    }, [BACKEND]);
+
+    const updateUser = useCallback((userData: User) => {
+        setUser(userData);
     }, []);
 
     const contextValue = useMemo(() => ({
@@ -201,11 +208,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         checkAuth,
         refreshUser,
+        updateUser,
         getPhotoURL,
         getResourceURL,
         sessionError,
         clearSessionError,
-    }), [user, loading, login, register, googleLogin, logout, checkAuth, refreshUser, getPhotoURL, getResourceURL, sessionError, clearSessionError]);
+    }), [user, loading, login, register, googleLogin, logout, checkAuth, refreshUser, updateUser, getPhotoURL, getResourceURL, sessionError, clearSessionError]);
 
     return (
         <AuthContext.Provider value={contextValue}>

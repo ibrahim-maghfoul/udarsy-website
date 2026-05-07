@@ -37,7 +37,7 @@ export default function SettingsPage() {
     const t = useTranslations("Settings");
     const tp = useTranslations("Profile");
     const tpr = useTranslations("Pricing");
-    const { user, logout, checkAuth } = useAuth();
+    const { user, logout, updateUser, refreshUser } = useAuth();
     const { showSnackbar } = useSnackbar();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("profile");
@@ -103,9 +103,8 @@ export default function SettingsPage() {
     const handleSaveProfile = async () => {
         setIsSaving(true);
         try {
-            await checkAuth();
-            await api.patch('/user/profile', formData);
-            await checkAuth();
+            const res = await api.patch('/user/profile', formData);
+            updateUser(res.data);
             showSnackbar(t("save_success"), "success");
         } catch (error: any) {
             showSnackbar(error.response?.data?.error || t("save_error"), "error");
@@ -132,7 +131,7 @@ export default function SettingsPage() {
         setIsSubscribing(plan);
         try {
             await api.patch('/user/subscribe', { plan, billingCycle });
-            await checkAuth();
+            refreshUser();
             showSnackbar(t("subscribe_success", { plan }), "success");
         } catch (error: any) {
             showSnackbar(error.response?.data?.error || t("subscribe_error"), "error");
