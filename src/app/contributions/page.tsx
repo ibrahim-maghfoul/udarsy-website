@@ -249,7 +249,7 @@ export default function ContributionsPage() {
                                         <span className={`w-2 h-2 rounded-full ${contributionStatus.remaining === 0 ? 'bg-red-500' : 'bg-green'}`} />
                                         {contributionStatus.remaining === 0
                                             ? t("limit_reached")
-                                            : t("limit_remaining", { count: contributionStatus.remaining })}
+                                            : t("limit_remaining", { count: contributionStatus.remaining ?? 0 })}
                                     </motion.div>
                                 )}
                                 {contributionStatus?.isPremium && (
