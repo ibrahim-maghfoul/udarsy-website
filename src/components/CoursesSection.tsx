@@ -138,7 +138,7 @@ const COURSES = [
         id: 2,
         Icon: AIIcon,
         img: "/students/student-3.png",
-        className: "course-card-2 flex-[2] bg-gradient-to-br from-[#52d4a0] via-[#1e9e72] via-[#0d6048] to-[#051e16] shadow-[0_8px_40px_rgba(13,96,72,0.35)] !p-[24px_22px]",
+        className: "course-card-2 flex-[2] w-[90%] md:w-auto bg-gradient-to-br from-[#52d4a0] via-[#1e9e72] via-[#0d6048] to-[#051e16] shadow-[0_8px_40px_rgba(13,96,72,0.35)] !p-[24px_22px]",
     },
     {
         id: 3,
@@ -155,7 +155,7 @@ export function CoursesSection() {
     return (
         <section className="bg-[#f0f5f0] p-[100px_clamp(24px,6vw,80px)_120px] relative overflow-hidden">
             <div className="max-w-[680px] mx-auto mb-16 relative">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[12px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)] mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[13px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)] mb-4">
                     <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
                     {t('kicker')}
                 </div>

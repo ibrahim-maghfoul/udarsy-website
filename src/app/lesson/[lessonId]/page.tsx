@@ -563,25 +563,9 @@ export default function LessonPage() {
                 >
                     {/* Handle */}
                     <div className="w-10 h-1 bg-dark/10 rounded-full mx-auto mb-4" />
-                    <p className={`font-bold text-dark text-sm line-clamp-2 mb-1 ${isRTL ? 'text-right' : 'text-left'}`}>{mobileMenu.resource.title}</p>
-                    {mobileMenu.isPdf && (
-                        <Link
-                            href={mobileMenu.aiHref}
-                            className="flex items-center gap-3 w-full p-4 bg-green/8 border border-green/15 rounded-2xl font-bold text-dark text-sm active:scale-[0.98] transition-transform"
-                            onClick={() => {
-                                if (user) {
-                                    trackResourceView({ lessonId, subjectId: lesson?.subjectId || '', resourceId: safeId(mobileMenu.resource), resourceType: mobileMenu.type });
-                                    refreshUser();
-                                }
-                                setMobileMenu(null);
-                            }}
-                        >
-                            <BotMessageSquare size={20} className="text-green flex-shrink-0" />
-                            {t('ai_explain_btn')}
-                        </Link>
-                    )}
+                    <p className={`font-bold text-dark text-sm mb-1 ${isRTL ? 'text-right' : 'text-left'}`}>{t('view_doc')}</p>
                     <button
-                        className="flex items-center gap-3 w-full p-4 bg-dark/5 border border-dark/8 rounded-2xl font-bold text-dark text-sm active:scale-[0.98] transition-transform"
+                        className="flex items-center gap-3 w-full p-4 bg-green/8 border border-green/15 rounded-2xl font-bold text-dark text-sm active:scale-[0.98] transition-transform"
                         onClick={() => {
                             if (mobileMenu.resource.url) window.open(mobileMenu.resource.url, '_blank', 'noopener,noreferrer');
                             if (user) {
@@ -591,8 +575,8 @@ export default function LessonPage() {
                             setMobileMenu(null);
                         }}
                     >
-                        <ExternalLink size={20} className="text-dark/60 flex-shrink-0" />
-                        {t('view_doc') || 'View Document'}
+                        <ExternalLink size={20} className="text-green flex-shrink-0" />
+                        {mobileMenu.resource.title}
                     </button>
                     <button
                         className="flex items-center justify-center w-full p-3 text-sm font-medium text-dark/50 active:bg-dark/5 rounded-2xl transition-colors"

@@ -18,8 +18,18 @@ export function TeamSection() {
     const [isHovered, setIsHovered] = useState(false);
     const [animKey, setAnimKey] = useState(0);
     const [inView, setInView] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const sectionRef = useRef<HTMLElement>(null);
-    const totalPages = 2;
+
+    useEffect(() => {
+        const check = () => {
+            setIsMobile(window.innerWidth < 768);
+            setCurrentPage(0);
+        };
+        check();
+        window.addEventListener('resize', check, { passive: true });
+        return () => window.removeEventListener('resize', check);
+    }, []);
 
     // Pause auto-advance when section is offscreen — saves a setTimeout chain that
     // re-renders the whole carousel every 3.8s on every page load.
@@ -41,14 +51,18 @@ export function TeamSection() {
         setShuffledTeam([...allTeam].sort(() => Math.random() - 0.5));
     }, [allTeam]);
 
+    const perPage = isMobile ? 2 : 3;
+    const totalPages = Math.ceil(shuffledTeam.length / perPage) || 1;
+
     const advance = useCallback(() => {
         setCurrentPage(p => {
-            const next = (p + 1) % totalPages;
+            const pages = Math.ceil(shuffledTeam.length / (isMobile ? 2 : 3)) || 1;
+            const next = (p + 1) % pages;
             if (next === 0) setShuffledTeam(s => [...s].sort(() => Math.random() - 0.5));
             return next;
         });
         setAnimKey(k => k + 1);
-    }, [totalPages]);
+    }, [shuffledTeam.length, isMobile]);
 
     useEffect(() => {
         if (isHovered || !inView) return;
@@ -57,13 +71,13 @@ export function TeamSection() {
     }, [currentPage, isHovered, inView, advance]);
 
     const visibleMembers = useMemo(() =>
-        shuffledTeam.slice(currentPage * 3, currentPage * 3 + 3),
-    [currentPage, shuffledTeam]);
+        shuffledTeam.slice(currentPage * perPage, currentPage * perPage + perPage),
+    [currentPage, shuffledTeam, perPage]);
 
     return (
         <section ref={sectionRef} className="bg-[#f0f2ee] pt-24 pb-16 md:pb-24 px-[clamp(24px,6vw,80px)] font-roboto">
             <div className="text-center mb-16">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[12px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)] mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[13px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)] mb-4">
                     <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
                     {t('kicker')}
                 </div>
@@ -81,7 +95,7 @@ export function TeamSection() {
                 onMouseLeave={() => setIsHovered(false)}
             >
                 <div className="relative">
-                    <div className="grid grid-cols-3 gap-2 md:gap-8 items-start w-full">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-8 items-start w-full">
                         {visibleMembers.map((member, i) => (
                             <div
                                 key={`${member.id}-${animKey}`}
@@ -103,7 +117,7 @@ export function TeamSection() {
                                             fill
                                             loading="lazy"
                                             sizes="(max-width: 640px) 33vw, 33vw"
-                                            className="object-cover grayscale group-hover:grayscale-0 transition-[filter] duration-300 pointer-events-none"
+                                            className="object-cover md:grayscale md:group-hover:grayscale-0 transition-[filter] duration-300 pointer-events-none"
                                         />
                                     </div>
                                     <div className="absolute inset-x-0 bottom-0 p-3 md:p-8 pt-6 md:pt-12 bg-gradient-to-t from-black/90 to-transparent text-white transition-transform duration-300 translate-y-2 md:translate-y-6 group-hover:translate-y-0">

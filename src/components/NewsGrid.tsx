@@ -129,14 +129,14 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
 
             {/* Grid */}
             <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="show"
                 key={`${activeTab}-${currentPage}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.25 }}
                 className="flex flex-wrap justify-center gap-8"
             >
                 {currentItems.map((item) => (
-                    <motion.div key={item.id} variants={itemVariants}>
+                    <div key={item.id}>
                         <NewsCard
                             title={item.title}
                             subtitle={item.subtitle}
@@ -146,7 +146,7 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
                             date={item.date}
                             readTime={item.readTime}
                         />
-                    </motion.div>
+                    </div>
                 ))}
             </motion.div>
 

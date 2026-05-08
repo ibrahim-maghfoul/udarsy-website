@@ -493,7 +493,7 @@ export function PlatformFeatures() {
 
         {/* Header */}
         <div className="text-center opacity-0 animate-[fadeSlideUp_0.6s_ease-out_0.1s_forwards]">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[12px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)] mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[13px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)] mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
             {t("kicker")}
           </div>
@@ -528,7 +528,7 @@ export function PlatformFeatures() {
                   opacity: isFlippedMob ? 0 : 1,
                 }}>
                   <card.front.Icon size={18} color="#009E60" strokeWidth={1.8} />
-                  <span style={{ fontWeight: 700, fontSize: 9, color: "#003d25", textAlign: "center", lineHeight: 1.3 }}>{t(`cards.${card.id}.front`)}</span>
+                  <span style={{ fontWeight: 700, fontSize: 10, color: "#003d25", textAlign: "center", lineHeight: 1.3 }}>{t(`cards.${card.id}.front`)}</span>
                 </div>
                 {/* Back face */}
                 <div style={{
@@ -542,8 +542,8 @@ export function PlatformFeatures() {
                   <div style={{ position: "absolute", inset: 0, opacity: 0.15, ...getTexture(card.texture, "white") }} />
                   <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                     <card.back.Icon size={16} color="#fff" strokeWidth={1.8} />
-                    <span style={{ fontWeight: 700, fontSize: 9, color: "#fff", textAlign: "center", lineHeight: 1.3 }}>{t(`cards.${card.id}.back_title`)}</span>
-                    {card.back.desc && <span style={{ fontSize: 7.5, color: "rgba(255,255,255,0.8)", textAlign: "center", lineHeight: 1.3 }}>{t(`cards.${card.id}.back_desc`)}</span>}
+                    <span style={{ fontWeight: 700, fontSize: 10, color: "#fff", textAlign: "center", lineHeight: 1.3 }}>{t(`cards.${card.id}.back_title`)}</span>
+                    {card.back.desc && <span style={{ fontSize: 8.5, color: "rgba(255,255,255,0.8)", textAlign: "center", lineHeight: 1.3 }}>{t(`cards.${card.id}.back_desc`)}</span>}
                   </div>
                 </div>
               </div>
@@ -551,7 +551,7 @@ export function PlatformFeatures() {
           })}
           {/* Center card — spans full row */}
           <div
-            className="col-span-3 rounded-2xl overflow-hidden cursor-pointer"
+            className="col-span-3 rounded-2xl overflow-hidden cursor-pointer mt-2"
             style={{
               background: "linear-gradient(135deg,#00c471,#009E60)",
               padding: "14px",

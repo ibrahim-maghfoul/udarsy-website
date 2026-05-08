@@ -90,7 +90,7 @@ export function Diagram() {
     }, []);
 
     return (
-        <div ref={rootRef} className="w-[clamp(300px,44vw,500px)] relative shrink-0 z-3 diagram-paused">
+        <div ref={rootRef} className="w-[clamp(300px,88vw,400px)] md:w-[clamp(300px,44vw,500px)] relative shrink-0 z-3 diagram-paused">
             <svg viewBox="0 0 500 580" xmlns="http://www.w3.org/2000/svg" className="block w-full h-auto overflow-visible font-roboto">
                 <defs>
                     <radialGradient id={`gHex${uid}`} cx="50%" cy="50%" r="60%">

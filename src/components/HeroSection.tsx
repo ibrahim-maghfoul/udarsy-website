@@ -126,10 +126,10 @@ const DesktopCard = memo(function DesktopCard({ card, phase, isActive, badgeVal 
 
             {/* Text */}
             <div className="flex flex-col gap-[3px] min-w-0 relative z-10">
-                <div className={`text-[10.5px] font-black leading-[1.2] truncate transition-colors duration-300 tracking-tight ${isLight ? 'text-white' : 'text-[#1a3a2a]'}`}>
+                <div className={`text-[12px] font-black leading-[1.2] truncate transition-colors duration-300 tracking-tight ${isLight ? 'text-white' : 'text-[#1a3a2a]'}`}>
                     {card.title}
                 </div>
-                <div className={`text-[8.5px] font-medium leading-[1.4] truncate transition-colors duration-300 ${isLight ? 'text-white/70' : 'text-[rgba(26,58,42,0.45)]'}`}>
+                <div className={`text-[10px] font-medium leading-[1.4] truncate transition-colors duration-300 ${isLight ? 'text-white/70' : 'text-[rgba(26,58,42,0.45)]'}`}>
                     {card.msg}
                 </div>
             </div>
@@ -231,8 +231,8 @@ function MobileCardList({ cards }: {
                             {card.icon}
                         </div>
                         <div className="flex flex-col gap-0.5 min-w-0 relative z-10">
-                            <div className={`text-[10px] font-bold leading-snug truncate transition-colors duration-300 ${isLight?'text-white':'text-dark'}`}>{card.title}</div>
-                            <div className={`text-[9px] leading-snug truncate transition-colors duration-300 ${isLight?'text-white/75':'text-dark/50'}`}>{card.msg}</div>
+                            <div className={`text-[12px] font-bold leading-snug truncate transition-colors duration-300 ${isLight?'text-white':'text-dark'}`}>{card.title}</div>
+                            <div className={`text-[10.5px] leading-snug truncate transition-colors duration-300 ${isLight?'text-white/75':'text-dark/50'}`}>{card.msg}</div>
                         </div>
                         <div className={`ml-auto w-2 h-2 rounded-full bg-white flex-shrink-0 relative z-10 transition-opacity duration-300 ${(isLight||isLeaving)?'opacity-100':'opacity-0'}`}/>
                     </div>
@@ -487,7 +487,7 @@ export function HeroSection() {
 
             {/* Badge */}
             <div className="relative z-[3] flex justify-center pt-[76px] md:pt-12 opacity-0 animate-[fadeSlideUp_0.6s_ease-out_0.1s_forwards]">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[12px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)]">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[13px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)]">
                     <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
                     {t('badge') ?? 'AI-Powered Education Platform'}
                 </div>

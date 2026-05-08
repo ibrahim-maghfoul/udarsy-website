@@ -61,7 +61,7 @@ export function BelieveSection() {
                 initial={{ opacity: 0, y: -8 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="relative z-10 self-center mt-2 mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/40 bg-white/20 text-[12px] font-semibold text-dark/80 shadow-[0_0_12px_rgba(58,170,106,0.15)] whitespace-nowrap"
+                className="relative z-10 self-center mt-2 mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/40 bg-white/20 text-[13px] font-semibold text-dark/80 shadow-[0_0_12px_rgba(58,170,106,0.15)] whitespace-nowrap"
             >
                 <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
                 {t('kicker')}
@@ -103,11 +103,10 @@ export function BelieveSection() {
                                 }
                             />
                         </div>
-                        {/* Green ribbon wrapping around the button corner */}
-                        <div className="absolute inset-0 rounded-[28px] overflow-hidden pointer-events-none z-20">
-                            <div className="absolute top-[18px] left-[-14px] w-[52px] py-[4px] bg-[#3aaa6a] shadow-[0_2px_12px_rgba(58,170,106,0.7)] text-white text-[8px] font-black text-center tracking-[0.18em] uppercase -rotate-45">
-                                SOON
-                            </div>
+                        {/* SOON badge — pill centered below the button */}
+                        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 pointer-events-none z-20 flex items-center gap-1 px-2.5 py-[3px] bg-[#3aaa6a] shadow-[0_2px_10px_rgba(58,170,106,0.6)] rounded-full whitespace-nowrap">
+                            <span className="w-1 h-1 rounded-full bg-white/70 animate-pulse" />
+                            <span className="text-white text-[9px] font-black tracking-[0.16em] uppercase">SOON</span>
                         </div>
                     </div>
                 </div>

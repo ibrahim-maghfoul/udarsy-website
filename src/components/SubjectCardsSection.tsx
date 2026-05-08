@@ -439,7 +439,7 @@ export function SubjectCardsSection() {
       <div style={{ position:"relative", zIndex:2, textAlign:"center", padding: isMobile ? "48px 20px 0" : "72px 24px 0" }}>
         <motion.div
           initial={{ opacity:0, y:-10 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ duration:0.5 }}
-          style={{ display:"inline-flex", alignItems:"center", gap:7, padding:"5px 16px", borderRadius:999, border:"1.5px solid rgba(58,170,106,0.22)", background:"rgba(255,255,255,0.72)", backdropFilter:"blur(10px)", fontSize:10.5, fontWeight:800, color:"rgba(58,170,106,0.85)", letterSpacing:"0.04em", boxShadow:"0 2px 12px rgba(58,170,106,0.10)", marginBottom:20 }}
+          style={{ display:"inline-flex", alignItems:"center", gap:7, padding:"5px 16px", borderRadius:999, border:"1.5px solid rgba(58,170,106,0.22)", background:"rgba(255,255,255,0.72)", backdropFilter:"blur(10px)", fontSize:13, fontWeight:800, color:"rgba(58,170,106,0.85)", letterSpacing:"0.04em", boxShadow:"0 2px 12px rgba(58,170,106,0.10)", marginBottom:20 }}
         >
           <span style={{ width:6, height:6, borderRadius:"50%", background:"#3aaa6a", display:"inline-block", boxShadow:"0 0 0 3px rgba(58,170,106,0.25)" }} />
           {t("badge")}

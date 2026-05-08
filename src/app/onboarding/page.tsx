@@ -89,6 +89,10 @@ export default function OnboardingPage() {
     const wizardStepIcons = [<School size={26} />, <GraduationCap size={26} />, <BookOpen size={26} />];
 
     useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [currentStep]);
+
+    useEffect(() => {
         if (currentStep > 0) fetchOptions();
     }, [currentStep, selections.schoolId, selections.levelId]);
 
