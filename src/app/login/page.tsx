@@ -56,7 +56,7 @@ export default function LoginPage() {
                 className="w-full max-w-md space-y-8 bg-white p-10 rounded-[40px] border border-green/10 shadow-2xl shadow-green/5"
             >
                 <div className="text-center space-y-2">
-                    <h1 className="text-4xl font-black text-dark tracking-tight">{t('signin_title')}</h1>
+                    <h1 className="text-2xl md:text-4xl font-black text-dark tracking-tight">{t('signin_title')}</h1>
                     <p className="text-muted-foreground">{t('signin_desc')}</p>
                 </div>
 

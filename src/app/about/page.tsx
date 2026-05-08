@@ -145,7 +145,7 @@ export default function AboutPage() {
                         <Sparkles size={16} />
                         {t('story')}
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-dark leading-tight">
+                    <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight text-dark leading-tight">
                         {t('title')}{" "}
                         <span className="text-green relative">
                             {t('title_highlight')}
@@ -180,7 +180,7 @@ export default function AboutPage() {
                             transition={{ delay: i * 0.1 }}
                             className="text-center space-y-1"
                         >
-                            <div className="text-4xl md:text-5xl font-black text-dark">{s.value}</div>
+                            <div className="text-2xl md:text-4xl lg:text-5xl font-black text-dark">{s.value}</div>
                             <div className="text-sm text-muted-foreground font-semibold uppercase tracking-wide">{s.label}</div>
                         </motion.div>
                     ))}
@@ -194,7 +194,7 @@ export default function AboutPage() {
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green/10 text-green text-sm font-bold">
                             <Target size={16} /> {t('mission_kicker')}
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-bold text-dark leading-tight">
+                        <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-dark leading-tight">
                             {t('mission_title')}
                         </h2>
                         <p className="text-lg text-muted-foreground leading-relaxed">
@@ -236,7 +236,7 @@ export default function AboutPage() {
                 </div>
                 <div className="max-w-6xl mx-auto relative z-10">
                     <motion.div {...fadeUp} className="text-center space-y-4 mb-16">
-                        <h2 className="text-4xl md:text-5xl font-bold text-white">{t('values_title')}</h2>
+                        <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white">{t('values_title')}</h2>
                     </motion.div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {values.map((v, i) => (
@@ -366,7 +366,7 @@ export default function AboutPage() {
                     />
 
                     <div className="relative z-10 space-y-8">
-                        <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">{t('cta_title')}</h2>
+                        <h2 className="text-2xl md:text-3xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">{t('cta_title')}</h2>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Link href="/explore" className="w-full sm:w-auto px-10 py-4 bg-white text-green font-bold rounded-2xl hover:scale-105 transition-all shadow-xl flex items-center justify-center gap-2">
                                 {t('start_btn')} <ArrowRight size={20} />

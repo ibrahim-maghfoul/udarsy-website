@@ -144,7 +144,7 @@ export default function GradesCalculatorPage() {
                 <div className="bg-white rounded-3xl border border-green/10 shadow-sm p-6 mb-6 flex items-center justify-between">
                     <div>
                         <p className="text-xs font-bold text-dark/40 uppercase tracking-widest mb-1">Your Average (GPA)</p>
-                        <p className={`text-6xl font-extrabold ${gpa === '—' ? 'text-dark/15' : 'text-green'}`}>{gpa}</p>
+                        <p className={`text-4xl md:text-6xl font-extrabold ${gpa === '—' ? 'text-dark/15' : 'text-green'}`}>{gpa}</p>
                         <p className="text-dark/30 text-sm mt-1">out of 20</p>
                     </div>
                     {mention && (

@@ -2,7 +2,6 @@
 
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useAuth } from '@/contexts/AuthContext';
-import api from '@/lib/api';
 import { useEffect, useRef } from 'react';
 
 /**

@@ -111,7 +111,7 @@ export default function PrivacyPage() {
                         <Shield size={16} />
                         Legal
                     </div>
-                    <h1 className="text-5xl font-extrabold tracking-tight text-dark">{t('title')}</h1>
+                    <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-dark">{t('title')}</h1>
                     <p className="text-muted-foreground">{t('last_updated')}: February 25, 2025</p>
                     <div className="max-w-2xl mx-auto bg-green/5 border border-green/15 rounded-[24px] p-6 text-left">
                         <p className="text-sm text-dark/70 leading-relaxed">

@@ -195,7 +195,7 @@ export default function ChatPage() {
         if (!isProfileComplete) return;
 
         const currentUserId = user.id || (user as { _id?: string })._id;
-        const baseURL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:5000";
+        const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") || "http://localhost:5000";
         const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
         if (activeTab !== "general") {

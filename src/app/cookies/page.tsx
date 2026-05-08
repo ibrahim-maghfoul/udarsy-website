@@ -50,7 +50,7 @@ export default function CookiesPage() {
                         <Cookie size={16} />
                         Legal
                     </div>
-                    <h1 className="text-4xl font-black tracking-tight text-[#1a3a2a]">Cookie Policy</h1>
+                    <h1 className="text-2xl md:text-4xl font-black tracking-tight text-[#1a3a2a]">Cookie Policy</h1>
                     <p className="text-muted-foreground text-sm">Last Updated: February 25, 2025</p>
                     <div className="max-w-2xl mx-auto bg-white/50 backdrop-blur-[12px] border border-white/30 rounded-[24px] p-6 text-left shadow-[0_20px_60px_rgba(0,0,0,0.08),_0_4px_16px_rgba(0,0,0,0.04)]">
                         <p className="text-sm text-[#1a3a2a]/70 leading-relaxed">

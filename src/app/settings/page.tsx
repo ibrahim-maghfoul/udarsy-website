@@ -157,7 +157,7 @@ export default function SettingsPage() {
                         <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
                         {t("back")}
                     </button>
-                    <h1 className="text-4xl font-bold tracking-tight text-dark flex items-center gap-4">
+                    <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-dark flex items-center gap-4">
                         <Settings size={36} className="text-green" />
                         {t("title")}
                     </h1>
@@ -228,7 +228,7 @@ export default function SettingsPage() {
                                                     type="text"
                                                     value={formData.displayName}
                                                     onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                                                    className="w-full px-5 py-3 rounded-2xl bg-green/5 border border-transparent focus:bg-white focus:border-green outline-none font-medium transition-all"
+                                                    className={`w-full px-5 py-3 rounded-2xl border outline-none font-medium transition-all focus:bg-white focus:border-green ${!formData.displayName ? "bg-red-50 border-red-100" : "bg-green/5 border-transparent"}`}
                                                 />
                                             </div>
                                             <div className="space-y-2">
@@ -239,7 +239,7 @@ export default function SettingsPage() {
                                                     type="text"
                                                     value={formData.nickname}
                                                     onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
-                                                    className="w-full px-5 py-3 rounded-2xl bg-green/5 border border-transparent focus:bg-white focus:border-green outline-none font-medium transition-all"
+                                                    className={`w-full px-5 py-3 rounded-2xl border outline-none font-medium transition-all focus:bg-white focus:border-green ${!formData.nickname ? "bg-red-50 border-red-100" : "bg-green/5 border-transparent"}`}
                                                     placeholder="Your nickname"
                                                 />
                                             </div>
@@ -262,7 +262,7 @@ export default function SettingsPage() {
                                                     type="tel"
                                                     value={formData.phone}
                                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                                    className="w-full px-5 py-3 rounded-2xl bg-green/5 border border-transparent focus:bg-white focus:border-green outline-none font-medium transition-all"
+                                                    className={`w-full px-5 py-3 rounded-2xl border outline-none font-medium transition-all focus:bg-white focus:border-green ${!formData.phone ? "bg-red-50 border-red-100" : "bg-green/5 border-transparent"}`}
                                                     placeholder="+212600000000"
                                                 />
                                             </div>
@@ -275,7 +275,7 @@ export default function SettingsPage() {
                                                     max="80"
                                                     value={formData.age}
                                                     onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                                                    className="w-full px-5 py-3 rounded-2xl bg-green/5 border border-transparent focus:bg-white focus:border-green outline-none font-medium transition-all"
+                                                    className={`w-full px-5 py-3 rounded-2xl border outline-none font-medium transition-all focus:bg-white focus:border-green ${!formData.age ? "bg-red-50 border-red-100" : "bg-green/5 border-transparent"}`}
                                                 />
                                             </div>
                                             <div className="space-y-2 relative gender-dropdown-container">
@@ -289,7 +289,7 @@ export default function SettingsPage() {
                                                             setShowGenderDropdown(!showGenderDropdown);
                                                             setShowCityDropdown(false)
                                                         }}
-                                                        className="w-full px-5 py-3 rounded-2xl bg-green/5 border border-transparent focus:bg-white focus:border-green outline-none font-medium transition-all text-left flex items-center justify-between"
+                                                        className={`w-full px-5 py-3 rounded-2xl border focus:bg-white focus:border-green outline-none font-medium transition-all text-left flex items-center justify-between ${!formData.gender ? "bg-red-50 border-red-100" : "bg-green/5 border-transparent"}`}
                                                     >
                                                         <span className="flex items-center gap-2">
                                                             {formData.gender ? (
@@ -343,7 +343,7 @@ export default function SettingsPage() {
                                                     type="text"
                                                     value={formData.schoolName}
                                                     onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
-                                                    className="w-full px-5 py-3 rounded-2xl bg-green/5 border border-transparent focus:bg-white focus:border-green outline-none font-medium transition-all"
+                                                    className={`w-full px-5 py-3 rounded-2xl border outline-none font-medium transition-all focus:bg-white focus:border-green ${!formData.schoolName ? "bg-red-50 border-red-100" : "bg-green/5 border-transparent"}`}
                                                     placeholder="Your school name"
                                                 />
                                             </div>
@@ -365,7 +365,7 @@ export default function SettingsPage() {
                                                             setShowCityDropdown(true);
                                                             setShowGenderDropdown(false);
                                                         }}
-                                                        className="w-full px-5 py-3 rounded-2xl bg-green/5 border border-transparent focus:bg-white focus:border-green outline-none font-medium transition-all"
+                                                        className={`w-full px-5 py-3 rounded-2xl border outline-none font-medium transition-all focus:bg-white focus:border-green ${!formData.city ? "bg-red-50 border-red-100" : "bg-green/5 border-transparent"}`}
                                                         placeholder={t("select_city") || "Select your city"}
                                                     />
                                                     <ChevronRight size={18} className={`absolute right-5 top-1/2 -translate-y-1/2 text-dark/20 transition-transform duration-300 ${showCityDropdown ? 'rotate-90 text-green' : 'rotate-0'}`} />

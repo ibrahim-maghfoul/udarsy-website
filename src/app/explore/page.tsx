@@ -118,7 +118,7 @@ function GuestLevelSelector({ onSelect }: { onSelect: (guidanceId: string, title
     ];
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 pt-24 md:pt-32 bg-[#fafbfc]">
+        <div className="min-h-screen flex flex-col items-center justify-start px-4 py-8 pt-6 md:pt-32 bg-[#fafbfc]">
             <div className="w-full max-w-md space-y-4">
 
                 {/* Login banner */}
@@ -309,10 +309,10 @@ export default function ExplorePage() {
     return (
         <div className="min-h-screen bg-white animate-slide-up">
             {/* Header */}
-            <header className="bg-green/5 border-b border-green/10 pt-6 md:pt-32 pb-16 px-6">
+            <header className="bg-green/5 border-b border-green/10 pt-4 md:pt-32 pb-8 md:pb-16 px-6">
                 <div className="max-w-7xl mx-auto space-y-6">
                     <div className="space-y-2">
-                        <h1 className="text-4xl font-bold text-dark">{nt('welcome')}, {user?.displayName?.split(' ')[0] || t('student')}!</h1>
+                        <h1 className="text-2xl md:text-4xl font-bold text-dark">{nt('welcome')}, {user?.displayName?.split(' ')[0] || t('student')}!</h1>
                         <p className="text-muted-foreground text-lg">{t('desc')}</p>
                     </div>
 

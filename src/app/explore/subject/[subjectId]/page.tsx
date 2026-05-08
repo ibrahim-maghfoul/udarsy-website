@@ -65,7 +65,7 @@ export default function SubjectLessonsPage() {
 
             <main className="max-w-6xl mx-auto pt-4 md:pt-12 pb-[120px] md:pb-32 px-4 md:px-6">
                 {loading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" dir={isAr ? "rtl" : undefined}>
                         {Array(6).fill(0).map((_, i) => (
                             <div
                                 key={i}
@@ -75,7 +75,7 @@ export default function SubjectLessonsPage() {
                         ))}
                     </div>
                 ) : lessons.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" dir={isAr ? "rtl" : undefined}>
                         {lessons.map((lesson: any, index: number) => {
                             const progress = user?.progress?.lessons?.find(
                                 (l: any) => l.lessonId === (lesson._id || lesson.id)

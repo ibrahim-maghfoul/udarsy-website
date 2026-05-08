@@ -4,6 +4,17 @@ import { MONTHS, getMonthName } from "../lib/helpers";
 import { useLocale } from "next-intl";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 
+function useIsMobile() {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  return mobile;
+}
+
 
 interface DatePickerProps {
   value: string;        // YYYY-MM-DD
@@ -28,6 +39,7 @@ function fmtDisplay(str: string) {
 
 export default function DatePicker({ value, onChange, placeholder = 'Pick a date', style, dropdownAlign = 'left' }: DatePickerProps) {
   const locale = useLocale();
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const [cursor, setCursor] = useState(() => {
     if (value) { const d = new Date(value + 'T00:00'); d.setDate(1); return d; }
@@ -122,11 +134,26 @@ export default function DatePicker({ value, onChange, placeholder = 'Pick a date
         <ChevronDown size={12} className="goto-caret" />
       </div>
 
+      {/* Mobile backdrop */}
+      {open && isMobile && (
+        <div
+          className="fixed inset-0 bg-black/20 z-[998]"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
       {/* Dropdown */}
       {open && (
         <div
           className="goto-picker open"
-          style={{
+          style={isMobile ? {
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 'min(288px, 90vw)',
+            zIndex: 999,
+          } : {
             position: 'absolute',
             top: 'calc(100% + 8px)',
             ...(dropdownAlign === 'right' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }),

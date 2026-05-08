@@ -299,6 +299,12 @@
   transform: translateX(3px);
 }
 
+/* ─── RTL support ─── */
+[dir="rtl"] .lesson-v2-bg-number { right: auto; left: 14px; }
+[dir="rtl"] .lesson-v2-title { text-align: right; }
+[dir="rtl"] .lesson-v2-header { flex-direction: row-reverse; }
+[dir="rtl"] .lesson-v2-chips { flex-direction: row-reverse; }
+
 /* ─── Responsive ─── */
 @media (max-width: 640px) {
   .lesson-card-v2 {

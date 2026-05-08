@@ -52,7 +52,7 @@ const renderBlock = (block: any, index: number) => {
             return (
                 <TagName key={index} dir={isAr ? "rtl" : "ltr"}
                     className={`${isHeading ? "text-green font-black mt-16 mb-8 tracking-tight leading-[1.2]" : "text-dark/80 leading-[1.8] mb-8"}
-                        ${block.subtype === "h1" || block.subtype === "h2" ? "text-6xl" : block.subtype === "h3" ? "text-5xl" : block.subtype === "h4" ? "text-4xl" : block.subtype === "h5" ? "text-3xl" : block.subtype === "h6" ? "text-2xl" : "text-xl"}
+                        ${block.subtype === "h1" || block.subtype === "h2" ? "text-3xl md:text-6xl" : block.subtype === "h3" ? "text-2xl md:text-5xl" : block.subtype === "h4" ? "text-xl md:text-4xl" : block.subtype === "h5" ? "text-xl md:text-3xl" : block.subtype === "h6" ? "text-lg md:text-2xl" : "text-base md:text-xl"}
                         ${isAr ? "text-right" : "text-left"}`}
                     style={{ textAlign: (blockStyle.align as any) || (isAr ? "right" : "left") }}>
                     {renderText(block.text, blockStyle)}

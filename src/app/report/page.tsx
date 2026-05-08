@@ -84,7 +84,7 @@ export default function ReportPage() {
                         <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
                         Support Center
                     </div>
-                    <h1 className="text-5xl font-extrabold tracking-tight text-dark">How can we improve?</h1>
+                    <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-dark">How can we improve?</h1>
                     <p className="text-xl text-muted-foreground">Your feedback helps us build a better learning platform for everyone.</p>
                 </div>
 

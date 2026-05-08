@@ -88,7 +88,7 @@ export default function ContactPage() {
                         <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
                         {t('touch')}
                     </div>
-                    <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-dark">
+                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-dark">
                         {t('title')}<span className="text-green">{t('title_highlight')}</span>
                     </h1>
                     <p className="text-xl text-muted-foreground max-w-xl mx-auto">

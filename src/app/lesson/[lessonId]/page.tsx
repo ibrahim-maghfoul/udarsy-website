@@ -25,6 +25,8 @@ import {
     RefreshCw,
     Globe,
     BotMessageSquare,
+    X,
+    ExternalLink,
 } from "lucide-react";
 import api from "@/lib/api";
 import Link from "next/link";
@@ -81,6 +83,9 @@ export default function LessonPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [nextLesson, setNextLesson] = useState<any>(null);
     const [activeResource, setActiveResource] = useState<any>(null);
+
+    // Mobile resource action menu
+    const [mobileMenu, setMobileMenu] = useState<{ resource: any; type: string; aiHref: string; isPdf: boolean } | null>(null);
 
     // AI explanation state
     const [aiAnswer, setAiAnswer] = useState<string | null>(null);
@@ -498,41 +503,38 @@ export default function LessonPage() {
     );
 
     // Resource list renderer — avoids repeating the same JSX 5 times
-    // On mobile, PDF-type resources show an AI icon leading to the AI explain page.
     const renderResourceList = (items: any[], type: string, label: string, Icon: any) => {
         if (!items?.length) return null;
         const isPdfType = type === 'coursesPdf' || type === 'exercices' || type === 'exams' || type === 'resourses';
         return (
             <div className="space-y-2">
-                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{label}</h4>
+                <h4 className={`text-xs font-bold text-muted-foreground uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'}`}>{label}</h4>
                 {items.map((res: any, idx: number) => {
                     const id = safeId(res);
                     const isCompleted = localCompletedResources.includes(id);
                     const isActive = activeResource?.url === res.url;
                     const aiHref = `/lesson/${lessonId}/ai-explain?docId=${encodeURIComponent(id)}&title=${encodeURIComponent(res.title || '')}&url=${encodeURIComponent(res.url || '')}&lessonTitle=${encodeURIComponent(lesson?.title || '')}`;
+                    const handleClick = () => {
+                        const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+                        if (isMobile) {
+                            setMobileMenu({ resource: res, type, aiHref, isPdf: isPdfType });
+                        } else {
+                            handleSelectResource(res, type);
+                        }
+                    };
                     return (
                         <div
                             key={idx}
-                            className={`flex items-center gap-2 rounded-2xl border transition-all duration-150 ${isActive ? 'bg-white border-green shadow-xl shadow-green/5' : 'bg-white/50 border-green/5 hover:bg-white hover:border-green/20'}`}
+                            className={`flex items-center gap-2 rounded-2xl border transition-all duration-150 ${isRTL ? 'flex-row-reverse' : ''} ${isActive ? 'bg-white border-green shadow-xl shadow-green/5' : 'bg-white/50 border-green/5 hover:bg-white hover:border-green/20'}`}
                         >
                             <button
-                                onClick={() => handleSelectResource(res, type)}
-                                className="flex items-center gap-3 p-4 text-left flex-1 min-w-0"
+                                onClick={handleClick}
+                                className={`flex items-center gap-3 p-4 ${isRTL ? 'text-right flex-row-reverse' : 'text-left'} flex-1 min-w-0`}
                             >
                                 <Icon className={isActive ? 'text-green' : 'text-muted-foreground'} size={20} />
                                 <span className="font-semibold text-sm line-clamp-1 flex-1">{res.title}</span>
                                 {user && isCompleted && <CheckCircle2 size={16} className="text-green flex-shrink-0" />}
                             </button>
-                            {isPdfType && (
-                                <Link
-                                    href={aiHref}
-                                    onClick={e => e.stopPropagation()}
-                                    className="md:hidden shrink-0 mr-2 flex items-center justify-center w-9 h-9 rounded-[12px] bg-green/8 hover:bg-green/15 border border-green/12 transition-all active:scale-95"
-                                    title="AI Explain"
-                                >
-                                    <BotMessageSquare size={16} className="text-green" />
-                                </Link>
-                            )}
                         </div>
                     );
                 })}
@@ -548,6 +550,59 @@ export default function LessonPage() {
 
     return (
         <>
+        {/* Mobile resource action bottom-sheet */}
+        {mobileMenu && (
+            <div
+                className="fixed inset-0 z-[300] lg:hidden flex items-end"
+                onClick={() => setMobileMenu(null)}
+            >
+                <div className="absolute inset-0 bg-black/30" />
+                <div
+                    className="relative w-full bg-white rounded-t-[28px] p-6 pb-8 shadow-2xl space-y-3"
+                    onClick={e => e.stopPropagation()}
+                >
+                    {/* Handle */}
+                    <div className="w-10 h-1 bg-dark/10 rounded-full mx-auto mb-4" />
+                    <p className={`font-bold text-dark text-sm line-clamp-2 mb-1 ${isRTL ? 'text-right' : 'text-left'}`}>{mobileMenu.resource.title}</p>
+                    {mobileMenu.isPdf && (
+                        <Link
+                            href={mobileMenu.aiHref}
+                            className="flex items-center gap-3 w-full p-4 bg-green/8 border border-green/15 rounded-2xl font-bold text-dark text-sm active:scale-[0.98] transition-transform"
+                            onClick={() => {
+                                if (user) {
+                                    trackResourceView({ lessonId, subjectId: lesson?.subjectId || '', resourceId: safeId(mobileMenu.resource), resourceType: mobileMenu.type });
+                                    refreshUser();
+                                }
+                                setMobileMenu(null);
+                            }}
+                        >
+                            <BotMessageSquare size={20} className="text-green flex-shrink-0" />
+                            {t('ai_explain_btn')}
+                        </Link>
+                    )}
+                    <button
+                        className="flex items-center gap-3 w-full p-4 bg-dark/5 border border-dark/8 rounded-2xl font-bold text-dark text-sm active:scale-[0.98] transition-transform"
+                        onClick={() => {
+                            if (mobileMenu.resource.url) window.open(mobileMenu.resource.url, '_blank', 'noopener,noreferrer');
+                            if (user) {
+                                trackResourceView({ lessonId, subjectId: lesson?.subjectId || '', resourceId: safeId(mobileMenu.resource), resourceType: mobileMenu.type });
+                                refreshUser();
+                            }
+                            setMobileMenu(null);
+                        }}
+                    >
+                        <ExternalLink size={20} className="text-dark/60 flex-shrink-0" />
+                        {t('view_doc') || 'View Document'}
+                    </button>
+                    <button
+                        className="flex items-center justify-center w-full p-3 text-sm font-medium text-dark/50 active:bg-dark/5 rounded-2xl transition-colors"
+                        onClick={() => setMobileMenu(null)}
+                    >
+                        <X size={16} className="mr-1.5" /> Cancel
+                    </button>
+                </div>
+            </div>
+        )}
         <div className="min-h-screen bg-white pb-20 md:pb-0 animate-slide-up">
 
 
@@ -555,11 +610,19 @@ export default function LessonPage() {
             <header className="bg-white border-b border-green/10 md:pt-32 pt-4 pb-4 md:pb-8 px-6 relative z-10">
                 <div className={`max-w-7xl mx-auto flex flex-col ${isRTL ? 'md:flex-row-reverse' : 'md:flex-row'} md:items-center justify-between gap-4`}>
                     <div className="space-y-2">
+                        {/* Mobile: back button + title on one line */}
+                        <div className={`flex items-center gap-3 md:hidden ${isRTL ? 'flex-row-reverse' : ''}`}>
+                            <Link href="/explore" className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-green/8 border border-green/15 text-green hover:bg-green/15 transition-colors active:scale-95">
+                                {isRTL ? <ChevronRight size={18} /> : <ArrowLeft size={18} />}
+                            </Link>
+                            <h1 className={`text-lg font-bold text-dark leading-tight line-clamp-2 ${isRTL ? 'text-right' : 'text-left'}`}>{lesson.title}</h1>
+                        </div>
+                        {/* Desktop: back link above, title below */}
                         <Link href="/explore" className={`hidden md:inline-flex btn-back ${isRTL ? 'flex-row-reverse' : ''}`}>
                             {isRTL ? <ChevronRight size={14} className="btn-back-arrow" /> : <ArrowLeft size={14} className="btn-back-arrow" />}
                             {t("back_subjects")}
                         </Link>
-                        <div className={`flex flex-wrap items-center gap-4 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <div className={`hidden md:flex flex-wrap items-center gap-4 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             <h1 className="text-3xl font-bold text-dark">{lesson.title}</h1>
                         </div>
                     </div>

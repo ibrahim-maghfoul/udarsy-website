@@ -6,7 +6,7 @@ import {
 } from "framer-motion";
 import type { MotionValue } from "framer-motion";
 import { memo, useMemo, useRef, useCallback, useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { DownloadButton } from "@/components/DownloadButton";
 import { BookOpen } from "lucide-react";
 
@@ -44,20 +44,21 @@ const CARD_W = 280;
 const CARD_H  = 195;
 
 // ─── Card inner ────────────────────────────────────────────────────────────────
-function CardInner({ card, green, labels }: { card: Card; green: boolean; labels: Labels }) {
+function CardInner({ card, green, labels, locale }: { card: Card; green: boolean; labels: Labels; locale: string }) {
   const tex        = TEXTURE[card.texture];
   const textPrimary = green ? "#ffffff" : "#1a3a2a";
   const textMuted   = green ? "rgba(255,255,255,0.65)" : "rgba(26,58,42,0.38)";
   const accentText  = green ? "rgba(255,255,255,0.65)" : "rgba(58,170,106,0.6)";
+  const isRTL = locale === "ar";
 
   return (
     <>
       <div aria-hidden style={{ position:"absolute", inset:0, pointerEvents:"none", zIndex:0, backgroundImage:tex.image, backgroundSize:tex.size, backgroundPosition:tex.position??"0 0", opacity:green?0.10:0.18, borderRadius:"inherit" }} />
       <div style={{ height:3, background:green?"linear-gradient(90deg,rgba(255,255,255,0.3) 0%,rgba(255,255,255,0.65) 100%)":"linear-gradient(90deg,#3aaa6a 0%,#5dc98a 55%,#97e6be 100%)", position:"relative", zIndex:1 }} />
-      <div style={{ padding:"15px 17px 17px", position:"relative", zIndex:1 }}>
-        <div style={{ fontSize:8.5, fontWeight:900, textTransform:"uppercase", letterSpacing:"0.11em", color:accentText, marginBottom:5 }}>{labels.eyebrow}</div>
-        <div style={{ fontSize:17, fontWeight:900, color:textPrimary, letterSpacing:"-0.035em", lineHeight:1.15 }}>{card.label}</div>
-        <div style={{ fontSize:11, fontWeight:700, color:green?"rgba(255,255,255,0.5)":"rgba(26,58,42,0.35)", marginTop:2, marginBottom:13, direction:"rtl", textAlign:"right", fontFamily:"var(--font-cairo,sans-serif)" }}>{card.sub}</div>
+      <div style={{ padding:"15px 17px 17px", position:"relative", zIndex:1, direction: isRTL ? "rtl" : "ltr" }}>
+        <div style={{ fontSize:8.5, fontWeight:900, textTransform:"uppercase", letterSpacing:"0.11em", color:accentText, marginBottom:5, textAlign: isRTL ? "right" : "left" }}>{labels.eyebrow}</div>
+        <div style={{ fontSize:17, fontWeight:900, color:textPrimary, letterSpacing:"-0.035em", lineHeight:1.15, textAlign: isRTL ? "right" : "left" }}>{isRTL ? card.sub : card.label}</div>
+        <div style={{ fontSize:11, fontWeight:700, color:green?"rgba(255,255,255,0.5)":"rgba(26,58,42,0.35)", marginTop:2, marginBottom:13, direction:"ltr", textAlign: isRTL ? "right" : "left", fontFamily:"var(--font-cairo,sans-serif)" }}>{isRTL ? card.label : card.sub}</div>
         <div style={{ height:1, background:green?"rgba(255,255,255,0.18)":"rgba(58,170,106,0.09)", marginBottom:12 }} />
         <div style={{ display:"flex", gap:5, marginBottom:14 }}>
           {([
@@ -95,12 +96,13 @@ function CardInner({ card, green, labels }: { card: Card; green: boolean; labels
 
 // ─── Single card ───────────────────────────────────────────────────────────────
 const SubjectCard = memo(function SubjectCard({
-  card, mouseX, mouseY, sectionSizeRef, flipped, labels, floating,
+  card, mouseX, mouseY, sectionSizeRef, flipped, labels, floating, locale,
 }: {
   card: Card;
   mouseX: MotionValue<number>;
   mouseY: MotionValue<number>;
   sectionSizeRef: React.MutableRefObject<{ w: number; h: number }>;
+  locale: string;
   flipped: boolean;
   labels: Labels;
   floating: boolean;
@@ -164,7 +166,7 @@ const SubjectCard = memo(function SubjectCard({
         <motion.div style={{ x:totalX, y:totalY, opacity, scale }}>
           <div style={{ animation:`subjectFloat ${card.dur}s ease-in-out ${card.delay}s infinite`, willChange: floating ? "transform" : "auto", animationPlayState: floating ? 'running' : 'paused' }}>
             <div style={{ width:"clamp(160px,18vw,280px)", borderRadius:18, background:"#ffffff", border:"1.5px solid rgba(58,170,106,0.13)", boxShadow:shadow, overflow:"hidden", position:"relative" }}>
-              <CardInner card={card} green={false} labels={labels} />
+              <CardInner card={card} green={false} labels={labels} locale={locale} />
               <AnimatePresence>
                 {flipped && (
                   <motion.div
@@ -175,7 +177,7 @@ const SubjectCard = memo(function SubjectCard({
                     transition={{ duration:0.36, ease:"easeOut" }}
                     style={{ position:"absolute", inset:0, background:"#3aaa6a", zIndex:4, borderRadius:"inherit", overflow:"hidden" }}
                   >
-                    <CardInner card={card} green={true} labels={labels} />
+                    <CardInner card={card} green={true} labels={labels} locale={locale} />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -281,6 +283,7 @@ function ArcTextBand({ active }: { active: boolean }) {
 // ─── Section ───────────────────────────────────────────────────────────────────
 export function SubjectCardsSection() {
   const t = useTranslations("SubjectCards");
+  const locale = useLocale();
 
   const labels = useMemo<Labels>(() => ({
     eyebrow:  t("subject_eyebrow"),
@@ -523,6 +526,7 @@ export function SubjectCardsSection() {
               flipped={flippedId === card.id}
               labels={labels}
               floating={floating}
+              locale={locale}
             />
           ))}
         </div>

@@ -44,7 +44,7 @@ export default function ServicesPage() {
                             </div>
                             <span className="text-xs font-black uppercase tracking-widest text-green/60">Official Hub</span>
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black text-dark">Services &amp; Info</h1>
+                        <h1 className="text-2xl md:text-4xl lg:text-5xl font-black text-dark">Services &amp; Info</h1>
                         <p className="text-dark/40 text-sm">Official educational resources and school information for Morocco.</p>
                     </div>
                     <Link

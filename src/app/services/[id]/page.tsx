@@ -171,7 +171,7 @@ export default function ServiceDetailPage() {
                             <div className="flex items-center justify-center md:justify-start gap-2">
                                 <span className="px-4 py-1 rounded-full bg-green text-white text-xs font-black uppercase tracking-widest">{service.category}</span>
                             </div>
-                            <h1 className="text-4xl md:text-6xl font-black text-dark leading-tight">{service.title}</h1>
+                            <h1 className="text-3xl md:text-4xl lg:text-6xl font-black text-dark leading-tight">{service.title}</h1>
                             <p className="text-xl text-muted-foreground">{service.description}</p>
                         </div>
                     </div>

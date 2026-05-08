@@ -218,7 +218,7 @@ export default function ContributionsPage() {
                             <motion.h1
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                className="text-4xl md:text-5xl font-black text-[#112A46] tracking-tight mb-2 pt-4"
+                                className="text-2xl md:text-4xl lg:text-5xl font-black text-[#112A46] tracking-tight mb-2 pt-4"
                             >
                                 {t("page_title")} <span className="text-green">{t("page_title_highlight")}</span>
                             </motion.h1>

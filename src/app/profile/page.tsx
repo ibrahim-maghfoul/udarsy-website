@@ -537,7 +537,7 @@ export default function ProfilePage() {
 
                             <div className="text-center md:text-left space-y-3">
                                 <div className="flex flex-col md:flex-row items-center md:items-center gap-2.5">
-                                    <h1 className="text-4xl font-bold text-dark">{user?.displayName}</h1>
+                                    <h1 className="text-2xl md:text-4xl font-bold text-dark">{user?.displayName}</h1>
                                     {/* Plan badge */}
                                     {(() => {
                                         const plan = user?.subscription?.plan;

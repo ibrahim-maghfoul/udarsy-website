@@ -547,7 +547,15 @@ export default function ProgressCharts({
   totalResources = 0,
 }: ProgressChartsProps) {
   const [replayKey, setReplayKey] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const locale = useLocale();
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   void setReplayKey; // replayKey available for future chart replay feature
 
@@ -603,7 +611,7 @@ export default function ProgressCharts({
           totalResources={effectiveTotal}
           locale={locale}
         />
-        <StudyTimeBarChart key={`bar-${replayKey}`} resetKey={replayKey} weekData={weekData} locale={locale} />
+        <StudyTimeBarChart key={`bar-${replayKey}`} resetKey={replayKey} weekData={isMobile ? weekData.slice(-3) : weekData} locale={locale} />
       </div>
     </div>
   );

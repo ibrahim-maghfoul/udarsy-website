@@ -69,7 +69,7 @@ export default function TeamMemberPage() {
         return (
             <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-6">
                 <div className="text-center">
-                    <h1 className="text-4xl font-bold text-dark">Member Not Found</h1>
+                    <h1 className="text-2xl md:text-4xl font-bold text-dark">Member Not Found</h1>
                     <button onClick={() => router.push('/about')} className="mt-4 px-6 py-3 bg-green text-white rounded-xl font-bold">
                         Go Back
                     </button>
@@ -91,14 +91,14 @@ export default function TeamMemberPage() {
                     transition={{ duration: 0.5 }}
                     className="flex flex-col md:flex-row gap-10 items-start"
                 >
-                    <div className={`w-40 h-40 md:w-56 md:h-56 shrink-0 rounded-[2rem] flex items-center justify-center text-white text-5xl md:text-7xl font-black shadow-2xl ${member.color}`}>
+                    <div className={`w-40 h-40 md:w-56 md:h-56 shrink-0 rounded-[2rem] flex items-center justify-center text-white text-3xl md:text-5xl lg:text-7xl font-black shadow-2xl ${member.color}`}>
                         {member.initials}
                     </div>
 
                     <div className="space-y-6 flex-1">
                         <div>
                             <p className="text-green font-bold text-sm tracking-widest uppercase mb-1">{member.role}</p>
-                            <h1 className="text-4xl md:text-5xl font-black text-dark tracking-tight">{member.name}</h1>
+                            <h1 className="text-2xl md:text-4xl lg:text-5xl font-black text-dark tracking-tight">{member.name}</h1>
                         </div>
 
                         <p className="text-lg text-muted-foreground leading-relaxed">

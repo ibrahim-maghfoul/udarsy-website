@@ -219,7 +219,7 @@ export default function OnboardingPage() {
 
     return (
         <div
-            className="min-h-screen flex flex-col items-center justify-center px-4 py-8 pt-28 pb-16"
+            className="min-h-screen flex flex-col items-center justify-start md:justify-center px-4 pt-20 md:pt-28 pb-16"
             style={{ background: "linear-gradient(160deg, #ffffff 0%, #f4fbf7 55%, #eaf5ef 100%)" }}
         >
             <div className="w-full max-w-md space-y-4">
@@ -312,7 +312,7 @@ export default function OnboardingPage() {
                                     </div>
 
                                     {/* Row 1: Birthday | City */}
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {/* Birthday */}
                                         <div className="space-y-1.5">
                                             <label className={labelClass}>
@@ -403,7 +403,7 @@ export default function OnboardingPage() {
                                     </div>
 
                                     {/* Row 2: Gender | Phone */}
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {/* Gender */}
                                         <div className="space-y-1.5" ref={genderRef}>
                                             <label className={labelClass}>{t("gender")}</label>

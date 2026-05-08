@@ -61,14 +61,14 @@ export default function SignupPage() {
     });
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-white to-green/10 p-6 pt-4 md:pt-32">
+        <div className="min-h-screen flex flex-col items-center justify-start md:justify-center bg-gradient-to-br from-white via-white to-green/10 p-4 pt-20 md:pt-32">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md space-y-8 bg-white p-10 rounded-[40px] border border-green/10 shadow-2xl shadow-green/5"
+                className="w-full max-w-md space-y-8 bg-white p-6 md:p-10 rounded-[40px] border border-green/10 shadow-2xl shadow-green/5"
             >
                 <div className="text-center space-y-2">
-                    <h1 className="text-4xl font-black text-dark tracking-tight">{t('signup_title')}</h1>
+                    <h1 className="text-2xl md:text-4xl font-black text-dark tracking-tight">{t('signup_title')}</h1>
                     <p className="text-muted-foreground">{t('signup_desc')}</p>
                 </div>
 

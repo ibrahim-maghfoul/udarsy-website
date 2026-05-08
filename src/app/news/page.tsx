@@ -57,7 +57,7 @@ export default async function NewsPage() {
                         <Tag size={16} />
                         Udarsy {t('title')}
                     </div>
-                    <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-dark leading-tight">
+                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-dark leading-tight">
                         {t('title')}
                     </h1>
                 </div>
