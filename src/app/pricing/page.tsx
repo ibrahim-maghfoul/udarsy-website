@@ -302,7 +302,7 @@ export default function PricingPage() {
         </div>
         <div className="relative z-10 max-w-3xl mx-auto space-y-5">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={false}
             animate={{ opacity: 1, scale: 1 }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[12px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.12)]"
           >
@@ -310,7 +310,7 @@ export default function PricingPage() {
             {pt("kicker")}
           </motion.div>
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="text-[clamp(32px,6vw,60px)] font-bold text-dark tracking-[-0.03em] leading-[1.1]"
@@ -319,7 +319,7 @@ export default function PricingPage() {
             <span className="text-green">{pt("title2")}</span>
           </motion.h1>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="text-[15px] text-gray-500 max-w-lg mx-auto leading-relaxed"
@@ -396,7 +396,7 @@ export default function PricingPage() {
                 <motion.div
                   custom={i}
                   variants={CARD_VARS}
-                  initial="hidden"
+                  initial={false}
                   animate="visible"
                   style={{ rotate: rotation }}
                   className={`relative rounded-3xl px-7 pb-7 pt-10 flex flex-col ${

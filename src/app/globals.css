@@ -18,12 +18,17 @@
   --foreground: var(--color-dark);
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-cairo);
   min-height: 100vh;
   overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Mobile bottom nav safe area */
@@ -228,6 +233,16 @@ body {
 
 .animate-slide-up {
   animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Bottom drawer open-from-bottom animation */
+@keyframes drawer-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.animate-drawer-up {
+  animation: drawer-up 0.35s cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
 @keyframes fadeSlideUp {

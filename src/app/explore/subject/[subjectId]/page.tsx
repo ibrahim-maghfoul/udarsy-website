@@ -34,6 +34,20 @@ export default function SubjectLessonsPage() {
 
     return (
         <div className="min-h-screen bg-[#fafbfc]">
+            {/* Mobile sticky header */}
+            <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-green/8 flex items-center gap-3 px-4 py-3 shadow-sm">
+                <Link
+                    href="/explore"
+                    className="w-8 h-8 rounded-full bg-green/8 border border-green/15 flex items-center justify-center text-green shrink-0"
+                >
+                    <ArrowLeft size={16} />
+                </Link>
+                <span className="font-bold text-dark/70 text-sm truncate">{t("back_subjects")}</span>
+                {!loading && lessons.length > 0 && (
+                    <span className="ml-auto text-[11px] font-bold text-green/50 shrink-0">{lessons.length}</span>
+                )}
+            </div>
+
             {/* Header */}
             <header className="hidden md:block relative overflow-hidden bg-gradient-to-b from-[#f0f7f3] to-transparent border-b border-green/8 pt-32 pb-12 px-6">
                 {/* Decorative blobs — GPU-accelerated, pointer-events off */}

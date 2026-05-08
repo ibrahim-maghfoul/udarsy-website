@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Image from "next/image";
 
 
@@ -47,6 +47,8 @@ const floatingIcons = [
 export function WorksSection() {
     const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
     const t = useTranslations('Works');
+    const locale = useLocale();
+    const isRTL = locale === 'ar';
     const sectionRef = useRef<HTMLElement>(null);
 
     const [floatRunning, setFloatRunning] = useState(false);
@@ -87,7 +89,7 @@ export function WorksSection() {
                 <Image src="/students/student-9.png" alt="" fill className="object-cover" sizes="150px" />
             </div>
 
-            <div className="max-w-[780px] w-full relative z-2 text-left">
+            <div className="max-w-[780px] w-full relative z-2" dir={isRTL ? 'rtl' : 'ltr'}>
                 <div className="mb-8">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[12px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)]">
                         <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />

@@ -1,6 +1,7 @@
 // ── Server Component — fetches from MongoDB via the backend API ──────────────
 
 import { getTranslations } from 'next-intl/server';
+import { Tag } from 'lucide-react';
 import NewsGrid from '@/components/NewsGrid';
 import NewsletterCTA from '@/components/NewsletterCTA';
 
@@ -47,8 +48,16 @@ export default async function NewsPage() {
     ]);
 
     return (
-        <div className="min-h-screen pt-24 md:pt-36 pb-32 px-[clamp(16px,5vw,48px)]">
+        <div className="min-h-screen pt-14 md:pt-24 pb-32 px-[clamp(16px,5vw,48px)]">
             <div className="max-w-7xl mx-auto space-y-10">
+
+                {/* Pill */}
+                <div className="flex justify-center">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green/10 text-green text-sm font-bold">
+                        <Tag size={14} />
+                        Udarsy {t('title')}
+                    </div>
+                </div>
 
                 {/* Interactive paginated grid */}
                 {newsItems.length === 0 ? (

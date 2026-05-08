@@ -51,8 +51,8 @@ const renderBlock = (block: any, index: number) => {
             const isAr = isArabic(block.text);
             return (
                 <TagName key={index} dir={isAr ? "rtl" : "ltr"}
-                    className={`break-words ${isHeading ? "text-green font-black mt-12 mb-6 tracking-tight leading-[1.2]" : "text-dark/80 leading-[1.8] mb-8"}
-                        ${block.subtype === "h1" || block.subtype === "h2" ? "text-xl md:text-4xl" : block.subtype === "h3" ? "text-lg md:text-3xl" : block.subtype === "h4" ? "text-base md:text-2xl" : block.subtype === "h5" ? "text-base md:text-xl" : block.subtype === "h6" ? "text-sm md:text-lg" : "text-base md:text-xl"}
+                    className={`break-words ${isHeading ? "text-green font-black mt-6 mb-3 md:mt-12 md:mb-6 tracking-tight leading-[1.2]" : "text-dark/80 leading-[1.8] mb-8"}
+                        ${block.subtype === "h1" || block.subtype === "h2" ? "text-base md:text-4xl" : block.subtype === "h3" ? "text-sm md:text-3xl" : block.subtype === "h4" ? "text-sm md:text-2xl" : block.subtype === "h5" ? "text-sm md:text-xl" : block.subtype === "h6" ? "text-xs md:text-lg" : "text-sm md:text-xl"}
                         ${isAr ? "text-right" : "text-left"}`}
                     style={{ textAlign: (blockStyle.align as any) || (isAr ? "right" : "left") }}>
                     {renderText(block.text, blockStyle)}
@@ -317,7 +317,7 @@ export default function NewsDetailPage() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen pb-32 bg-white">
 
             {/* ── Hero ─────────────────────────────────────── */}
-            <div className="relative overflow-hidden" style={{ minHeight: heroImage ? '520px' : '420px' }}>
+            <div className="relative overflow-hidden h-[33dvh] min-h-[200px] md:h-auto md:min-h-[520px]">
                 {/* Background: hero image or gradient */}
                 {heroImage ? (
                     <>
@@ -333,9 +333,9 @@ export default function NewsDetailPage() {
                 <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full pointer-events-none" style={{ border: '30px solid rgba(58,170,106,0.12)' }} />
                 <div className="absolute -bottom-28 -left-28 w-80 h-80 rounded-full pointer-events-none" style={{ border: '36px solid rgba(58,170,106,0.08)' }} />
 
-                <div className="relative z-10 max-w-4xl mx-auto px-[clamp(20px,5vw,48px)] pt-28 md:pt-36 pb-10 flex flex-col justify-end h-full">
-                    {/* Top bar: back button only */}
-                    <div className="flex items-center mb-auto pb-6">
+                <div className="relative z-10 max-w-4xl mx-auto px-[clamp(20px,5vw,48px)] pt-14 md:pt-36 pb-5 md:pb-10 flex flex-col justify-between md:justify-end h-full">
+                    {/* Top bar: back button — desktop only */}
+                    <div className="hidden md:flex items-center mb-auto pb-6">
                         <button
                             onClick={() => router.push("/news")}
                             className="flex items-center gap-2 font-bold text-sm rounded-full px-4 py-2 transition-all duration-200 backdrop-blur-md"
@@ -370,12 +370,12 @@ export default function NewsDetailPage() {
                     </div>
 
                     {/* Title */}
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white leading-[1.1] tracking-tight max-w-3xl break-words">
+                    <h1 className="text-lg sm:text-2xl md:text-4xl lg:text-5xl font-black text-white leading-[1.15] tracking-tight max-w-3xl break-words overflow-hidden">
                         {article.title}
                     </h1>
 
-                    {/* Save button — under title */}
-                    <div className="mt-5">
+                    {/* Save button — under title, desktop only (mobile shown below hero) */}
+                    <div className="hidden md:block mt-5">
                         <button
                             onClick={handleSave}
                             disabled={isSaving}
@@ -389,6 +389,38 @@ export default function NewsDetailPage() {
                 </div>
             </div>
 
+            {/* ── Mobile meta bar (below the compressed hero) ── */}
+            <div className="md:hidden flex items-center gap-2.5 px-4 py-3 border-b border-green/8 bg-white flex-wrap overflow-x-hidden">
+                {/* Category */}
+                {(article.type || article.category) && (
+                    <span className="px-2.5 py-1 rounded-full bg-green/10 text-green text-[11px] font-black uppercase tracking-wide shrink-0">
+                        {article.type || article.category}
+                    </span>
+                )}
+                {/* Views */}
+                {article.viewCount > 0 && (
+                    <span className="flex items-center gap-1 text-xs text-dark/40 font-semibold shrink-0">
+                        <Eye size={12} /> {article.viewCount}
+                    </span>
+                )}
+                {/* Rating */}
+                {(article.rating?.average || article.rating) ? (
+                    <span className="flex items-center gap-1 text-xs text-amber-500 font-black shrink-0">
+                        <Star size={12} className="fill-current" />
+                        {(article.rating?.average || article.rating || 0).toFixed(1)}
+                    </span>
+                ) : null}
+                {/* Save */}
+                <button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className={`ml-auto inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-bold text-sm transition-all active:scale-95 shrink-0 ${isSaved ? 'bg-red-500 text-white' : 'bg-green/8 border border-green/15 text-dark/60 hover:text-green'}`}
+                >
+                    <Heart size={13} fill={isSaved ? "currentColor" : "transparent"} />
+                    {isSaved ? t('saved') : t('save')}
+                </button>
+            </div>
+
             {/* ── Article Body ────────────────────────────── */}
             <div className="max-w-3xl mx-auto px-[clamp(20px,5vw,48px)]">
 
@@ -396,8 +428,8 @@ export default function NewsDetailPage() {
                 <div className="h-1 w-16 rounded-full bg-green mx-auto -mt-0.5 mb-12" />
 
                 {/* Content */}
-                <div className="mb-16" dir="rtl">
-                    <article className="prose prose-xl max-w-none text-right prose-headings:text-dark prose-p:text-dark/75 prose-p:leading-[1.9] prose-li:text-dark/75">
+                <div className="mb-16 overflow-x-hidden" dir="rtl">
+                    <article className="prose md:prose-xl max-w-none text-right prose-headings:text-dark prose-p:text-dark/75 prose-p:leading-[1.9] prose-li:text-dark/75">
                         {article.content_blocks && article.content_blocks.length > 0
                             ? article.content_blocks.map((block: any, idx: number) => renderBlock(block, idx))
                             : (article.paragraphs || []).map((p: string, idx: number) => (
@@ -414,40 +446,54 @@ export default function NewsDetailPage() {
                     <div className="flex-1 h-px bg-green/10" />
                 </div>
 
-                {/* Star Rating */}
-                <section className="mb-12 p-10 rounded-[32px] relative overflow-hidden text-center" style={{ background: 'linear-gradient(135deg, #f0faf5 0%, #e8f5ee 50%, #f0faf5 100%)' }}>
-                    <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(58,170,106,0.08) 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
-                    <div className="relative z-10">
-                        <div className="w-14 h-14 rounded-2xl bg-green/15 flex items-center justify-center text-green mx-auto mb-4">
-                            <Star size={26} className="fill-current" />
+                {/* Star Rating — modern card */}
+                <section className="mb-12">
+                    <div className="rounded-[24px] border border-green/12 bg-white overflow-hidden shadow-sm">
+                        <div className="h-1 w-full" style={{ background: 'linear-gradient(90deg, #3aaa6a, #5dc98a, #3aaa6a)' }} />
+                        <div className="p-6 md:p-8 flex flex-col sm:flex-row items-center gap-6">
+                            <div className="flex flex-col items-center sm:items-start gap-1 sm:min-w-[160px]">
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-dark/30">
+                                    {t('questions_answers').split(' ')[0] === 'Questions' ? 'Rate this article' : 'تقييم المقال'}
+                                </span>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                    <span className="text-4xl font-black text-dark">
+                                        {userRating > 0 ? userRating : (article.rating?.average || article.rating || 0).toFixed(1)}
+                                    </span>
+                                    <span className="text-dark/25 font-bold text-sm">/5</span>
+                                </div>
+                                {article.rating?.count > 0 && (
+                                    <span className="text-xs text-dark/30 font-semibold">{article.rating.count} {article.rating.count === 1 ? 'rating' : 'ratings'}</span>
+                                )}
+                            </div>
+                            <div className="flex-1 flex flex-col items-center sm:items-start gap-3">
+                                <div className="flex items-center gap-1.5">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button
+                                            key={star}
+                                            onClick={() => handleRate(star)}
+                                            disabled={userRating > 0}
+                                            className={`transition-all duration-150 ${userRating > 0 ? 'cursor-default' : 'hover:scale-115 active:scale-90'}`}
+                                        >
+                                            <Star
+                                                size={32}
+                                                strokeWidth={1.5}
+                                                className={`transition-colors ${star <= (userRating || Math.round(article.rating?.average || article.rating || 0))
+                                                    ? 'text-amber-400 fill-amber-400'
+                                                    : 'text-dark/12 hover:text-amber-300'
+                                                }`}
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                                {userRating > 0 ? (
+                                    <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green/8 border border-green/15 text-green text-xs font-bold">
+                                        <Star size={11} className="fill-green" /> Thank you for rating!
+                                    </motion.span>
+                                ) : (
+                                    <p className="text-xs text-dark/35 font-medium">Your feedback helps us improve our content</p>
+                                )}
+                            </div>
                         </div>
-                        <h3 className="text-xl font-black text-dark tracking-tight mb-1">Did you find this helpful?</h3>
-                        <p className="text-dark/40 font-medium text-sm mb-6">Your feedback helps us provide better content</p>
-
-                        <div className="flex justify-center gap-3 mb-4">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <button
-                                    key={star}
-                                    onClick={() => handleRate(star)}
-                                    disabled={userRating > 0}
-                                    className={`p-2 rounded-xl transition-all duration-200 ${userRating > 0 ? 'cursor-default' : 'hover:scale-125 hover:bg-white/60 active:scale-95'}`}
-                                >
-                                    <Star
-                                        size={36}
-                                        strokeWidth={1.8}
-                                        className={`${star <= (userRating || (article.rating?.average || article.rating || 0))
-                                            ? 'text-amber-400 fill-amber-400 drop-shadow-sm'
-                                            : 'text-green/20 hover:text-amber-300'
-                                            } transition-colors`}
-                                    />
-                                </button>
-                            ))}
-                        </div>
-                        {userRating > 0 && (
-                            <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-green font-bold text-sm bg-white/60 inline-flex px-5 py-2 rounded-full">
-                                Thank you for rating! ⭐
-                            </motion.p>
-                        )}
                     </div>
                 </section>
 

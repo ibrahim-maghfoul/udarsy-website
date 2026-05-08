@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { flushSync } from "react-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -195,18 +196,23 @@ export default function ChatPage() {
             }
             const res = await api.get(url);
             const older = (res.data || []).map((m: any) => ({ ...m, reactions: m.reactions || [] }));
-            if (older.length === 0) {
-                setHasMore(false);
-            } else {
-                const prevScrollHeight = scrollContainerRef.current?.scrollHeight || 0;
-                setMessages(prev => [...older, ...prev]);
-                setPage(nextPage);
-                // Restore scroll position so content doesn't jump
-                requestAnimationFrame(() => {
-                    if (scrollContainerRef.current) {
-                        scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight - prevScrollHeight;
-                    }
+            // Fewer than limit means we've reached the beginning
+            if (older.length < 30) setHasMore(false);
+            if (older.length === 0) return;
+
+            const prevScrollHeight = scrollContainerRef.current?.scrollHeight || 0;
+            // flushSync forces React to commit the DOM update synchronously so we
+            // can set scrollTop immediately after — no visible content jump.
+            flushSync(() => {
+                setMessages(prev => {
+                    const existingIds = new Set(prev.map(m => m._id));
+                    const unique = older.filter((m: Message) => !existingIds.has(m._id));
+                    return unique.length > 0 ? [...unique, ...prev] : prev;
                 });
+                setPage(nextPage);
+            });
+            if (scrollContainerRef.current) {
+                scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight - prevScrollHeight;
             }
         } catch {
             // silently ignore; hasMore stays true so user can retry

@@ -510,7 +510,7 @@ export default function LessonPage() {
     // Resource list renderer — avoids repeating the same JSX 5 times
     const renderResourceList = (items: any[], type: string, label: string, Icon: any) => {
         if (!items?.length) return null;
-        const isPdfType = type === 'coursesPdf' || type === 'exercices' || type === 'exams' || type === 'resourses';
+        const isPdfType = type !== 'video';
         return (
             <div className="space-y-2">
                 <h4 className={`text-xs font-bold text-muted-foreground uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'}`}>{label}</h4>
@@ -563,7 +563,7 @@ export default function LessonPage() {
             >
                 <div className="absolute inset-0 bg-black/30" />
                 <div
-                    className="relative w-full bg-white rounded-t-[28px] p-6 pb-8 shadow-2xl space-y-3"
+                    className="relative w-full bg-white rounded-t-[28px] p-6 pb-8 shadow-2xl space-y-3 animate-drawer-up"
                     onClick={e => e.stopPropagation()}
                 >
                     {/* Handle */}
@@ -637,10 +637,12 @@ export default function LessonPage() {
                             </button>
                         </div>
                         {/* Desktop: back link above, title below */}
-                        <Link href="/explore" className={`hidden md:inline-flex btn-back ${isRTL ? 'flex-row-reverse' : ''}`}>
-                            {isRTL ? <ChevronRight size={14} className="btn-back-arrow" /> : <ArrowLeft size={14} className="btn-back-arrow" />}
-                            {t("back_subjects")}
-                        </Link>
+                        <div className="hidden md:block">
+                            <Link href="/explore" className={`btn-back ${isRTL ? 'flex-row-reverse' : ''}`}>
+                                {isRTL ? <ChevronRight size={14} className="btn-back-arrow" /> : <ArrowLeft size={14} className="btn-back-arrow" />}
+                                {t("back_subjects")}
+                            </Link>
+                        </div>
                         <div className={`hidden md:flex flex-wrap items-center gap-4 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             <h1 className="text-3xl font-bold text-dark">{lesson.title}</h1>
                         </div>
