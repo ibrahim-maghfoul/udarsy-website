@@ -489,7 +489,7 @@ export function SubjectCardsSection() {
                   position: "relative",
                 }}
               >
-                <CardInner card={card} green={false} labels={labels} />
+                <CardInner card={card} green={false} labels={labels} locale={locale} />
                 <AnimatePresence>
                   {flippedId === card.id && (
                     <motion.div
@@ -500,7 +500,7 @@ export function SubjectCardsSection() {
                       transition={{ duration: 0.36, ease: "easeOut" }}
                       style={{ position: "absolute", inset: 0, background: "#3aaa6a", zIndex: 4, borderRadius: "inherit", overflow: "hidden" }}
                     >
-                      <CardInner card={card} green={true} labels={labels} />
+                      <CardInner card={card} green={true} labels={labels} locale={locale} />
                     </motion.div>
                   )}
                 </AnimatePresence>
