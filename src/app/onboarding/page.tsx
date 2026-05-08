@@ -64,6 +64,21 @@ export default function OnboardingPage() {
         c.toLowerCase().includes(citySearch.toLowerCase())
     );
 
+    // Pre-fill from Google profile if available
+    useEffect(() => {
+        const stored = sessionStorage.getItem('googleOnboardingData');
+        if (!stored) return;
+        sessionStorage.removeItem('googleOnboardingData');
+        try {
+            const data = JSON.parse(stored) as { birthday?: string; city?: string };
+            setSelections(prev => ({
+                ...prev,
+                ...(data.birthday ? { birthday: data.birthday } : {}),
+                ...(data.city ? { city: data.city } : {}),
+            }));
+        } catch {}
+    }, []);
+
     // Close dropdowns on outside click
     useEffect(() => {
         const handler = (e: MouseEvent) => {

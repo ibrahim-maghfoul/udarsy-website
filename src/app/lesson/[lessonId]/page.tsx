@@ -27,11 +27,13 @@ import {
     BotMessageSquare,
     X,
     ExternalLink,
+    Lock,
 } from "lucide-react";
 import api from "@/lib/api";
 import Link from "next/link";
 import { getLessonById, getLessons } from "@/services/data";
 import { trackResourceView, markResourceComplete, updateResourceProgress, toggleFavorite } from "@/services/progress";
+import { trackEvent } from "@/lib/analytics";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSnackbar } from "@/contexts/SnackbarContext";
 import { useTranslations, useLocale } from "next-intl";
@@ -168,6 +170,8 @@ export default function LessonPage() {
             setLesson(res);
 
             if (res) {
+                trackEvent({ event: 'lesson_view', category: 'Content', label: res.title, lesson_id: lessonId });
+
                 // Auto-select first doc on desktop
                 const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
                 if (isDesktop) {
@@ -280,6 +284,7 @@ export default function LessonPage() {
                 resourceType: activeResource.type,
                 isCompleted: true
             });
+            trackEvent({ event: 'lesson_complete', category: 'Content', label: lesson?.title, lesson_id: lessonId, resource_type: activeResource.type });
             refreshUser();
         } catch (error) {
             console.error('Failed to mark complete:', error);
@@ -578,6 +583,29 @@ export default function LessonPage() {
                         <ExternalLink size={20} className="text-green flex-shrink-0" />
                         {mobileMenu.resource.title}
                     </button>
+                    {mobileMenu.isPdf && (() => {
+                        const plan = user?.subscription?.plan || 'free';
+                        const usage = getAiUsage();
+                        const aiLocked = !user || (plan === 'free' && usage.explanations >= 1);
+                        return (
+                            <div className="space-y-1">
+                                <p className={`font-bold text-dark text-sm mt-2 mb-1 ${isRTL ? 'text-right' : 'text-left'}`}>{t('understand_with_ai')}</p>
+                                <button
+                                    className={`flex items-center gap-3 w-full p-4 border rounded-2xl font-bold text-sm active:scale-[0.98] transition-transform ${aiLocked ? 'bg-amber-50 border-amber-200/60 text-amber-700' : 'bg-[#f0f4ff] border-indigo-200/50 text-dark'}`}
+                                    onClick={() => {
+                                        setMobileMenu(null);
+                                        if (!user) { router.push('/login'); return; }
+                                        if (plan === 'free' && usage.explanations >= 1) { router.push('/pricing'); return; }
+                                        router.push(mobileMenu.aiHref);
+                                    }}
+                                >
+                                    {aiLocked ? <Lock size={20} className="text-amber-400 flex-shrink-0" /> : <Sparkles size={20} className="text-indigo-500 flex-shrink-0" />}
+                                    <span className="flex-1 text-start">{aiLocked ? t('ai_free_limit_title') : t('ai_explain_btn')}</span>
+                                    {aiLocked && <span className="text-[10px] font-black text-amber-500 uppercase tracking-wide bg-amber-100 px-2 py-0.5 rounded-full shrink-0">{t('ai_upgrade_pro')}</span>}
+                                </button>
+                            </div>
+                        );
+                    })()}
                     <button
                         className="flex items-center justify-center w-full p-3 text-sm font-medium text-dark/50 active:bg-dark/5 rounded-2xl transition-colors"
                         onClick={() => setMobileMenu(null)}

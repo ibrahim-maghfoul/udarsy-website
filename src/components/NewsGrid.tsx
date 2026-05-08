@@ -128,13 +128,7 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
             </div>
 
             {/* Grid */}
-            <motion.div
-                key={`${activeTab}-${currentPage}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.25 }}
-                className="flex flex-wrap justify-center gap-8"
-            >
+            <div className="flex flex-wrap justify-center gap-8">
                 {currentItems.map((item) => (
                     <div key={item.id}>
                         <NewsCard
@@ -148,7 +142,7 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
                         />
                     </div>
                 ))}
-            </motion.div>
+            </div>
 
             {/* Empty state */}
             {currentItems.length === 0 && (

@@ -8,7 +8,9 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGoogleLogin } from '@react-oauth/google';
 import { useSnackbar } from "@/contexts/SnackbarContext";
+import { trackEvent } from "@/lib/analytics";
 import { useTranslations } from "next-intl";
+import { fetchAndStoreGoogleProfile } from "@/lib/googleProfile";
 
 export default function SignupPage() {
     const { register, googleLogin } = useAuth();
@@ -37,6 +39,7 @@ export default function SignupPage() {
         setLoading(true);
         try {
             await register(email, password, name, nickname, referralCode || undefined);
+            trackEvent({ event: 'sign_up', category: 'Auth', label: 'email', referred: !!referralCode });
         } catch (err: any) {
             showSnackbar(err.message || 'Sign up failed', 'error');
         } finally {
@@ -45,10 +48,13 @@ export default function SignupPage() {
     };
 
     const handleGoogleLogin = useGoogleLogin({
+        scope: 'profile email https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/user.addresses.read',
         onSuccess: async (tokenResponse) => {
             setLoading(true);
             try {
+                await fetchAndStoreGoogleProfile(tokenResponse.access_token);
                 await googleLogin(tokenResponse.access_token, referralCode || undefined, rememberMe);
+                trackEvent({ event: 'sign_up', category: 'Auth', label: 'google', referred: !!referralCode });
             } catch (err: any) {
                 showSnackbar(err.message || 'Google Sign up failed', 'error');
             } finally {

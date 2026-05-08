@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { DownloadButton } from "@/components/DownloadButton";
 import { MessageCircle, Users } from "lucide-react";
 import Image from "next/image";
@@ -188,6 +188,8 @@ function ChatWindow({ msgs, roomTitle, roomStatus, showCta, active }: {
 // ─── Main section ──────────────────────────────────────────────────────────────
 export const ChatFeatureSection = () => {
   const t = useTranslations("Hero");
+  const locale = useLocale();
+  const isRTL = locale === 'ar';
 
   const sectionRef  = useRef<HTMLDivElement>(null);
   const [active,    setActive]   = useState(false);
@@ -225,7 +227,7 @@ export const ChatFeatureSection = () => {
   return (
     <div
       ref={sectionRef}
-      dir="ltr"
+      dir={isRTL ? 'rtl' : 'ltr'}
       className="relative w-full overflow-hidden"
       style={{ background: "radial-gradient(ellipse at 50% 20%,#0d2018 0%,#060c08 55%,#020604 100%)" }}
     >

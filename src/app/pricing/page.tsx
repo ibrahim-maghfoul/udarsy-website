@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, useAnimationControls, type Variants } from "framer-motion";
+import { trackEvent } from "@/lib/analytics";
 import { Check, X, Crown, Zap, BookOpen, ArrowRight, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
@@ -224,6 +225,10 @@ export default function PricingPage() {
   const ctrl1 = useAnimationControls();
   const ctrl2 = useAnimationControls();
   const ctrls = [ctrl0, ctrl1, ctrl2];
+
+  useEffect(() => {
+    trackEvent({ event: 'pricing_view', category: 'Conversion' });
+  }, []);
 
   useEffect(() => {
     ctrls.forEach((ctrl, i) => {

@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 const BelieveSection      = dynamic(() => import("@/components/BelieveSection").then(m => ({ default: m.BelieveSection })), { ssr: false, loading: () => <div style={{ minHeight: 600 }} /> });
 const ChatFeatureSection  = dynamic(() => import("@/components/ChatFeatureSection").then(m => ({ default: m.ChatFeatureSection })), { ssr: false, loading: () => <div style={{ minHeight: 500 }} /> });
@@ -108,6 +109,7 @@ export default function Home() {
 
         <Link href="/explore" aria-hidden={!showButton} tabIndex={showButton ? 0 : -1}>
           <button
+            onClick={() => trackEvent({ event: 'cta_click', category: 'Conversion', label: 'floating_start_learning' })}
             className={`fixed bottom-24 right-4 md:bottom-8 md:right-8 bg-dark text-white font-semibold text-sm p-[14px_26px] rounded-full shadow-[0_6px_28px_rgba(0,0,0,0.28)] z-[100] transition-[opacity,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_36px_rgba(0,0,0,0.35)] ${
               showButton ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-[0.8] translate-y-5 pointer-events-none'
             }`}

@@ -881,7 +881,7 @@ export default function ChatPage() {
                 <div
                     ref={scrollContainerRef}
                     onScroll={handleScroll}
-                    className="flex-1 overflow-y-auto p-4 md:p-6 space-y-3 md:space-y-4 relative"
+                    className="flex-1 overflow-y-auto px-2 py-4 md:p-6 space-y-3 md:space-y-4 relative"
                     style={{ background: "#f9fcfb", backgroundImage: MSG_BG, backgroundSize: "22px 22px" }}
                 >
                     {messages.length === 0 && !isConnecting ? (
@@ -920,7 +920,7 @@ export default function ChatPage() {
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     transition={{ type: "spring", stiffness: 280, damping: 22, delay: Math.min(index * 0.04, 0.25) }}
                                     key={msg._id || index}
-                                    className={`flex gap-2.5 max-w-[86%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto"} ${!showAvatar ? "!mt-0.5" : ""}`}
+                                    className={`flex gap-2.5 max-w-[92%] md:max-w-[86%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto"} ${!showAvatar ? "!mt-0.5" : ""}`}
                                 >
                                     {/* Avatar */}
                                     <div className="relative w-8 shrink-0">

@@ -583,7 +583,9 @@
         "ai_pro_badge": "PRO",
         "ai_per_day": "/day",
         "ai_doc_questions": "questions/doc",
-        "ai_daily_questions": "questions/day"
+        "ai_daily_questions": "questions/day",
+        "view_doc": "View Document",
+        "understand_with_ai": "Understand with AI"
     },
     "Profile": {
         "settings": "Settings",

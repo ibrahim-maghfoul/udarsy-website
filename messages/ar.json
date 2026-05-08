@@ -582,7 +582,9 @@
         "ai_pro_badge": "برو",
         "ai_per_day": "/يوم",
         "ai_doc_questions": "سؤال/مستند",
-        "ai_daily_questions": "سؤال/يوم"
+        "ai_daily_questions": "سؤال/يوم",
+        "view_doc": "عرض المستند",
+        "understand_with_ai": "افهم مع الذكاء الاصطناعي"
     },
     "Profile": {
         "settings": "الاعدادات",

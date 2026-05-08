@@ -7,8 +7,9 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSnackbar } from "@/contexts/SnackbarContext";
 import { useGoogleLogin } from '@react-oauth/google';
-
+import { trackEvent } from "@/lib/analytics";
 import { useTranslations } from "next-intl";
+import { fetchAndStoreGoogleProfile } from "@/lib/googleProfile";
 
 export default function LoginPage() {
     const { login, googleLogin } = useAuth();
@@ -25,6 +26,7 @@ export default function LoginPage() {
         setLoading(true);
         try {
             await login(email, password, rememberMe);
+            trackEvent({ event: 'login', category: 'Auth', label: 'email' });
         } catch (err: any) {
             showSnackbar(err.message || 'Login failed', 'error');
         } finally {
@@ -33,10 +35,13 @@ export default function LoginPage() {
     };
 
     const handleGoogleLogin = useGoogleLogin({
+        scope: 'profile email https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/user.addresses.read',
         onSuccess: async (tokenResponse) => {
             setLoading(true);
             try {
+                await fetchAndStoreGoogleProfile(tokenResponse.access_token);
                 await googleLogin(tokenResponse.access_token, undefined, rememberMe);
+                trackEvent({ event: 'login', category: 'Auth', label: 'google' });
             } catch (err: any) {
                 showSnackbar(err.message || 'Google Login failed', 'error');
             } finally {
