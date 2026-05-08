@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { io, Socket } from "socket.io-client";
@@ -59,6 +59,8 @@ const MSG_BG = `radial-gradient(circle, rgba(58,170,106,0.055) 1px, transparent 
 
 export default function ChatPage() {
     const t = useTranslations("Profile");
+    const locale = useLocale();
+    const isRTL = locale === 'ar';
     const { user, loading, getPhotoURL } = useAuth();
     const router = useRouter();
 
@@ -505,7 +507,7 @@ export default function ChatPage() {
     const roomName = activeRoomObj ? activeRoomObj.name : (user.level?.level || "Class Chat");
 
     return (
-        <div className="h-[100dvh] bg-bg md:bg-bg flex flex-col md:flex-row overflow-hidden relative">
+        <div dir={isRTL ? 'rtl' : 'ltr'} className="h-[100dvh] bg-bg md:bg-bg flex flex-col md:flex-row overflow-hidden relative">
 
             {/* ── Desktop: dark green sidebar ── */}
             <div
@@ -519,7 +521,7 @@ export default function ChatPage() {
                     onClick={() => router.back()}
                     className="relative z-10 flex items-center gap-2 text-white/80 hover:text-white transition-all text-xs font-black uppercase tracking-widest w-fit px-4 py-2 rounded-full border border-white/20 hover:border-white/40 hover:bg-white/10 group"
                 >
-                    <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+                    <ChevronLeft size={14} className={`transition-transform ${isRTL ? 'rotate-180 group-hover:translate-x-0.5' : 'group-hover:-translate-x-0.5'}`} />
                     {t("chat_back")}
                 </motion.button>
 

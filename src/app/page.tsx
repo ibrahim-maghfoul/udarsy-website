@@ -17,7 +17,7 @@ const BelieveSection      = dynamic(() => import("@/components/BelieveSection").
 const ChatFeatureSection  = dynamic(() => import("@/components/ChatFeatureSection").then(m => ({ default: m.ChatFeatureSection })), { ssr: false, loading: () => <div style={{ minHeight: 500 }} /> });
 const CoursesSection      = dynamic(() => import("@/components/CoursesSection").then(m => ({ default: m.CoursesSection })), { ssr: false, loading: () => <div style={{ minHeight: 600 }} /> });
 const WorksSection        = dynamic(() => import("@/components/WorksSection").then(m => ({ default: m.WorksSection })), { ssr: false, loading: () => <div style={{ minHeight: 500 }} /> });
-const PlatformFeatures    = dynamic(() => import("@/components/PlatformFeatures").then(m => ({ default: m.PlatformFeatures })), { ssr: false, loading: () => <div style={{ minHeight: 400 }} /> });
+const PlatformFeatures    = dynamic(() => import("@/components/PlatformFeatures").then(m => ({ default: m.PlatformFeatures })), { ssr: false, loading: () => <div style={{ minHeight: 700 }} /> });
 const PricingSection      = dynamic(() => import("@/components/PricingSection").then(m => ({ default: m.PricingSection })), { ssr: false, loading: () => <div style={{ minHeight: 500 }} /> });
 const TeamSection         = dynamic(() => import("@/components/TeamSection").then(m => ({ default: m.TeamSection })), { ssr: false, loading: () => <div style={{ minHeight: 400 }} /> });
 
@@ -102,7 +102,7 @@ export default function Home() {
           <div ref={setCoursesEl}><CoursesSection /></div>
         </LazySection>
         <LazySection minHeight={500}><WorksSection /></LazySection>
-        <LazySection minHeight={400}><PlatformFeatures /></LazySection>
+        <LazySection minHeight={700}><PlatformFeatures /></LazySection>
         <LazySection minHeight={500}><PricingSection /></LazySection>
         <LazySection minHeight={400}><TeamSection /></LazySection>
 
