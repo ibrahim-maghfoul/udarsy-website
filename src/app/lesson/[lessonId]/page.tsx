@@ -627,7 +627,14 @@ export default function LessonPage() {
                             <Link href="/explore" className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-green/8 border border-green/15 text-green hover:bg-green/15 transition-colors active:scale-95">
                                 {isRTL ? <ChevronRight size={18} /> : <ArrowLeft size={18} />}
                             </Link>
-                            <h1 className={`text-lg font-bold text-dark leading-tight line-clamp-2 ${isRTL ? 'text-right' : 'text-left'}`}>{lesson.title}</h1>
+                            <h1 className={`flex-1 text-lg font-bold text-dark leading-tight line-clamp-2 ${isRTL ? 'text-right' : 'text-left'}`}>{lesson.title}</h1>
+                            <button
+                                onClick={handleToggleFavorite}
+                                className={`shrink-0 flex items-center justify-center w-9 h-9 rounded-full border transition-all active:scale-90 ${isFavorite ? 'bg-red-50 border-red-200 text-red-500' : 'bg-green/7 border-green/15 text-dark/40 hover:text-green hover:border-green/30'}`}
+                                title={isFavorite ? t("fav_remove") : t("fav_add")}
+                            >
+                                <Heart size={16} className={isFavorite ? "fill-red-500" : ""} />
+                            </button>
                         </div>
                         {/* Desktop: back link above, title below */}
                         <Link href="/explore" className={`hidden md:inline-flex btn-back ${isRTL ? 'flex-row-reverse' : ''}`}>

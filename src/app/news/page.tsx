@@ -1,6 +1,5 @@
 // ── Server Component — fetches from MongoDB via the backend API ──────────────
 
-import { Tag } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import NewsGrid from '@/components/NewsGrid';
 import NewsletterCTA from '@/components/NewsletterCTA';
@@ -48,19 +47,8 @@ export default async function NewsPage() {
     ]);
 
     return (
-        <div className="min-h-screen pt-6 md:pt-32 pb-32 px-[clamp(16px,5vw,48px)]">
-            <div className="max-w-7xl mx-auto space-y-14">
-
-                {/* Page Header */}
-                <div className="text-center space-y-5">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green/10 text-green text-sm font-bold">
-                        <Tag size={16} />
-                        Udarsy {t('title')}
-                    </div>
-                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-dark leading-tight">
-                        {t('title')}
-                    </h1>
-                </div>
+        <div className="min-h-screen pt-24 md:pt-36 pb-32 px-[clamp(16px,5vw,48px)]">
+            <div className="max-w-7xl mx-auto space-y-10">
 
                 {/* Interactive paginated grid */}
                 {newsItems.length === 0 ? (

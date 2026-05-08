@@ -51,8 +51,8 @@ const renderBlock = (block: any, index: number) => {
             const isAr = isArabic(block.text);
             return (
                 <TagName key={index} dir={isAr ? "rtl" : "ltr"}
-                    className={`${isHeading ? "text-green font-black mt-16 mb-8 tracking-tight leading-[1.2]" : "text-dark/80 leading-[1.8] mb-8"}
-                        ${block.subtype === "h1" || block.subtype === "h2" ? "text-3xl md:text-6xl" : block.subtype === "h3" ? "text-2xl md:text-5xl" : block.subtype === "h4" ? "text-xl md:text-4xl" : block.subtype === "h5" ? "text-xl md:text-3xl" : block.subtype === "h6" ? "text-lg md:text-2xl" : "text-base md:text-xl"}
+                    className={`break-words ${isHeading ? "text-green font-black mt-12 mb-6 tracking-tight leading-[1.2]" : "text-dark/80 leading-[1.8] mb-8"}
+                        ${block.subtype === "h1" || block.subtype === "h2" ? "text-xl md:text-4xl" : block.subtype === "h3" ? "text-lg md:text-3xl" : block.subtype === "h4" ? "text-base md:text-2xl" : block.subtype === "h5" ? "text-base md:text-xl" : block.subtype === "h6" ? "text-sm md:text-lg" : "text-base md:text-xl"}
                         ${isAr ? "text-right" : "text-left"}`}
                     style={{ textAlign: (blockStyle.align as any) || (isAr ? "right" : "left") }}>
                     {renderText(block.text, blockStyle)}
@@ -333,12 +333,12 @@ export default function NewsDetailPage() {
                 <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full pointer-events-none" style={{ border: '30px solid rgba(58,170,106,0.12)' }} />
                 <div className="absolute -bottom-28 -left-28 w-80 h-80 rounded-full pointer-events-none" style={{ border: '36px solid rgba(58,170,106,0.08)' }} />
 
-                <div className="relative z-10 max-w-4xl mx-auto px-[clamp(20px,5vw,48px)] pt-36 pb-20 flex flex-col justify-end h-full">
-                    {/* Top bar: back + save */}
-                    <div className="flex items-center justify-between mb-auto pb-8">
+                <div className="relative z-10 max-w-4xl mx-auto px-[clamp(20px,5vw,48px)] pt-28 md:pt-36 pb-10 flex flex-col justify-end h-full">
+                    {/* Top bar: back button only */}
+                    <div className="flex items-center mb-auto pb-6">
                         <button
                             onClick={() => router.push("/news")}
-                            className="hidden md:flex items-center gap-2 font-bold text-sm rounded-full px-4 py-2 transition-all duration-200 backdrop-blur-md"
+                            className="flex items-center gap-2 font-bold text-sm rounded-full px-4 py-2 transition-all duration-200 backdrop-blur-md"
                             style={{ color: 'rgba(255,255,255,0.8)', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
                             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.color = '#fff'; }}
                             onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; }}
@@ -346,21 +346,10 @@ export default function NewsDetailPage() {
                             <ArrowLeft size={15} />
                             {t('back_to_news')}
                         </button>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={handleSave}
-                                disabled={isSaving}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm backdrop-blur-md transition-all duration-200 active:scale-95 ${isSaved ? 'bg-red-500 text-white shadow-lg shadow-red-500/30' : 'text-white/80 hover:text-white'}`}
-                                style={isSaved ? {} : { background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
-                            >
-                                <Heart size={14} fill={isSaved ? "currentColor" : "transparent"} />
-                                {isSaved ? 'Saved' : 'Save'}
-                            </button>
-                        </div>
                     </div>
 
                     {/* Category + meta */}
-                    <div className="flex flex-wrap items-center gap-2 mb-5">
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
                         <span className="px-4 py-1.5 rounded-full bg-green text-white text-[11px] font-black uppercase tracking-wider">
                             {article.type || article.category}
                         </span>
@@ -381,9 +370,22 @@ export default function NewsDetailPage() {
                     </div>
 
                     {/* Title */}
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.08] tracking-tight max-w-3xl">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white leading-[1.1] tracking-tight max-w-3xl break-words">
                         {article.title}
                     </h1>
+
+                    {/* Save button — under title */}
+                    <div className="mt-5">
+                        <button
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm backdrop-blur-md transition-all duration-200 active:scale-95 ${isSaved ? 'bg-red-500 text-white shadow-lg shadow-red-500/30' : 'text-white/80 hover:text-white'}`}
+                            style={isSaved ? {} : { background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
+                        >
+                            <Heart size={15} fill={isSaved ? "currentColor" : "transparent"} />
+                            {isSaved ? t('saved') : t('save')}
+                        </button>
+                    </div>
                 </div>
             </div>
 

@@ -331,7 +331,9 @@
         "post_answer": "Post Answer",
         "cancel": "Cancel",
         "login_to_ask": "Log In to Ask",
-        "login_hint": "Have a question? Log in to ask the community or admin."
+        "login_hint": "Have a question? Log in to ask the community or admin.",
+        "save": "Save",
+        "saved": "Saved"
     },
     "Pricing": {
         "title": "Choose your ",
@@ -709,6 +711,10 @@
         "chat_rate_failed": "Failed to rate room",
         "chat_rate_star": "Rate {star} star",
         "chat_rate_stars": "Rate {star} stars",
+        "chat_today": "Today",
+        "chat_yesterday": "Yesterday",
+        "chat_loading_more": "Loading older messages…",
+        "chat_no_more": "Beginning of conversation",
         "last_visited": "Last Visited Course",
         "last_visited_desc": "Pick up right where you left off",
         "continue_learning": "Continue Learning",

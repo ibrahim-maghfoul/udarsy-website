@@ -331,7 +331,9 @@
         "post_answer": "Publier la réponse",
         "cancel": "Annuler",
         "login_to_ask": "Se connecter pour demander",
-        "login_hint": "Vous avez une question ? Connectez-vous pour demander à la communauté ou à l'administrateur."
+        "login_hint": "Vous avez une question ? Connectez-vous pour demander à la communauté ou à l'administrateur.",
+        "save": "Sauvegarder",
+        "saved": "Sauvegardé"
     },
     "Pricing": {
         "title": "Choisissez votre ",
@@ -708,6 +710,10 @@
         "chat_rate_failed": "Échec de l'évaluation",
         "chat_rate_star": "Évaluer {star} étoile",
         "chat_rate_stars": "Évaluer {star} étoiles",
+        "chat_today": "Aujourd'hui",
+        "chat_yesterday": "Hier",
+        "chat_loading_more": "Chargement des anciens messages…",
+        "chat_no_more": "Début de la conversation",
         "last_visited": "Dernier Cours Consulté",
         "last_visited_desc": "Reprenez là où vous vous êtes arrêté",
         "continue_learning": "Continuer l'apprentissage",

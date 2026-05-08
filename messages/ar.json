@@ -331,7 +331,9 @@
         "post_answer": "نشر الإجابة",
         "cancel": "إلغاء",
         "login_to_ask": "سجل الدخول للسؤال",
-        "login_hint": "هل لديك سؤال؟ سجل الدخول لتسأل المجتمع أو المسؤول."
+        "login_hint": "هل لديك سؤال؟ سجل الدخول لتسأل المجتمع أو المسؤول.",
+        "save": "حفظ",
+        "saved": "محفوظ"
     },
     "Pricing": {
         "title": "اختر ",
@@ -708,6 +710,10 @@
         "chat_rate_failed": "فشل تقييم الغرفة",
         "chat_rate_star": "تقييم {star} نجمة",
         "chat_rate_stars": "تقييم {star} نجوم",
+        "chat_today": "اليوم",
+        "chat_yesterday": "أمس",
+        "chat_loading_more": "جارٍ تحميل الرسائل القديمة…",
+        "chat_no_more": "بداية المحادثة",
         "last_visited": "آخر درس تمت زيارته",
         "last_visited_desc": "أكمل من حيث توقفت",
         "continue_learning": "مواصلة التعلم",

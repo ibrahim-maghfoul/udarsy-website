@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { io, Socket } from "socket.io-client";
-import { format } from "date-fns";
+import { format, isToday, isYesterday } from "date-fns";
 import Image from "next/image";
 import api from "@/lib/api";
 import { containsBadWord } from "@/lib/badWords";
@@ -86,7 +86,26 @@ export default function ChatPage() {
     const [isSubmittingRating, setIsSubmittingRating] = useState(false);
     const { showSnackbar } = useSnackbar();
 
+    const [isFetchingMore, setIsFetchingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [page, setPage] = useState(1);
+
     const socketRef = useRef<Socket | null>(null);
+
+    const getDayLabel = (dateString: string): string => {
+        const date = new Date(dateString);
+        if (isToday(date)) return t("chat_today");
+        if (isYesterday(date)) return t("chat_yesterday");
+        return format(date, "dd.MM.yyyy");
+    };
+
+    const isSameDay = (a: string, b: string): boolean => {
+        const da = new Date(a);
+        const db = new Date(b);
+        return da.getFullYear() === db.getFullYear() &&
+            da.getMonth() === db.getMonth() &&
+            da.getDate() === db.getDate();
+    };
 
     useEffect(() => {
         if (!user) return;
@@ -155,6 +174,45 @@ export default function ChatPage() {
         if (!scrollContainerRef.current) return;
         const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
         setIsNearBottom(scrollHeight - scrollTop - clientHeight < 100);
+        if (scrollTop < 80 && hasMore && !isFetchingMore) {
+            loadOlderMessages();
+        }
+    };
+
+    const loadOlderMessages = async () => {
+        if (isFetchingMore || !hasMore || !user) return;
+        setIsFetchingMore(true);
+        try {
+            const nextPage = page + 1;
+            let url = "";
+            if (activeTab !== "general") {
+                url = `/teacher/rooms/${activeTab}/messages?page=${nextPage}&limit=30`;
+            } else {
+                const guidance = user.level?.guidance;
+                const level = user.level?.level;
+                if (!guidance || !level) return;
+                url = `/chat/history?guidance=${encodeURIComponent(guidance)}&level=${encodeURIComponent(level)}&page=${nextPage}&limit=30`;
+            }
+            const res = await api.get(url);
+            const older = (res.data || []).map((m: any) => ({ ...m, reactions: m.reactions || [] }));
+            if (older.length === 0) {
+                setHasMore(false);
+            } else {
+                const prevScrollHeight = scrollContainerRef.current?.scrollHeight || 0;
+                setMessages(prev => [...older, ...prev]);
+                setPage(nextPage);
+                // Restore scroll position so content doesn't jump
+                requestAnimationFrame(() => {
+                    if (scrollContainerRef.current) {
+                        scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight - prevScrollHeight;
+                    }
+                });
+            }
+        } catch {
+            // silently ignore; hasMore stays true so user can retry
+        } finally {
+            setIsFetchingMore(false);
+        }
     };
 
     const handleReportSubmit = async (e: React.FormEvent) => {
@@ -561,7 +619,7 @@ export default function ChatPage() {
                     <div className="relative z-10 space-y-1">
                         <p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/30 px-1 mb-2">{t("chat_rooms_label")}</p>
                         <button
-                            onClick={() => { if (activeTab !== "general") { setMessages([]); setOnlineUsers([]); setActiveTab("general"); } }}
+                            onClick={() => { if (activeTab !== "general") { setMessages([]); setOnlineUsers([]); setPage(1); setHasMore(true); setActiveTab("general"); } }}
                             className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-[12px] text-xs font-bold text-left transition-all ${activeTab === "general" ? "bg-white/15 text-white border border-white/20" : "text-white/55 hover:bg-white/8 hover:text-white/80"}`}
                         >
                             <MessageCircle size={13} />
@@ -570,7 +628,7 @@ export default function ChatPage() {
                         {joinedRooms.map((room) => (
                             <button
                                 key={room._id}
-                                onClick={() => { if (activeTab !== room._id) { setMessages([]); setOnlineUsers([]); setActiveTab(room._id); } }}
+                                onClick={() => { if (activeTab !== room._id) { setMessages([]); setOnlineUsers([]); setPage(1); setHasMore(true); setActiveTab(room._id); } }}
                                 className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-[12px] text-xs font-bold text-left transition-all ${activeTab === room._id ? "bg-white/15 text-white border border-white/20" : "text-white/55 hover:bg-white/8 hover:text-white/80"}`}
                             >
                                 <Users size={13} />
@@ -722,7 +780,7 @@ export default function ChatPage() {
                 {/* Mobile room tabs */}
                 <div className="md:hidden flex gap-1.5 px-3 pt-3 pb-2 overflow-x-auto shrink-0 scrollbar-none bg-white border-b border-green/8">
                     <button
-                        onClick={() => { if (activeTab !== "general") { setMessages([]); setOnlineUsers([]); setActiveTab("general"); } }}
+                        onClick={() => { if (activeTab !== "general") { setMessages([]); setOnlineUsers([]); setPage(1); setHasMore(true); setActiveTab("general"); } }}
                         className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeTab === "general" ? "bg-green text-white shadow-sm shadow-green/25" : "text-dark/50 bg-green/7 hover:bg-green/12"}`}
                     >
                         <MessageCircle size={11} /> {user.level?.level || "Class Chat"}
@@ -730,7 +788,7 @@ export default function ChatPage() {
                     {joinedRooms.map((room) => (
                         <button
                             key={room._id}
-                            onClick={() => { if (activeTab !== room._id) { setMessages([]); setOnlineUsers([]); setActiveTab(room._id); } }}
+                            onClick={() => { if (activeTab !== room._id) { setMessages([]); setOnlineUsers([]); setPage(1); setHasMore(true); setActiveTab(room._id); } }}
                             className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeTab === room._id ? "bg-green text-white shadow-sm shadow-green/25" : "text-dark/50 bg-green/7 hover:bg-green/12"}`}
                         >
                             <Users size={11} /> {room.name}
@@ -859,7 +917,7 @@ export default function ChatPage() {
                 {/* Desktop room tabs */}
                 <div className="hidden md:flex gap-1.5 px-4 py-2.5 border-b border-green/8 overflow-x-auto shrink-0 scrollbar-none">
                     <button
-                        onClick={() => { if (activeTab !== "general") { setMessages([]); setOnlineUsers([]); setActiveTab("general"); } }}
+                        onClick={() => { if (activeTab !== "general") { setMessages([]); setOnlineUsers([]); setPage(1); setHasMore(true); setActiveTab("general"); } }}
                         className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeTab === "general" ? "bg-green text-white shadow-sm shadow-green/25" : "text-dark/50 hover:bg-green/7 hover:text-dark/70"}`}
                     >
                         <MessageCircle size={12} />
@@ -868,7 +926,7 @@ export default function ChatPage() {
                     {joinedRooms.map((room) => (
                         <button
                             key={room._id}
-                            onClick={() => { if (activeTab !== room._id) { setMessages([]); setOnlineUsers([]); setActiveTab(room._id); } }}
+                            onClick={() => { if (activeTab !== room._id) { setMessages([]); setOnlineUsers([]); setPage(1); setHasMore(true); setActiveTab(room._id); } }}
                             className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeTab === room._id ? "bg-green text-white shadow-sm shadow-green/25" : "text-dark/50 hover:bg-green/7 hover:text-dark/70"}`}
                         >
                             <Users size={12} />
@@ -884,6 +942,24 @@ export default function ChatPage() {
                     className="flex-1 overflow-y-auto px-2 py-4 md:p-6 space-y-3 md:space-y-4 relative"
                     style={{ background: "#f9fcfb", backgroundImage: MSG_BG, backgroundSize: "22px 22px" }}
                 >
+                    {/* Loading older messages indicator */}
+                    {isFetchingMore && (
+                        <div className="flex justify-center py-3">
+                            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-green/15 text-xs font-bold text-green/60 shadow-sm">
+                                <div className="flex gap-0.5">
+                                    {[0, 150, 300].map((d) => (
+                                        <span key={d} className="w-1.5 h-1.5 rounded-full bg-green animate-bounce" style={{ animationDelay: `${d}ms` }} />
+                                    ))}
+                                </div>
+                                {t("chat_loading_more")}
+                            </div>
+                        </div>
+                    )}
+                    {!hasMore && messages.length > 0 && (
+                        <div className="flex justify-center py-2">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-dark/15 px-4 py-1.5 rounded-full border border-dark/6">{t("chat_no_more")}</span>
+                        </div>
+                    )}
                     {messages.length === 0 && !isConnecting ? (
                         <div className="h-full flex flex-col items-center justify-center space-y-5 pt-12 animate-slide-up">
                             <div className="relative">
@@ -906,6 +982,7 @@ export default function ChatPage() {
                             const currentUserId = user.id || (user as { _id?: string })._id;
                             const isMe = msg.sender?._id === currentUserId;
                             const showAvatar = index === 0 || messages[index - 1]?.sender?._id !== msg.sender?._id;
+                            const showDayDivider = index === 0 || !isSameDay(messages[index - 1].createdAt, msg.createdAt);
 
                             const reactionCounts = msg.reactions.reduce((acc, r) => {
                                 acc[r.emoji] = (acc[r.emoji] || 0) + 1;
@@ -915,12 +992,21 @@ export default function ChatPage() {
                             const myReactions = msg.reactions.filter((r) => r.userId === currentUserId).map((r) => r.emoji);
 
                             return (
+                                <React.Fragment key={msg._id || index}>
+                                {showDayDivider && (
+                                    <div className="flex items-center gap-3 my-3">
+                                        <div className="flex-1 h-px bg-green/10" />
+                                        <span className="text-[9px] font-black uppercase tracking-[0.18em] text-dark/25 px-3 py-1 rounded-full border border-green/10 bg-white shrink-0">
+                                            {getDayLabel(msg.createdAt)}
+                                        </span>
+                                        <div className="flex-1 h-px bg-green/10" />
+                                    </div>
+                                )}
                                 <motion.div
                                     initial={{ opacity: 0, y: 14, scale: 0.97 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     transition={{ type: "spring", stiffness: 280, damping: 22, delay: Math.min(index * 0.04, 0.25) }}
-                                    key={msg._id || index}
-                                    className={`flex gap-2.5 max-w-[92%] md:max-w-[86%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto"} ${!showAvatar ? "!mt-0.5" : ""}`}
+                                    className={`flex gap-2.5 max-w-[92%] md:max-w-[86%] ${(isMe !== isRTL) ? "flex-row-reverse" : ""} ${isMe ? "ml-auto" : "mr-auto"} ${!showAvatar ? "!mt-0.5" : ""}`}
                                 >
                                     {/* Avatar */}
                                     <div className="relative w-8 shrink-0">
@@ -946,7 +1032,7 @@ export default function ChatPage() {
                                     </div>
 
                                     {/* Bubble */}
-                                    <div className={`flex flex-col ${isMe ? "items-end" : "items-start"} min-w-0`}>
+                                    <div className={`flex flex-col ${(isMe !== isRTL) ? "items-end" : "items-start"} min-w-0`}>
                                         {showAvatar && msg.sender && (
                                             <span className="flex items-center gap-1.5 mb-1 mx-1">
                                                 <span className="text-[10px] font-black text-dark/35 uppercase tracking-tight">
@@ -1017,7 +1103,7 @@ export default function ChatPage() {
                                             </div>
 
                                             {/* Hover actions */}
-                                            <div className={`absolute top-1/2 -translate-y-1/2 ${isMe ? "-left-[4.2rem]" : "-right-[4.2rem]"} opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-1 z-20`}>
+                                            <div className={`absolute top-1/2 -translate-y-1/2 ${(isMe !== isRTL) ? "-left-[4.2rem]" : "-right-[4.2rem]"} opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-1 z-20`}>
                                                 <motion.button
                                                     whileHover={{ scale: 1.1 }}
                                                     whileTap={{ scale: 0.9 }}
@@ -1055,7 +1141,7 @@ export default function ChatPage() {
                                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                                         exit={{ opacity: 0, scale: 0.85 }}
                                                         transition={{ type: "spring", stiffness: 500, damping: 24 }}
-                                                        className={`absolute bottom-full mb-2.5 ${isMe ? "right-0" : "left-0"} glass-effect shadow-xl rounded-[16px] p-2 flex gap-1 z-30`}
+                                                        className={`absolute bottom-full mb-2.5 ${(isMe !== isRTL) ? "right-0" : "left-0"} glass-effect shadow-xl rounded-[16px] p-2 flex gap-1 z-30`}
                                                     >
                                                         {EMOJIS.map((emoji) => (
                                                             <motion.button
@@ -1102,6 +1188,7 @@ export default function ChatPage() {
                                         </span>
                                     </div>
                                 </motion.div>
+                                </React.Fragment>
                             );
                         })
                     )}
