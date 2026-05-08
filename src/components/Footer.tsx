@@ -127,8 +127,8 @@ export function Footer() {
                     <span>&copy; {new Date().getFullYear()} Udarsy. {t('rights')}</span>
                     <div className="flex gap-6">
                         <Link href="/privacy" className="hover:text-white transition-colors">{t('privacy')}</Link>
-                        <a href="#" className="hover:text-white transition-colors">{t('terms')}</a>
-                        <a href="#" className="hover:text-white transition-colors">{t('cookies')}</a>
+                        <Link href="/terms" className="hover:text-white transition-colors">{t('terms')}</Link>
+                        <Link href="/cookies" className="hover:text-white transition-colors">{t('cookies')}</Link>
                     </div>
                 </div>
             </div>

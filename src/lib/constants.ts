@@ -16,7 +16,7 @@ export const SOCIALS = {
 // ── Contact Info ─────────────────────────────────────────────────────────────
 export const CONTACT = {
     email: 'contact@udarsy.com',
-    privacyEmail: 'privacy@udarsy.com',
+    privacyEmail: 'contact@udarsy.com',
     phone: '+212642094671',
     phoneTel: '+212642094671',
     location: 'Morocco/Rabat',
