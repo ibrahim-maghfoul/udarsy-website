@@ -223,7 +223,12 @@ export default function ChatPage() {
                 setOnlineUsers(users.map((u) => ({ userId: u.userId, displayName: u.displayName, photoURL: undefined, subscriptionPlan: undefined })));
             });
             socket.on("receive_teacher_message", (message: any) => {
-                setMessages((prev) => [...prev, { ...message, reactions: message.reactions || [] }]);
+                setMessages((prev) => {
+                    const filtered = prev.filter(
+                        (m) => !(m._id.startsWith("temp_") && m.sender._id === message.sender._id && m.text === message.text)
+                    );
+                    return [...filtered, { ...message, reactions: message.reactions || [] }];
+                });
             });
             socket.on("teacher_user_typing", (data: { userId: string; displayName: string }) => {
                 setTypingUsers((prev) => (prev.find((u) => u.userId === data.userId) ? prev : [...prev, data]));
@@ -271,7 +276,12 @@ export default function ChatPage() {
             setAllParticipants(participants);
         });
         socket.on("receive_message", (message: Message) => {
-            setMessages((prev) => [...prev, message]);
+            setMessages((prev) => {
+                const filtered = prev.filter(
+                    (m) => !(m._id.startsWith("temp_") && m.sender._id === message.sender._id && m.text === message.text)
+                );
+                return [...filtered, message];
+            });
         });
         socket.on("message_updated", (updatedMessage: Message) => {
             setMessages((prev) => prev.map((msg) => (msg._id === updatedMessage._id ? updatedMessage : msg)));
@@ -308,6 +318,14 @@ export default function ChatPage() {
         const currentUserId = user.id || (user as { _id?: string })._id;
 
         if (activeTab !== "general") {
+            const optimistic: Message = {
+                _id: `temp_${Date.now()}`,
+                text: newMessage.trim(),
+                sender: { _id: currentUserId as string, displayName: user.displayName, photoURL: user.photoURL, role: user.role, subscription: user.subscription },
+                reactions: [],
+                createdAt: new Date().toISOString(),
+            };
+            setMessages((prev) => [...prev, optimistic]);
             socketRef.current.emit("send_teacher_message", {
                 roomId: activeTab,
                 sender: currentUserId,
@@ -315,6 +333,15 @@ export default function ChatPage() {
                 text: newMessage.trim(),
             });
         } else {
+            const optimistic: Message = {
+                _id: `temp_${Date.now()}`,
+                text: newMessage.trim(),
+                sender: { _id: currentUserId as string, displayName: user.displayName, photoURL: user.photoURL, role: user.role, subscription: user.subscription },
+                reactions: [],
+                replyTo: activeReply ? { _id: activeReply._id, text: activeReply.text, sender: { _id: currentUserId as string, displayName: user.displayName } } : undefined,
+                createdAt: new Date().toISOString(),
+            };
+            setMessages((prev) => [...prev, optimistic]);
             socketRef.current.emit("send_message", {
                 guidance: user.level?.guidance,
                 level: user.level?.level,
