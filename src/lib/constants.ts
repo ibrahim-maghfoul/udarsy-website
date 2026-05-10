@@ -4,10 +4,11 @@
 
 // ── Website Social Media ─────────────────────────────────────────────────────
 export const SOCIALS = {
-    twitter: 'https://twitter.com/udarsyio',
-    instagram: 'https://instagram.com/udarsyio',
-    facebook: 'https://facebook.com/udarsyio',
-    youtube: 'https://youtube.com/@udarsyio',
+    twitter: 'https://twitter.com/udarsy',
+    instagram: 'https://instagram.com/udarsy',
+    facebook: 'https://facebook.com/udarsy',
+    youtube: 'https://youtube.com/@udarsy',
+    website: 'https://udarsy.com',
     tiktok: '',       // add when ready
     linkedin: '',     // add when ready
     github: '',       // add when ready

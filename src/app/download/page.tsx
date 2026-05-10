@@ -9,7 +9,7 @@ export default function DownloadPage() {
     const t = useTranslations('Download');
 
     return (
-        <main className="min-h-screen bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,#d8f5e8_0%,#f2fbf5_40%,#ffffff_100%)] flex flex-col items-center justify-center px-6 py-32">
+        <main className="min-h-screen bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,#d8f5e8_0%,#f2fbf5_40%,#ffffff_100%)] flex flex-col items-center justify-center px-6 py-16 md:py-32">
 
             {/* Decorative floating blobs */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -45,35 +45,40 @@ export default function DownloadPage() {
 
                 {/* Platform cards */}
                 <div className="flex flex-col sm:flex-row gap-8 justify-center items-end">
-                    {/* Android — available */}
-                    <FizzyButton
-                        id="android-download"
-                        href="https://play.google.com"
-                        title={t('android_title')}
-                        subtitle={t('android_desc')}
-                        variant="green"
-                        icon={
-                            <svg viewBox="0 -960 960 960" fill="currentColor" className="w-9 h-9">
-                                <path d="M40-240q9-107 65.5-197T256-580l-74-128q-6-9-3-19t13-15q8-5 18-2t16 12l74 128q86-36 180-36t180 36l74-128q6-9 16-12t18 2q10 5 13 15t-3 19l-74 128q94 53 150.5 143T920-240H40Zm275.5-124.5Q330-379 330-400t-14.5-35.5Q301-450 280-450t-35.5 14.5Q230-421 230-400t14.5 35.5Q259-350 280-350t35.5-14.5Zm400 0Q730-379 730-400t-14.5-35.5Q701-450 680-450t-35.5 14.5Q630-421 630-400t14.5 35.5Q659-350 680-350t35.5-14.5Z"/>
-                            </svg>
-                        }
-                    />
+                    {/* Android — coming soon */}
+                    <div className="relative inline-block">
+                        <FizzyButton
+                            id="android-download"
+                            href="#"
+                            title="Coming Soon"
+                            subtitle={t('android_desc')}
+                            variant="green"
+                            disabled={true}
+                            icon={
+                                <svg viewBox="0 -960 960 960" fill="currentColor" className="w-9 h-9">
+                                    <path d="M40-240q9-107 65.5-197T256-580l-74-128q-6-9-3-19t13-15q8-5 18-2t16 12l74 128q86-36 180-36t180 36l74-128q6-9 16-12t18 2q10 5 13 15t-3 19l-74 128q94 53 150.5 143T920-240H40Zm275.5-124.5Q330-379 330-400t-14.5-35.5Q301-450 280-450t-35.5 14.5Q230-421 230-400t14.5 35.5Q259-350 280-350t35.5-14.5Zm400 0Q730-379 730-400t-14.5-35.5Q701-450 680-450t-35.5 14.5Q630-421 630-400t14.5 35.5Q659-350 680-350t35.5-14.5Z"/>
+                                </svg>
+                            }
+                        />
+                        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 pointer-events-none z-20 flex items-center gap-1 px-2.5 py-[3px] bg-[#3aaa6a] shadow-[0_2px_10px_rgba(58,170,106,0.6)] rounded-full whitespace-nowrap">
+                            <span className="w-1 h-1 rounded-full bg-white/70 animate-pulse" />
+                            <span className="text-white text-[9px] font-black tracking-[0.16em] uppercase">SOON</span>
+                        </div>
+                    </div>
 
                     {/* iOS — coming soon */}
                     <div className="relative inline-block">
                         <FizzyButton
                             id="ios-download"
                             href="#"
-                            title={t('ios_title')}
+                            title="Coming Soon"
                             subtitle={t('ios_desc')}
                             disabled={true}
                             icon={<span className="material-symbols-outlined" style={{ fontSize: '36px', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>ios</span>}
                         />
-                        {/* Green ribbon wrapping around the button corner */}
-                        <div className="absolute inset-0 rounded-[22px] overflow-hidden pointer-events-none z-20">
-                            <div className="absolute top-[28px] left-[-20px] w-[76px] py-[5px] bg-[#3aaa6a] shadow-[0_2px_12px_rgba(58,170,106,0.7)] text-white text-[8px] font-black text-center tracking-[0.18em] uppercase -rotate-45">
-                                SOON
-                            </div>
+                        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 pointer-events-none z-20 flex items-center gap-1 px-2.5 py-[3px] bg-[#3aaa6a] shadow-[0_2px_10px_rgba(58,170,106,0.6)] rounded-full whitespace-nowrap">
+                            <span className="w-1 h-1 rounded-full bg-white/70 animate-pulse" />
+                            <span className="text-white text-[9px] font-black tracking-[0.16em] uppercase">SOON</span>
                         </div>
                     </div>
                 </div>

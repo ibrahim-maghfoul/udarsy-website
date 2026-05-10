@@ -48,7 +48,7 @@ export default async function NewsPage() {
     ]);
 
     return (
-        <div className="min-h-screen pt-14 md:pt-24 pb-32 px-[clamp(16px,5vw,48px)]">
+        <div className="min-h-screen pt-6 md:pt-24 pb-32 px-[clamp(16px,5vw,48px)]">
             <div className="max-w-7xl mx-auto space-y-10">
 
                 {/* Pill */}

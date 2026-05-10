@@ -223,7 +223,9 @@
                 "back_title": "Your Certs",
                 "back_desc": "Download & share."
             }
-        }
+        },
+        "ai_card_title": "AI-Powered Learning",
+        "ai_card_desc": "Smart answers, instantly."
     },
     "Footer": {
         "desc": "Learn the skills that actually matter — together.",

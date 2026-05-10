@@ -334,8 +334,8 @@ export default function NewsDetailPage() {
                 <div className="absolute -bottom-28 -left-28 w-80 h-80 rounded-full pointer-events-none" style={{ border: '36px solid rgba(58,170,106,0.08)' }} />
 
                 <div className="relative z-10 max-w-4xl mx-auto px-[clamp(20px,5vw,48px)] pt-14 md:pt-36 pb-5 md:pb-10 flex flex-col justify-between md:justify-end h-full">
-                    {/* Top bar: back button — desktop only */}
-                    <div className="hidden md:flex items-center mb-auto pb-6">
+                    {/* Top bar: back button — all screens */}
+                    <div className="flex items-center mb-auto pb-6">
                         <button
                             onClick={() => router.push("/news")}
                             className="flex items-center gap-2 font-bold text-sm rounded-full px-4 py-2 transition-all duration-200 backdrop-blur-md"
@@ -344,7 +344,7 @@ export default function NewsDetailPage() {
                             onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; }}
                         >
                             <ArrowLeft size={15} />
-                            {t('back_to_news')}
+                            <span className="hidden md:inline">{t('back_to_news')}</span>
                         </button>
                     </div>
 

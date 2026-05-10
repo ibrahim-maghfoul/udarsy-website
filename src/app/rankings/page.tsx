@@ -59,7 +59,7 @@ export default function RankingsPage() {
     const rest = rankings.slice(3);
 
     return (
-        <div className="min-h-screen bg-[#F8F9FA] pb-24 md:pb-0 pt-16 md:pt-28">
+        <div className="min-h-screen bg-[#F8F9FA] pb-24 md:pb-0 pt-10 md:pt-28">
             <div className="max-w-2xl mx-auto px-4 md:px-6 space-y-6">
 
                 {/* Back */}

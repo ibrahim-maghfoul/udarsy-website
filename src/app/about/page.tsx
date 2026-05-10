@@ -111,12 +111,12 @@ export default function AboutPage() {
     ];
 
     const team = [
-        { id: "ibrahim-maghfoul", name: "Ibrahim Maghfoul", role: "Website Manager", initials: "IM", color: "bg-green", img: "" },
-        { id: "abderrahman-aouinat", name: "Abderrahman Aouinat", role: "Multimedia Responsable", initials: "AA", color: "bg-blue-500", img: "" },
-        { id: "mouhamed-demo", name: "Mouhamed Demo", role: "Marketing Manager", initials: "MD", color: "bg-amber-500", img: "" },
-        { id: "ayman-nouri", name: "Ayman Nouri", role: "Developer", initials: "AN", color: "bg-purple-500", img: "" },
-        { id: "asmae-monaghim", name: "Asmae Monaghim", role: "Finance Manager", initials: "AM", color: "bg-red-500", img: "" },
-        { id: "safae-el-oujdi", name: "Safae El Oujdi", role: "Logistic", initials: "SO", color: "bg-cyan-500", img: "" },
+        { id: "ibrahim-maghfoul", name: "Ibrahim Maghfoul", role: "Website Manager", initials: "IM", color: "bg-green", img: "/team/ibrahim-maghfoul.png" },
+        { id: "abderrahman-aouinat", name: "Abderrahman Aouinat", role: "Multimedia Responsable", initials: "AA", color: "bg-blue-500", img: "/team/abderrahman-aouinat.png" },
+        { id: "mouhamed-demo", name: "Mouhamed El Wardi", role: "Marketing Manager", initials: "MD", color: "bg-amber-500", img: "/team/mouhamed-el-wardi.png" },
+        { id: "ayman-nouri", name: "Ayman Nouri", role: "Developer", initials: "AN", color: "bg-purple-500", img: "/team/ayman-nouri.png" },
+        { id: "asmae-monaghim", name: "Asmae Monaghim", role: "Finance Manager", initials: "AM", color: "bg-red-500", img: "/team/asmae-monaghim.png" },
+        { id: "safae-el-oujdi", name: "Safae El Oujdi", role: "Logistic", initials: "SO", color: "bg-cyan-500", img: "/team/safae-el-oujdi.png" },
     ];
 
     const milestones = [
@@ -326,7 +326,7 @@ export default function AboutPage() {
                                             <img
                                                 src={member.img}
                                                 alt={member.name}
-                                                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                                                className="w-full h-full object-cover md:grayscale md:group-hover:grayscale-0 transition-all duration-500"
                                             />
                                         ) : (
                                             <div className={`w-full h-full ${member.color} flex items-center justify-center text-white text-3xl font-black`}>

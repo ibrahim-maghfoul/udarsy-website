@@ -47,6 +47,16 @@ export default function Home() {
   const commonT = useTranslations('Common');
   const [showButton, setShowButton] = useState(false);
   const [coursesEl, setCoursesEl] = useState<HTMLDivElement | null>(null);
+  const [teamsEl, setTeamsEl] = useState<HTMLDivElement | null>(null);
+  const [teamsVisible, setTeamsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check, { passive: true });
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   useEffect(() => {
     if (!coursesEl) return;
@@ -63,6 +73,16 @@ export default function Home() {
     observer.observe(coursesEl);
     return () => observer.disconnect();
   }, [coursesEl]);
+
+  useEffect(() => {
+    if (!teamsEl) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setTeamsVisible(entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    observer.observe(teamsEl);
+    return () => observer.disconnect();
+  }, [teamsEl]);
 
   return (
     <div className="min-h-screen font-roboto bg-white selection:bg-green/10 selection:text-green">
@@ -105,13 +125,13 @@ export default function Home() {
         <LazySection minHeight={500}><WorksSection /></LazySection>
         <LazySection minHeight={700}><PlatformFeatures /></LazySection>
         <LazySection minHeight={500}><PricingSection /></LazySection>
-        <LazySection minHeight={400}><TeamSection /></LazySection>
+        <div ref={setTeamsEl}><LazySection minHeight={400}><TeamSection /></LazySection></div>
 
-        <Link href="/explore" aria-hidden={!showButton} tabIndex={showButton ? 0 : -1}>
+        <Link href="/explore" aria-hidden={!(showButton && !(isMobile && teamsVisible))} tabIndex={showButton && !(isMobile && teamsVisible) ? 0 : -1}>
           <button
             onClick={() => trackEvent({ event: 'cta_click', category: 'Conversion', label: 'floating_start_learning' })}
             className={`fixed bottom-24 right-4 md:bottom-8 md:right-8 bg-dark text-white font-semibold text-sm p-[14px_26px] rounded-full shadow-[0_6px_28px_rgba(0,0,0,0.28)] z-[100] transition-[opacity,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_36px_rgba(0,0,0,0.35)] ${
-              showButton ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-[0.8] translate-y-5 pointer-events-none'
+              showButton && !(isMobile && teamsVisible) ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-[0.8] translate-y-5 pointer-events-none'
             }`}
           >
             {commonT('start_learning')} →

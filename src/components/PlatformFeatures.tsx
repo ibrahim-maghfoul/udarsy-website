@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   BarChart2, MessageSquare, Headphones, BookOpen, Star, Video,
   CloudOff, Users, Compass, Zap, Shield, Globe, TrendingUp,
-  Bell, FileText, Heart,
+  Bell, FileText, Heart, Sparkles,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -479,6 +479,14 @@ export function PlatformFeatures() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!visible) return;
+    const iv = setInterval(() => {
+      setFlipped(p => ({ ...p, ai: !p.ai }));
+    }, 2000);
+    return () => clearInterval(iv);
+  }, [visible]);
+
   const fullW = 7 * CELL + 6 * GAP;
   const fullH = 5 * CELL + 4 * GAP;
 
@@ -549,6 +557,52 @@ export function PlatformFeatures() {
               </div>
             );
           })}
+          {/* AI Feature card — diagonal rotate3d flip (unique axis) */}
+          {(() => {
+            const isFlippedAI = !!flipped["ai"];
+            const CT = "transform 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.38s ease";
+            return (
+              <div
+                className="relative rounded-2xl cursor-pointer overflow-hidden"
+                style={{ height: 88, perspective: "600px" }}
+                onClick={() => setFlipped(p => ({ ...p, ai: !p.ai }))}
+              >
+                {/* Front face — indigo */}
+                <div style={{
+                  position: "absolute", inset: 0, display: "flex", flexDirection: "column",
+                  alignItems: "center", justifyContent: "center", gap: 6, padding: 10,
+                  borderRadius: 16, background: "linear-gradient(135deg,#312e81,#4f46e5)",
+                  boxShadow: "0 6px 22px rgba(79,70,229,0.35)",
+                  transition: CT,
+                  transform: isFlippedAI ? "rotate3d(1,1,0,90deg)" : "rotate3d(1,1,0,0deg)",
+                  opacity: isFlippedAI ? 0 : 1,
+                }}>
+                  <div style={{ position: "absolute", inset: 0, opacity: 0.08, borderRadius: 16, ...getTexture("t-rings", "white") }} />
+                  <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                    <Sparkles size={18} color="#fff" strokeWidth={1.8} />
+                    <span style={{ fontWeight: 700, fontSize: 10, color: "#fff", textAlign: "center", lineHeight: 1.3 }}>{t("ai_card_title")}</span>
+                  </div>
+                </div>
+                {/* Back face — deeper purple */}
+                <div style={{
+                  position: "absolute", inset: 0, display: "flex", flexDirection: "column",
+                  alignItems: "center", justifyContent: "center", gap: 4, padding: 10,
+                  borderRadius: 16, background: "linear-gradient(135deg,#4f46e5,#7c3aed)", overflow: "hidden",
+                  transition: CT,
+                  transform: isFlippedAI ? "rotate3d(1,1,0,0deg)" : "rotate3d(1,1,0,-90deg)",
+                  opacity: isFlippedAI ? 1 : 0,
+                }}>
+                  <div style={{ position: "absolute", inset: 0, opacity: 0.15, ...getTexture("t-rings", "white") }} />
+                  <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                    <Sparkles size={16} color="#fff" strokeWidth={1.8} />
+                    <span style={{ fontWeight: 700, fontSize: 10, color: "#fff", textAlign: "center", lineHeight: 1.3 }}>{t("ai_card_title")}</span>
+                    <span style={{ fontSize: 8, color: "rgba(255,255,255,0.78)", textAlign: "center", lineHeight: 1.3 }}>{t("ai_card_desc")}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Center card — spans full row */}
           <div
             className="col-span-3 rounded-2xl overflow-hidden cursor-pointer mt-2"

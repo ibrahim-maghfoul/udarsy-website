@@ -88,6 +88,11 @@ export default function LessonPage() {
 
     // Mobile resource action menu
     const [mobileMenu, setMobileMenu] = useState<{ resource: any; type: string; aiHref: string; isPdf: boolean } | null>(null);
+    const [mobileMenuClosing, setMobileMenuClosing] = useState(false);
+    const closeMobileMenu = () => {
+        setMobileMenuClosing(true);
+        setTimeout(() => { setMobileMenu(null); setMobileMenuClosing(false); }, 280);
+    };
 
     // AI explanation state
     const [aiAnswer, setAiAnswer] = useState<string | null>(null);
@@ -290,6 +295,20 @@ export default function LessonPage() {
             console.error('Failed to mark complete:', error);
         }
     }, [activeResource, user, lessonId, lesson?.subjectId, localCompletedResources, refreshUser, router]);
+
+    const handleMarkMobileResourceComplete = useCallback(async (resource: any, type: string) => {
+        if (!user) { router.push('/signup'); return; }
+        const id = safeId(resource);
+        if (!localCompletedResources.includes(id)) {
+            setLocalCompletedResources(prev => [...prev, id]);
+        }
+        try {
+            await markResourceComplete({ lessonId, subjectId: lesson?.subjectId || '', resourceId: id, resourceType: type, isCompleted: true });
+            refreshUser();
+        } catch (error) {
+            console.error('Failed to mark complete:', error);
+        }
+    }, [user, lessonId, lesson?.subjectId, localCompletedResources, refreshUser, router]);
 
     const handleToggleFavorite = useCallback(async () => {
         if (!user) return router.push('/signup');
@@ -559,11 +578,11 @@ export default function LessonPage() {
         {mobileMenu && (
             <div
                 className="fixed inset-0 z-[300] lg:hidden flex items-end"
-                onClick={() => setMobileMenu(null)}
+                onClick={closeMobileMenu}
             >
                 <div className="absolute inset-0 bg-black/30" />
                 <div
-                    className="relative w-full bg-white rounded-t-[28px] p-6 pb-8 shadow-2xl space-y-3 animate-drawer-up"
+                    className={`relative w-full bg-white rounded-t-[28px] p-6 pb-8 shadow-2xl space-y-3 ${mobileMenuClosing ? 'animate-drawer-down' : 'animate-drawer-up'}`}
                     onClick={e => e.stopPropagation()}
                 >
                     {/* Handle */}
@@ -577,7 +596,7 @@ export default function LessonPage() {
                                 trackResourceView({ lessonId, subjectId: lesson?.subjectId || '', resourceId: safeId(mobileMenu.resource), resourceType: mobileMenu.type });
                                 refreshUser();
                             }
-                            setMobileMenu(null);
+                            closeMobileMenu();
                         }}
                     >
                         <ExternalLink size={20} className="text-green flex-shrink-0" />
@@ -587,28 +606,43 @@ export default function LessonPage() {
                         const plan = user?.subscription?.plan || 'free';
                         const usage = getAiUsage();
                         const aiLocked = !user || (plan === 'free' && usage.explanations >= 1);
+                        const isMobileCompleted = localCompletedResources.includes(safeId(mobileMenu.resource));
                         return (
                             <div className="space-y-1">
                                 <p className={`font-bold text-dark text-sm mt-2 mb-1 ${isRTL ? 'text-right' : 'text-left'}`}>{t('understand_with_ai')}</p>
-                                <button
-                                    className={`flex items-center gap-3 w-full p-4 border rounded-2xl font-bold text-sm active:scale-[0.98] transition-transform ${aiLocked ? 'bg-amber-50 border-amber-200/60 text-amber-700' : 'bg-[#f0f4ff] border-indigo-200/50 text-dark'}`}
-                                    onClick={() => {
-                                        setMobileMenu(null);
-                                        if (!user) { router.push('/login'); return; }
-                                        if (plan === 'free' && usage.explanations >= 1) { router.push('/pricing'); return; }
-                                        router.push(mobileMenu.aiHref);
-                                    }}
-                                >
-                                    {aiLocked ? <Lock size={20} className="text-amber-400 flex-shrink-0" /> : <Sparkles size={20} className="text-indigo-500 flex-shrink-0" />}
-                                    <span className="flex-1 text-start">{aiLocked ? t('ai_free_limit_title') : t('ai_explain_btn')}</span>
-                                    {aiLocked && <span className="text-[10px] font-black text-amber-500 uppercase tracking-wide bg-amber-100 px-2 py-0.5 rounded-full shrink-0">{t('ai_upgrade_pro')}</span>}
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        className={`flex items-center gap-3 flex-1 p-4 border rounded-2xl font-bold text-sm active:scale-[0.98] transition-transform ${aiLocked ? 'bg-amber-50 border-amber-200/60 text-amber-700' : 'bg-[#f0f4ff] border-indigo-200/50 text-dark'}`}
+                                        onClick={() => {
+                                            closeMobileMenu();
+                                            if (!user) { router.push('/login'); return; }
+                                            if (plan === 'free' && usage.explanations >= 1) { router.push('/pricing'); return; }
+                                            router.push(mobileMenu.aiHref);
+                                        }}
+                                    >
+                                        {aiLocked ? <Lock size={20} className="text-amber-400 flex-shrink-0" /> : <Sparkles size={20} className="text-indigo-500 flex-shrink-0" />}
+                                        <span className="flex-1 text-start">{aiLocked ? t('ai_free_limit_title') : t('ai_explain_btn')}</span>
+                                        {aiLocked && <span className="text-[10px] font-black text-amber-500 uppercase tracking-wide bg-amber-100 px-2 py-0.5 rounded-full shrink-0">{t('ai_upgrade_pro')}</span>}
+                                    </button>
+                                    {user && (
+                                        <button
+                                            disabled={isMobileCompleted}
+                                            className={`flex items-center gap-2 px-4 py-4 border rounded-2xl font-bold text-sm active:scale-[0.98] transition-transform shrink-0 ${isMobileCompleted ? 'bg-green text-white border-green cursor-default' : 'bg-green/8 border-green/20 text-green hover:bg-green hover:text-white'}`}
+                                            onClick={() => {
+                                                handleMarkMobileResourceComplete(mobileMenu.resource, mobileMenu.type);
+                                                closeMobileMenu();
+                                            }}
+                                        >
+                                            <CheckCircle2 size={18} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         );
                     })()}
                     <button
                         className="flex items-center justify-center w-full p-3 text-sm font-medium text-dark/50 active:bg-dark/5 rounded-2xl transition-colors"
-                        onClick={() => setMobileMenu(null)}
+                        onClick={closeMobileMenu}
                     >
                         <X size={16} className="mr-1.5" /> Cancel
                     </button>

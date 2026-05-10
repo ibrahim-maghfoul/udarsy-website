@@ -82,7 +82,7 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
     return (
         <div className="space-y-10">
             {/* Tabs Navigation — design-system pill style, scrollable on mobile */}
-            <div className="flex items-center justify-center mb-10">
+            <div className="flex items-center justify-center mb-4 md:mb-10">
                 <div className="flex items-center bg-white rounded-[22px] p-1.5 shadow-lg shadow-black/[0.05] border border-green/10 overflow-x-auto scrollbar-none max-w-full gap-0.5">
                     {tabs.map((tab) => {
                         const Icon = TAB_ICONS[tab];
@@ -128,21 +128,30 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
             </div>
 
             {/* Grid */}
-            <div className="flex flex-wrap justify-center gap-8">
-                {currentItems.map((item) => (
-                    <div key={item.id}>
-                        <NewsCard
-                            title={item.title}
-                            subtitle={item.subtitle}
-                            category={item.category}
-                            image={item.image}
-                            href={`/news/${item.id}`}
-                            date={item.date}
-                            readTime={item.readTime}
-                        />
-                    </div>
-                ))}
-            </div>
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={activeTab}
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="show"
+                    exit="hidden"
+                    className="flex flex-wrap justify-center gap-8 sm:gap-8 gap-y-14 sm:gap-y-8"
+                >
+                    {currentItems.map((item) => (
+                        <motion.div key={item.id} variants={itemVariants}>
+                            <NewsCard
+                                title={item.title}
+                                subtitle={item.subtitle}
+                                category={item.category}
+                                image={item.image}
+                                href={`/news/${item.id}`}
+                                date={item.date}
+                                readTime={item.readTime}
+                            />
+                        </motion.div>
+                    ))}
+                </motion.div>
+            </AnimatePresence>
 
             {/* Empty state */}
             {currentItems.length === 0 && (

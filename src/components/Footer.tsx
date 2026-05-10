@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Facebook, Twitter, Instagram, Youtube, Send, Loader2, CheckCircle } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, Send, Loader2, CheckCircle, Globe } from "lucide-react";
 import Link from "next/link";
 import { UdarsyLogo } from "./UdarsyLogo";
 
@@ -65,6 +65,7 @@ export function Footer() {
                             <a href={SOCIALS.instagram} target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Instagram size={12} /></a>
                             <a href={SOCIALS.facebook} target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Facebook size={12} /></a>
                             <a href={SOCIALS.youtube} target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Youtube size={12} /></a>
+                            <a href={SOCIALS.website} target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Globe size={12} /></a>
                         </div>
                     </div>
 

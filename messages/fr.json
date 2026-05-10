@@ -223,7 +223,9 @@
                 "back_title": "Vos certificats",
                 "back_desc": "Téléchargez et partagez."
             }
-        }
+        },
+        "ai_card_title": "Apprentissage IA",
+        "ai_card_desc": "Réponses IA, instantané."
     },
     "Footer": {
         "desc": "Apprenez les compétences qui comptent vraiment — ensemble.",

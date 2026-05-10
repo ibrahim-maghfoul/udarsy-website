@@ -374,3 +374,13 @@
     opacity: 1;
     /* light green pump color constrained to card bg */
 }
+
+@media (max-width: 640px) {
+    .cardWrapper {
+        transform: scale(1.12);
+        transform-origin: top center;
+    }
+    .cardWrapper:hover {
+        transform: scale(1.12) translateY(-4px);
+    }
+}

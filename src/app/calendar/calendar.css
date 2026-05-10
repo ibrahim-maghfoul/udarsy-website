@@ -1273,11 +1273,16 @@
   /* Hide desktop sidebar + hamburger + FAB */
   .left-sidebar, .hamburger-btn, .fab{ display:none !important; }
 
+  .shell{ overflow-x:hidden; }
+
   .mobile-add-btn{
     display:flex;
     align-items:center;justify-content:center;
     gap:10px;
     width:100%;
+    max-width:100%;
+    box-sizing:border-box;
+    overflow:hidden;
     height:54px;flex-shrink:0;
     padding:0 14px;
     border-radius:14px;
@@ -1295,6 +1300,9 @@
   }
   .mobile-add-btn:hover{ transform:scale(1.02); box-shadow:0 10px 30px rgba(22,163,74,.45); }
   .mobile-add-btn:active{ transform:scale(.97); }
+
+  .upc-two-col{ grid-template-columns:1fr; gap:0; overflow:hidden; max-width:100%; }
+  .upcoming-item{ max-width:100%; box-sizing:border-box; overflow:hidden; }
 
   /* ── Cal nav mobile layout ── */
   .cal-nav{
@@ -1353,8 +1361,8 @@
   .mday-band{ font-size:0 !important; padding-left:4px; }
 }
 @media(max-width:900px){
-  .row3-grid{grid-template-columns:1fr !important;}
-  .row3-grid .cal-card{height:auto !important;min-height:340px;}
+  .row3-grid{grid-template-columns:1fr !important; overflow:hidden; max-width:100%; box-sizing:border-box;}
+  .row3-grid .cal-card{height:auto !important;min-height:340px; max-width:100%; box-sizing:border-box; overflow:hidden;}
   .row3-events{order:1;}
   .row3-todos{order:2;}
 }
