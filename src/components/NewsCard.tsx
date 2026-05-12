@@ -4,7 +4,7 @@ import { useId } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-    Zap, BookOpen, Megaphone, Users, Globe, Star, Heart, type LucideIcon,
+    Zap, BookOpen, Megaphone, Users, Globe, Star, Heart, Eye, type LucideIcon,
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import api from '@/lib/api';
@@ -91,22 +91,35 @@ interface NewsCardProps {
     image?: string;
     date?: string;
     readTime?: string;
+    rating?: number;
+    viewCount?: number;
     href?: string;
-    icon?: LucideIcon; // optional override icon
+    icon?: LucideIcon;
     children?: React.ReactNode;
-    subtitle?: string; // alias for compat
-    description?: React.ReactNode; // alias for compat
+    subtitle?: string;
+    description?: React.ReactNode;
+    status?: string;    // 'open' | 'closed' | 'unknown'
+    deadline?: string;  // ISO date string YYYY-MM-DD
 }
+
+const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+    open:    { bg: '#3aaa6a', text: '#fff', label: 'Ouvert' },
+    closed:  { bg: '#ef4444', text: '#fff', label: 'Fermé' },
+    unknown: { bg: '#f59e0b', text: '#fff', label: '?' },
+};
 
 export default function NewsCard({
     title = 'Untitled Article',
     category = 'General',
     image = 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&q=80',
     date = '',
-    readTime = '',
+    rating,
+    viewCount,
     href,
     icon,
     children,
+    status,
+    deadline,
 }: NewsCardProps) {
     const t = useTranslations('News');
     const uid = useId().replace(/:/g, '');
@@ -185,7 +198,7 @@ export default function NewsCard({
                 aria-hidden="true"
             >
                 <defs>
-                    <linearGradient id={gid} x1="0" y1="0" x2="0.4" y2="1">
+                    <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
                         <stop offset="0%" stopColor="#ffffff" />
                         <stop offset="100%" stopColor="#edf0f4" />
                     </linearGradient>
@@ -200,13 +213,17 @@ export default function NewsCard({
 
             {/* Clipped content layer */}
             <div style={{ position: 'absolute', inset: 0, clipPath: `path('${path}')` }}>
-                {/* Title — vertically centered in badge band, pushed right of the pill */}
+                {/* Title — 2-line clamp in badge band, pushed right of the pill */}
                 <div style={{
                     position: 'absolute',
                     top: 0, left: TITLE_LEFT, right: TITLE_RIGHT, height: TITLE_H,
                     display: 'flex', alignItems: 'center', overflow: 'hidden',
                 }}>
-                    <span style={{ fontWeight: 700, fontSize: 14, color: '#1a1f2e', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <span style={{
+                        fontWeight: 700, fontSize: 12, color: '#1a1f2e', lineHeight: 1.35,
+                        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                    }}>
                         {title}
                     </span>
                 </div>
@@ -228,16 +245,54 @@ export default function NewsCard({
                     />
                 </div>
 
-                {/* Meta — vertically centered in read pill band, pushed left of the pill */}
+                {/* Status badge — top-right corner of the image area */}
+                {status && status !== 'unknown' && (
+                    <div style={{
+                        position: 'absolute',
+                        top: IMG_TOP + 8,
+                        right: IMG_RIGHT + 8,
+                        background: STATUS_STYLES[status]?.bg || '#64748b',
+                        color: STATUS_STYLES[status]?.text || '#fff',
+                        fontSize: 9,
+                        fontWeight: 800,
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        padding: '3px 8px',
+                        borderRadius: 20,
+                        zIndex: 5,
+                        pointerEvents: 'none',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+                    }}>
+                        {STATUS_STYLES[status]?.label}
+                    </div>
+                )}
+
+                {/* Meta — rating + views + deadline in read pill band */}
                 <div style={{
                     position: 'absolute',
                     bottom: 0, left: META_LEFT, right: META_RIGHT, height: META_H,
-                    display: 'flex', alignItems: 'center', overflow: 'hidden',
+                    display: 'flex', alignItems: 'center', gap: 10, overflow: 'hidden',
                 }}>
                     {children || (
-                        <span style={{ fontSize: 11, color: '#8a97a8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {date}{date && readTime ? ' · ' : ''}{readTime}
-                        </span>
+                        <>
+                            {rating != null && rating > 0 && (
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 700, color: '#f59e0b', whiteSpace: 'nowrap' }}>
+                                    <Star size={11} fill="#f59e0b" strokeWidth={0} />
+                                    {Number(rating).toFixed(1)}
+                                </span>
+                            )}
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600, color: '#8a97a8', whiteSpace: 'nowrap' }}>
+                                <Eye size={11} />
+                                {(viewCount ?? 0) >= 1000 ? `${((viewCount ?? 0) / 1000).toFixed(1)}k` : (viewCount ?? 0)}
+                            </span>
+                            {deadline ? (
+                                <span style={{ fontSize: 10, color: '#3aaa6a', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                                    ⏰ {deadline}
+                                </span>
+                            ) : date ? (
+                                <span style={{ fontSize: 11, color: '#8a97a8', whiteSpace: 'nowrap' }}>{date}</span>
+                            ) : null}
+                        </>
                     )}
                 </div>
             </div>

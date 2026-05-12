@@ -65,19 +65,33 @@ export const calendarService = {
     await api.delete(`/calendar/todos/${id}`);
   },
 
-  getGlobalEvents: async (): Promise<CalEvent[]> => {
-    const res = await api.get('/calendar/global');
-    // Map DB docs to CalEvent shape and ensure isGlobal flag
+  getGlobalEvents: async (locale: string = 'ar'): Promise<CalEvent[]> => {
+    const res = await api.get(`/calendar/global?locale=${locale}`);
     return (res.data as any[]).map((e: any) => ({
-      id: e.id || e._id,
-      title: e.title,
-      desc: e.desc,
-      date: e.date,
-      endDate: e.endDate,
-      category: e.category,
-      color: e.color,
-      isGlobal: true,
+      id:        e.id || e._id,
+      title:     e.title,
+      desc:      e.desc,
+      date:      e.date,
+      endDate:   e.endDate,
+      category:  e.category,
+      color:     e.color,
+      isGlobal:  true,
       createdAt: e.createdAt || '',
+    }));
+  },
+
+  getMoroccanHolidays: async (locale: string = 'ar'): Promise<CalEvent[]> => {
+    const res = await api.get(`/moroccan-holidays?locale=${locale}`);
+    return (res.data as any[]).map((e: any) => ({
+      id:        e.id,
+      title:     e.title,
+      desc:      e.desc,
+      date:      e.date,
+      endDate:   e.endDate,
+      category:  e.category,
+      color:     e.color,
+      isGlobal:  true,
+      createdAt: '',
     }));
   },
 };

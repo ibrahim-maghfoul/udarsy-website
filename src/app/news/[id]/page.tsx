@@ -4,7 +4,7 @@
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, ExternalLink, Download, FileText, Share2, Heart, MessageCircle, Send, Star, Eye, Clock, ChevronRight } from "lucide-react";
+import { ArrowLeft, Calendar, ExternalLink, Download, FileText, Heart, MessageCircle, Send, Star, Eye, ChevronRight, CircleCheck, CircleX, CircleDot } from "lucide-react";
 import { DownloadButton } from "@/components/DownloadButton";
 import { ResourceButton } from "@/components/ResourceButton";
 import { CookiesWindow } from "@/components/CookiesWindow";
@@ -15,6 +15,8 @@ import api from "@/lib/api";
 import { useTranslations } from "next-intl";
 
 const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+
+const viewedNewsIds = new Set<string>();
 
 const isArabic = (text: string) => /[\u0600-\u06FF]/.test(text || "");
 
@@ -31,9 +33,6 @@ const renderText = (text: string, style: any, forceBlack = false, forceWhite = f
             <span style={{
                 color: forceBlack ? "#111" : (forceWhite ? "#fff" : (isColored(style?.color) ? "#3aaa6a" : (style?.color || "inherit"))),
                 fontWeight: style?.is_bold ? "900" : "inherit",
-                fontSize: style?.font_size || "inherit",
-                textAlign: (style?.align as any) || "inherit",
-                display: style?.align ? "block" : "inline"
             }}>
                 {line}
             </span>
@@ -94,41 +93,57 @@ const renderBlock = (block: any, index: number) => {
                     <DownloadButton href={block.url} text={renderText(block.text, block.style, false, true)} />
                 </motion.div>
             );
-        case "table":
-            return (
-                <div key={index} className="relative group my-12">
-                    <div className="relative overflow-hidden rounded-[36px] bg-white/80 border border-white/40 shadow-xl backdrop-blur-xl">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse min-w-[600px]">
-                                <thead>
-                                    <tr className="bg-gray-50/50">
-                                        {block.rows[0].map((cell: any, i: number) => (
-                                            <th key={i} className="p-6 text-xl font-black text-green uppercase tracking-[0.25em] border-b border-gray-100/50 text-right">
-                                                {renderText(cell.text, cell.style, false)}
-                                            </th>
-                                        ))}
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50/30">
-                                    {block.rows.slice(1).map((row: any[], ri: number) => (
-                                        <tr key={ri} className="hover:bg-white/40 transition-all">
-                                            {row.map((cell: any, ci: number) => (
-                                                <td key={ci} className="p-6 text-[15px] font-medium text-dark/70 leading-relaxed border-r border-gray-50/20 last:border-r-0 text-right">
-                                                    <div className={cell.is_header ? "font-black text-dark" : ""}>
-                                                        {cell.link ? (
-                                                            <DownloadButton href={cell.link.url} text={renderText(cell.text || cell.link.text, cell.style, false, true)} isSmall showArrow={false} />
-                                                        ) : renderText(cell.text, cell.style, true)}
-                                                    </div>
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+        case "table": {
+            const allText = block.rows.flat().map((c: any) => c.text || "").join(" ");
+            const tableIsAr = isArabic(allText);
+            const renderCellLinks = (cell: any) => {
+                const links: any[] = Array.isArray(cell.link) ? cell.link : cell.link ? [cell.link] : [];
+                if (!links.length) return renderText(cell.text, cell.style, true);
+                return (
+                    <div className="flex flex-col gap-1">
+                        {cell.text && !links.some((l: any) => l.text === cell.text) && (
+                            <span>{renderText(cell.text, cell.style, true)}</span>
+                        )}
+                        {links.map((lk: any, li: number) => lk.isAttachment ? (
+                            <DownloadButton key={li} href={lk.url} text={lk.text} isSmall showArrow={false} />
+                        ) : (
+                            <a key={li} href={lk.url} target="_blank" rel="noopener noreferrer"
+                               className="inline-flex items-center gap-1 text-[#1565c0] font-semibold hover:underline">
+                                {lk.text}<ExternalLink size={12} />
+                            </a>
+                        ))}
                     </div>
+                );
+            };
+            return (
+                <div key={index} className="my-8 overflow-x-auto" dir={tableIsAr ? "rtl" : "ltr"}>
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr>
+                                {block.rows[0].map((cell: any, i: number) => (
+                                    <th key={i} className="pb-3 pt-6 text-base font-bold text-dark border-b border-gray-200 first:pt-0">
+                                        {renderCellLinks(cell)}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {block.rows.slice(1).map((row: any[], ri: number) => (
+                                <tr key={ri}>
+                                    {row.map((cell: any, ci: number) => (
+                                        <td key={ci} className="py-4 px-1 text-[15px] font-medium text-dark/70 leading-relaxed">
+                                            <div className={cell.is_header ? "font-bold text-dark" : ""}>
+                                                {renderCellLinks(cell)}
+                                            </div>
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             );
+        }
         case "video":
             if (block.platform === "youtube" && block.embed_url) {
                 return (
@@ -160,7 +175,7 @@ export default function NewsDetailPage() {
     const [article, setArticle] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
-    const { user, checkAuth, getPhotoURL, getResourceURL } = useAuth();
+    const { user, checkAuth, refreshUser, getPhotoURL, getResourceURL } = useAuth();
     const { showSnackbar } = useSnackbar();
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -192,17 +207,9 @@ export default function NewsDetailPage() {
     }, [id]);
 
     useEffect(() => {
-        // Track view
-        const trackView = async () => {
-            try {
-                await api.post(`/news/${id}/view`);
-                // Increment locally for immediate feedback if needed, 
-                // but article object will have the server value on load
-            } catch (err) {
-                console.error('Failed to track view:', err);
-            }
-        };
-        trackView();
+        if (!id || viewedNewsIds.has(id)) return;
+        viewedNewsIds.add(id);
+        api.post(`/news/${id}/view`).catch(err => console.error('Failed to track view:', err));
     }, [id]);
 
     useEffect(() => {
@@ -243,8 +250,14 @@ export default function NewsDetailPage() {
             const res = await api.post('/user/saved-news', { newsId: id });
             setIsSaved(res.data.savedNews.includes(id));
             await checkAuth();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to toggle save', error);
+            if (error?.response?.status === 401) {
+                showSnackbar('Session expired. Please log in again.', 'info');
+                refreshUser();
+            } else {
+                showSnackbar('Failed to save article. Please try again.', 'error');
+            }
         } finally {
             setIsSaving(false);
         }
@@ -307,11 +320,29 @@ export default function NewsDetailPage() {
         );
     }
 
-    // Extract hero image from article data
+    // Extract hero image from article data (organized or raw)
     const heroImage = article.imageUrl
         || article.images?.[0]?.src
         || article.content_blocks?.find((b: any) => b.type === 'image')?.src
         || null;
+
+    // Status helpers
+    const statusConfig: Record<string, { color: string; bg: string; icon: React.ReactNode; label: string }> = {
+        open:    { color: '#3aaa6a', bg: 'rgba(58,170,106,0.15)', icon: <CircleCheck size={13} />, label: 'Ouvert' },
+        closed:  { color: '#ef4444', bg: 'rgba(239,68,68,0.12)',  icon: <CircleX size={13} />,    label: 'Fermé' },
+        unknown: { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', icon: <CircleDot size={13} />,  label: 'Statut inconnu' },
+    };
+    const statusInfo = statusConfig[article.status] || statusConfig.unknown;
+
+    const DATE_LABELS: Record<string, string> = {
+        deadline:     'Date limite',
+        registration: 'Inscription',
+        exam:         'Examen',
+        results:      'Résultats',
+        interview:    'Entretien',
+        update:       'Mise à jour',
+        date:         'Date',
+    };
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen pb-32 bg-white">
@@ -353,6 +384,13 @@ export default function NewsDetailPage() {
                         <span className="px-4 py-1.5 rounded-full bg-green text-white text-[11px] font-black uppercase tracking-wider">
                             {article.type || article.category}
                         </span>
+                        {/* Status badge */}
+                        {article.status && (
+                            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black backdrop-blur-sm"
+                                style={{ background: statusInfo.bg, color: statusInfo.color }}>
+                                {statusInfo.icon}{statusInfo.label}
+                            </span>
+                        )}
                         {article.card_date && (
                             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold text-white/60 backdrop-blur-sm" style={{ background: 'rgba(255,255,255,0.08)' }}>
                                 <Calendar size={11} />{article.card_date}
@@ -364,7 +402,7 @@ export default function NewsDetailPage() {
                         {(article.rating?.average || article.rating) ? (
                             <span className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-black text-amber-300 backdrop-blur-sm" style={{ background: 'rgba(251,191,36,0.12)' }}>
                                 <Star size={11} className="fill-current" />
-                                {(article.rating?.average || article.rating || 0).toFixed(1)}
+                                {Number(article.rating?.average ?? article.rating ?? 0).toFixed(1)}
                             </span>
                         ) : null}
                     </div>
@@ -407,7 +445,7 @@ export default function NewsDetailPage() {
                 {(article.rating?.average || article.rating) ? (
                     <span className="flex items-center gap-1 text-xs text-amber-500 font-black shrink-0">
                         <Star size={12} className="fill-current" />
-                        {(article.rating?.average || article.rating || 0).toFixed(1)}
+                        {Number(article.rating?.average ?? article.rating ?? 0).toFixed(1)}
                     </span>
                 ) : null}
                 {/* Save */}
@@ -427,14 +465,119 @@ export default function NewsDetailPage() {
                 {/* Green accent line */}
                 <div className="h-1 w-16 rounded-full bg-green mx-auto -mt-0.5 mb-12" />
 
+                {/* ── Important Dates Timeline ──────────────────────────── */}
+                {article.important_dates && article.important_dates.length > 0 && (
+                    <section className="mb-12">
+                        <div className="flex items-center gap-3 mb-5">
+                            <div className="w-9 h-9 rounded-xl bg-green/10 flex items-center justify-center text-green shrink-0">
+                                <Calendar size={17} />
+                            </div>
+                            <h3 className="text-lg font-black text-dark tracking-tight">Dates importantes</h3>
+                        </div>
+                        <div className="relative pl-5 border-l-2 border-green/15 space-y-4">
+                            {article.important_dates.map((d: any, i: number) => {
+                                const today = new Date().toISOString().slice(0, 10);
+                                const isPast = d.date < today;
+                                const isDeadline = ['deadline', 'registration', 'exam'].includes(d.label);
+                                return (
+                                    <motion.div key={i} initial={{ opacity: 0, x: -12 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
+                                        className={`relative flex items-start gap-4 p-4 rounded-2xl border transition-all ${isPast ? 'bg-gray-50/60 border-gray-100' : 'bg-white border-green/10 shadow-sm'}`}>
+                                        {/* Timeline dot */}
+                                        <div className={`absolute -left-[21px] w-4 h-4 rounded-full border-2 border-white shrink-0 mt-0.5 ${isPast ? 'bg-gray-300' : isDeadline ? 'bg-red-400' : 'bg-green'}`} />
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${isPast ? 'bg-gray-100 text-gray-400' : isDeadline ? 'bg-red-50 text-red-500' : 'bg-green/8 text-green'}`}>
+                                                    {DATE_LABELS[d.label] || d.label}
+                                                </span>
+                                                {!isPast && isDeadline && (
+                                                    <span className="text-[10px] font-bold text-red-400">Délai actif</span>
+                                                )}
+                                            </div>
+                                            <p className={`text-base font-black mt-1 ${isPast ? 'text-dark/35 line-through' : 'text-dark'}`}>
+                                                {d.date}
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
+                        </div>
+                    </section>
+                )}
+
                 {/* Content */}
-                <div className="mb-16 overflow-x-hidden" dir="rtl">
-                    <article className="prose md:prose-xl max-w-none text-right prose-headings:text-dark prose-p:text-dark/75 prose-p:leading-[1.9] prose-li:text-dark/75">
+                <div className="mb-16 overflow-x-hidden">
+                    <article className="prose md:prose-xl max-w-none prose-headings:text-dark prose-p:text-dark/75 prose-p:leading-[1.9] prose-li:text-dark/75">
                         {article.content_blocks && article.content_blocks.length > 0
                             ? article.content_blocks.map((block: any, idx: number) => renderBlock(block, idx))
-                            : (article.paragraphs || []).map((p: string, idx: number) => (
-                                <p key={idx} className="mb-8 text-lg leading-[1.9]">{p}</p>
-                            ))
+                            : article.content_sections && article.content_sections.length > 0
+                                ? article.content_sections.map((sec: any, idx: number) => {
+                                    const arabicCharCount = (s: string) => (s.match(/[؀-ۿ]/g) || []).length;
+                                    const latinCharCount = (s: string) => (s.match(/[a-zA-ZÀ-ɏ]/g) || []).length;
+                                    const textDir = (s: string) => {
+                                        const ar = arabicCharCount(s), lat = latinCharCount(s);
+                                        if (ar === 0 && lat === 0) return 'auto';
+                                        return ar > lat ? 'rtl' : 'ltr';
+                                    };
+                                    return (
+                                        <div key={idx} className="mb-10">
+                                            {sec.heading && (
+                                                <h3 className={`text-green font-black mt-6 mb-3 md:mt-10 md:mb-5 text-sm md:text-xl tracking-tight leading-[1.2] ${textDir(sec.heading) === 'rtl' ? 'text-right' : 'text-left'}`}
+                                                    dir={textDir(sec.heading)}>
+                                                    {sec.heading}
+                                                </h3>
+                                            )}
+                                            {(sec.body || []).map((line: string, li: number) => {
+                                                if (line.startsWith('__IMAGE:')) {
+                                                    const inner = line.slice(8);
+                                                    const pipeIdx = inner.indexOf('|');
+                                                    const src = pipeIdx > 0 ? inner.slice(0, pipeIdx) : inner;
+                                                    const alt = pipeIdx > 0 ? inner.slice(pipeIdx + 1) : '';
+                                                    return (
+                                                        <div key={li} className="my-8 relative overflow-hidden rounded-[24px] border border-gray-100">
+                                                            <img src={src} alt={alt} className="w-full h-auto object-cover" loading="lazy" />
+                                                            {alt && <p className="text-xs text-dark/40 italic text-center px-4 py-2">{alt}</p>}
+                                                        </div>
+                                                    );
+                                                }
+                                                if (line.startsWith('__VIDEO:')) {
+                                                    const inner = line.slice(8);
+                                                    const pipeIdx = inner.indexOf('|');
+                                                    const videoId = pipeIdx > 0 ? inner.slice(0, pipeIdx) : inner;
+                                                    const embedUrl = pipeIdx > 0 ? inner.slice(pipeIdx + 1) : `https://www.youtube.com/embed/${videoId}`;
+                                                    if (!videoId) return null;
+                                                    return (
+                                                        <div key={li} className="my-8 relative w-full rounded-[24px] overflow-hidden border border-gray-100 shadow-lg" style={{ paddingTop: '56.25%' }}>
+                                                            <iframe src={`${embedUrl}?rel=0&modestbranding=1`} title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }} />
+                                                        </div>
+                                                    );
+                                                }
+                                                if (line.startsWith('__LINK:')) {
+                                                    const inner = line.slice(7);
+                                                    const pipeIdx = inner.lastIndexOf('|');
+                                                    const label = pipeIdx > 0 ? inner.slice(0, pipeIdx) : inner;
+                                                    const href = pipeIdx > 0 ? inner.slice(pipeIdx + 1) : '#';
+                                                    return (
+                                                        <a key={li} href={href} target="_blank" rel="noopener noreferrer"
+                                                            className="flex items-center gap-1.5 text-green font-bold text-sm md:text-base underline underline-offset-2 decoration-green/40 hover:decoration-green my-1 transition-colors break-all">
+                                                            <ExternalLink size={12} className="shrink-0 opacity-70" />
+                                                            {label || href}
+                                                        </a>
+                                                    );
+                                                }
+                                                const dir = textDir(line);
+                                                return (
+                                                    <p key={li} className={`text-dark/80 leading-[1.8] mb-4 text-sm md:text-xl ${dir === 'rtl' ? 'text-right' : 'text-left'}`}
+                                                        dir={dir}>
+                                                        {line}
+                                                    </p>
+                                                );
+                                            })}
+                                        </div>
+                                    );
+                                })
+                                : (article.paragraphs || []).map((p: string, idx: number) => (
+                                    <p key={idx} className="mb-8 text-lg leading-[1.9]">{p}</p>
+                                ))
                         }
                     </article>
                 </div>
@@ -457,7 +600,7 @@ export default function NewsDetailPage() {
                                 </span>
                                 <div className="flex items-baseline gap-2 mt-1">
                                     <span className="text-4xl font-black text-dark">
-                                        {userRating > 0 ? userRating : (article.rating?.average || article.rating || 0).toFixed(1)}
+                                        {userRating > 0 ? userRating : Number(article.rating?.average ?? article.rating ?? 0).toFixed(1)}
                                     </span>
                                     <span className="text-dark/25 font-bold text-sm">/5</span>
                                 </div>
@@ -653,8 +796,8 @@ export default function NewsDetailPage() {
                 {/* Source link + footer */}
                 <footer className="pt-8 pb-4 border-t border-green/6 flex flex-col items-center gap-5">
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-dark/15">Verified by Udarsy Editorial Team</p>
-                    {article.url && (
-                        <a href={article.url} target="_blank" rel="noopener noreferrer"
+                    {(article.source_url || article.url) && (
+                        <a href={article.source_url || article.url} target="_blank" rel="noopener noreferrer"
                             className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-dark text-white font-bold text-xs hover:scale-105 transition-all duration-200 shadow-xl shadow-dark/15">
                             Original Source <ExternalLink size={13} strokeWidth={2.5} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                         </a>

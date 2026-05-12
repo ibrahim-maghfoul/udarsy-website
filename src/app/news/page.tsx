@@ -24,6 +24,13 @@ async function getNewsItems() {
                     : art.images?.[0]?.src
                     || imageFromBlocks
                     || FALLBACK_IMAGE;
+
+            // Nearest upcoming deadline from important_dates
+            const today = new Date().toISOString().slice(0, 10);
+            const upcomingDeadline = (art.important_dates || [])
+                .filter((d: any) => ['deadline', 'registration', 'exam'].includes(d.label) && d.date >= today)
+                .sort((a: any, b: any) => a.date.localeCompare(b.date))[0]?.date || '';
+
             return {
                 id: art._id?.toString(),
                 title: art.title || 'Untitled',
@@ -31,7 +38,12 @@ async function getNewsItems() {
                 category: art.category || 'General',
                 date: art.card_date || (art.createdAt ? new Date(art.createdAt).toLocaleDateString() : ''),
                 readTime: art.readTime || '',
+                rating: typeof art.rating === 'object' ? (art.rating?.average ?? 0) : (art.rating ?? 0),
+                viewCount: art.viewCount ?? 0,
                 image,
+                status: art.status || 'unknown',
+                language: art.language || 'mixed',
+                deadline: upcomingDeadline,
             };
         });
     } catch (e) {
@@ -48,7 +60,7 @@ export default async function NewsPage() {
     ]);
 
     return (
-        <div className="min-h-screen pt-6 md:pt-24 pb-32 px-[clamp(16px,5vw,48px)]">
+        <div className="min-h-screen pt-8 md:pt-24 lg:pt-36 pb-32 px-[clamp(16px,5vw,48px)]">
             <div className="max-w-7xl mx-auto space-y-10">
 
                 {/* Pill */}

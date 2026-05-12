@@ -50,6 +50,8 @@ export function WorksSection() {
     const locale = useLocale();
     const isRTL = locale === 'ar';
     const sectionRef = useRef<HTMLElement>(null);
+    const titleRefs = useRef<(HTMLSpanElement | null)[]>([]);
+    const [visibleTitles, setVisibleTitles] = useState<boolean[]>([false, false, false, false]);
 
     const [floatRunning, setFloatRunning] = useState(false);
     useEffect(() => {
@@ -59,6 +61,25 @@ export function WorksSection() {
         );
         if (sectionRef.current) obs.observe(sectionRef.current);
         return () => obs.disconnect();
+    }, []);
+
+    useEffect(() => {
+        const observers = titleRefs.current.map((el, i) => {
+            if (!el) return null;
+            const obs = new IntersectionObserver(
+                ([entry]) => {
+                    setVisibleTitles(prev => {
+                        const next = [...prev];
+                        next[i] = entry.isIntersecting;
+                        return next;
+                    });
+                },
+                { threshold: 0.4 }
+            );
+            obs.observe(el);
+            return obs;
+        });
+        return () => observers.forEach(obs => obs?.disconnect());
     }, []);
 
     const items = useMemo(() => [
@@ -108,7 +129,10 @@ export function WorksSection() {
                                 {`{ ${item.num} }`}
                             </span>
                             <div className="relative">
-                                <span className={`text-[clamp(26px,7vw,96px)] md:text-[clamp(42px,7vw,96px)] font-bold text-dark tracking-[-0.04em] leading-[1.05] transition-colors relative inline-block`}>
+                                <span
+                                    ref={el => { titleRefs.current[i] = el; }}
+                                    className={`text-[clamp(26px,7vw,96px)] md:text-[clamp(42px,7vw,96px)] font-bold tracking-[-0.04em] leading-[1.05] transition-colors duration-500 relative inline-block ${visibleTitles[i] ? 'text-green' : 'text-dark'}`}
+                                >
                                     {item.label}
                                     {hoveredIdx === i && (
                                         <motion.span

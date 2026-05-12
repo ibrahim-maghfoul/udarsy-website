@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { CalEvent, Todo, calendarService } from "@/services/calendar";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 export type { CalEvent, Todo };
 
@@ -71,7 +71,8 @@ function seedEvents(today: Date): CalEvent[] {
 export function CalendarProvider({ children }: { children: ReactNode }) {
   const TODAY = new Date(); TODAY.setHours(0,0,0,0);
   const { isAuthenticated } = useAuth();
-  const t = useTranslations("CalendarPage");
+  const t      = useTranslations("CalendarPage");
+  const locale = useLocale();
 
   const [curView,      setCurView]     = useState<"month"|"week"|"day"|"year">("month");
   const [viewDate,     setViewDate]    = useState<Date>(new Date(TODAY));
@@ -92,19 +93,18 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
     const load = async () => {
       try {
         setIsLoading(true);
-        const [calData, globals] = await Promise.all([
+        const [calData, moroccan] = await Promise.all([
           calendarService.getCalendar(),
-          calendarService.getGlobalEvents(),
+          calendarService.getMoroccanHolidays(locale),
         ]);
         // Use seed events if user has never saved any
         const userEvents = calData.events.length > 0 ? calData.events : seedEvents(TODAY);
         if (calData.events.length === 0 && userEvents.length > 0) {
-          // Persist seed data to DB so they have initial data
           calendarService.syncCalendar(userEvents, []).catch(() => {});
         }
         setEvents(userEvents);
         setTodos(calData.todos || []);
-        setGlobalEvents(globals);
+        setGlobalEvents(moroccan);
       } catch (err) {
         console.error('Failed to load calendar:', err);
         setEvents(seedEvents(TODAY));

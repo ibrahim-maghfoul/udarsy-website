@@ -242,6 +242,69 @@ function MobileCardList({ cards }: {
     );
 }
 
+// ─── Flip text ────────────────────────────────────────────────────────────────
+type FlipPhase = 'visible' | 'exiting' | 'entering';
+
+function FlipText({ words, interval = 2800 }: { words: string[]; interval?: number }) {
+    const [idx, setIdx] = useState(0);
+    const [phase, setPhase] = useState<FlipPhase>('visible');
+    // Widest word used as an invisible spacer so surrounding text never shifts
+    const widest = words.reduce((a, b) => a.length >= b.length ? a : b, '');
+
+    useEffect(() => {
+        let t1: ReturnType<typeof setTimeout>;
+        const iv = setInterval(() => {
+            setPhase('exiting');
+            t1 = setTimeout(() => {
+                setIdx(i => (i + 1) % words.length);
+                setPhase('entering');
+                // Double RAF: first frame sets entering position (no transition),
+                // second frame triggers the slide-in transition to visible
+                requestAnimationFrame(() => requestAnimationFrame(() => setPhase('visible')));
+            }, 270);
+        }, interval);
+        return () => { clearInterval(iv); clearTimeout(t1); };
+    }, [words.length, interval]);
+
+    const phaseStyle: Record<FlipPhase, React.CSSProperties> = {
+        visible: {
+            transform: 'translateY(0)',
+            opacity: 1,
+            filter: 'blur(0px)',
+            transition: 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.38s ease-out, filter 0.5s ease-out',
+        },
+        exiting: {
+            transform: 'translateY(-60%)',
+            opacity: 0,
+            filter: 'blur(10px)',
+            transition: 'transform 0.27s ease-in, opacity 0.2s ease-in, filter 0.27s ease-in',
+        },
+        entering: {
+            transform: 'translateY(60%)',
+            opacity: 0,
+            filter: 'blur(10px)',
+            transition: 'none',
+        },
+    };
+
+    return (
+        <span className="relative inline-block" style={{ verticalAlign: 'baseline' }}>
+            {/* Invisible spacer — always reserves the width of the longest word */}
+            <em className="not-italic text-green invisible pointer-events-none select-none" aria-hidden="true">
+                {widest}
+            </em>
+            {/* Animated word — sits on top of the spacer, absolutely centered */}
+            <em
+                className="not-italic text-green absolute inset-0 flex items-center justify-start whitespace-nowrap"
+                aria-live="polite"
+                style={phaseStyle[phase]}
+            >
+                {words[idx]}
+            </em>
+        </span>
+    );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 export function HeroSection() {
     const t = useTranslations('Hero');
@@ -496,11 +559,8 @@ export function HeroSection() {
             {/* Title */}
             <div className="relative z-[3] pt-4 text-center pb-0 hero px-4">
                 <h1 className="text-[clamp(28px,5.5vw,52px)] md:text-[clamp(36px,5.5vw,52px)] font-bold text-dark leading-[1.1] tracking-[-0.04em] max-w-[680px] mx-auto hero-title whitespace-pre-wrap opacity-0 animate-[fadeSlideUp_0.6s_ease-out_0.25s_forwards]">
-                    {t('title1')} <em className="not-italic text-green">{t('title_highlight')}</em>{t('title2')}
+                    {t('title1')} <FlipText words={[t('title_highlight'), t('title_flip_1'), t('title_flip_2'), t('title_flip_3')]} />{t('title2')}
                 </h1>
-                <p className="mt-3 text-dark/55 text-sm md:text-base max-w-[480px] mx-auto leading-relaxed opacity-0 animate-[fadeSlideUp_0.6s_ease-out_0.4s_forwards]">
-                    {t('subtitle') ?? 'Access free courses, track your progress, and prepare for your exams with Udarsy.'}
-                </p>
             </div>
 
             {/* Desktop cards + Diagram */}

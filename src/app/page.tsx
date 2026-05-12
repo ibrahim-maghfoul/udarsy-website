@@ -50,6 +50,7 @@ export default function Home() {
   const [teamsEl, setTeamsEl] = useState<HTMLDivElement | null>(null);
   const [teamsVisible, setTeamsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const progressBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -84,8 +85,29 @@ export default function Home() {
     return () => observer.disconnect();
   }, [teamsEl]);
 
+  useEffect(() => {
+    if (!teamsEl) return;
+    const onScroll = () => {
+      const bar = progressBarRef.current;
+      if (!bar) return;
+      const end = teamsEl.offsetTop + teamsEl.offsetHeight - window.innerHeight;
+      const progress = end > 0 ? Math.min(Math.max(window.scrollY / end, 0), 1) : 1;
+      bar.style.transform = `scaleX(${progress})`;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [teamsEl]);
+
   return (
     <div className="min-h-screen font-roboto bg-white selection:bg-green/10 selection:text-green">
+      {/* Scroll-driven progress bar — fills from page top to TeamSection */}
+      <div
+        ref={progressBarRef}
+        className="fixed top-0 left-0 w-full h-[3px] bg-green origin-left z-[300] pointer-events-none"
+        style={{ transform: 'scaleX(0)', transition: 'transform 0.1s ease-out' }}
+      />
+
       <div className="absolute top-0 left-0 w-full h-[120vh] bg-gradient-to-b from-green/[0.03] to-transparent pointer-events-none" />
 
       <main className="flex flex-col pt-0 md:pt-[72px]">

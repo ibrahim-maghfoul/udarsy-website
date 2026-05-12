@@ -177,8 +177,8 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (profileDataLoading) return;
-        const _isInstructor = user?.role === 'instructor' || user?.role === 'admin';
-        const _isTeacher = user?.role === 'teacher' || user?.role === 'admin';
+        const _isInstructor = user?.role === 'instructor';
+        const _isTeacher = user?.role === 'teacher';
         const _showIns = _isInstructor || (_isTeacher && !!approvedApplication);
         const _showTea = _isTeacher || (_isInstructor && !!teacherVerification);
         if (_showIns && _showTea) {
@@ -297,8 +297,8 @@ export default function ProfilePage() {
 
     const currentPhoto = photoPreview || getPhotoURL(user?.photoURL);
 
-    const isInstructor = user?.role === 'instructor' || user?.role === 'admin';
-    const isTeacher = user?.role === 'teacher' || user?.role === 'admin';
+    const isInstructor = user?.role === 'instructor';
+    const isTeacher = user?.role === 'teacher';
     const showInstructorSection = isInstructor || (isTeacher && !!approvedApplication);
     const showTeacherSection = isTeacher || (isInstructor && !!teacherVerification);
     const hasBothRoles = showInstructorSection && showTeacherSection;
@@ -914,7 +914,7 @@ export default function ProfilePage() {
                     </div>
 
                     {/* ── Udarsy Programs (separated section) ── */}
-                    <div className="pt-10 border-t border-green/8 space-y-4">
+                    {user?.role !== 'admin' && <div className="pt-10 border-t border-green/8 space-y-4">
                         <div>
                             <h2 className="text-2xl font-black text-dark">Udarsy Programs</h2>
                             <p className="text-sm mt-1" style={{ color: 'rgba(26,58,42,0.4)' }}>Two ways to share your knowledge with students.</p>
@@ -934,7 +934,7 @@ export default function ProfilePage() {
                                 <p className="text-xs text-dark/50 leading-relaxed">
                                     Create private chat rooms for your students. Share files, answer questions live, and manage up to 50 students per room — all in real time.
                                 </p>
-                                {user?.role === 'teacher' || user?.role === 'admin' ? (
+                                {user?.role === 'teacher' ? (
                                     <Link href="/teacher/dashboard" className="w-full py-2 bg-indigo-500 text-white font-bold rounded-xl text-xs text-center hover:bg-indigo-600 transition-colors">
                                         Go to Dashboard
                                     </Link>
@@ -963,7 +963,7 @@ export default function ProfilePage() {
                                 <p className="text-xs text-dark/50 leading-relaxed">
                                     Upload recorded video lessons and PDF documents. Students discover and watch your courses anytime. Best for structured, self-paced learning.
                                 </p>
-                                {user?.role === 'instructor' || user?.role === 'admin' ? (
+                                {user?.role === 'instructor' ? (
                                     <Link href="/instructor-dashboard" className="w-full py-2 bg-green text-white font-bold rounded-xl text-xs text-center hover:bg-green/90 transition-colors">
                                         Go to Dashboard
                                     </Link>
@@ -978,7 +978,7 @@ export default function ProfilePage() {
                                 )}
                             </div>
                         </div>
-                    </div>
+                    </div>}
 
                     {/* ── Inline Settings Panel ── */}
                     <AnimatePresence>
