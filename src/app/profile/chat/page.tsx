@@ -535,32 +535,97 @@ export default function ChatPage() {
 
     // ── Profile incomplete ──
     if (!isProfileComplete) {
+        const missingItems = [
+            { label: "Age / Birthday",   done: !!user?.age },
+            { label: "City",             done: !!user?.city },
+            { label: "Grade level",      done: !!user?.level?.level },
+            { label: "Subject track",    done: !!user?.level?.guidance },
+        ];
+
         return (
-            <div className="min-h-screen bg-bg flex items-center justify-center p-6">
+            <div
+                className="min-h-screen flex flex-col items-center justify-center px-4 py-12"
+                style={{ background: "linear-gradient(160deg, #ffffff 0%, #f4fbf7 55%, #eaf5ef 100%)" }}
+            >
                 <motion.div
                     initial={{ opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                    className="max-w-md w-full bg-white rounded-[32px] border border-green/10 p-10 shadow-[0_20px_60px_rgba(0,0,0,0.08),_0_4px_16px_rgba(0,0,0,0.04)] text-center space-y-8"
+                    className="w-full max-w-sm"
                 >
                     <div
-                        className="w-20 h-20 rounded-[22px] flex items-center justify-center mx-auto relative overflow-hidden"
-                        style={{ background: "linear-gradient(135deg, #f0faf5, #e8f5ee)" }}
+                        className="bg-white rounded-[28px] border border-green/8 overflow-hidden"
+                        style={{ boxShadow: "0 4px 28px rgba(58,170,106,0.08), 0 1px 4px rgba(0,0,0,0.04)" }}
                     >
-                        <div className="absolute inset-0 opacity-60" style={{ backgroundImage: DOT_TEXTURE, backgroundSize: "14px 14px" }} />
-                        <ShieldAlert size={36} className="text-green relative z-10" />
-                    </div>
-                    <div className="space-y-3">
-                        <h1 className="text-3xl font-black text-dark">{t("chat_blocked_title")}</h1>
-                        <p className="text-sm text-dark/50 leading-relaxed font-medium">{t("chat_blocked_desc")}</p>
-                    </div>
-                    <div className="flex flex-col gap-3">
-                        <Link href="/onboarding" className="w-full py-4 bg-green text-white font-black rounded-[14px] hover:bg-green/90 transition-colors text-sm shadow-lg shadow-green/20">
-                            {t("complete_profile_btn")}
-                        </Link>
-                        <Link href="/profile" className="w-full py-4 bg-white border-[1.5px] border-green/15 text-dark/50 font-bold rounded-[14px] hover:bg-green/5 hover:border-green/25 transition-all text-sm">
-                            {t("back_to_profile_btn")}
-                        </Link>
+                        {/* Header band */}
+                        <div
+                            className="relative px-6 pt-7 pb-6 border-b border-green/6"
+                            style={{ background: "linear-gradient(135deg, #f0faf5 0%, #e8f5ee 100%)" }}
+                        >
+                            <div
+                                className="absolute inset-0 pointer-events-none"
+                                style={{ backgroundImage: "radial-gradient(circle, rgba(58,170,106,0.15) 1px, transparent 1px)", backgroundSize: "14px 14px" }}
+                            />
+                            <div className="relative z-10 flex items-center gap-3.5">
+                                <div className="w-12 h-12 rounded-[14px] bg-white flex items-center justify-center border border-green/15 shadow-sm flex-shrink-0">
+                                    <MessageCircle size={22} className="text-green" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5 text-green/50">
+                                        Class Chat
+                                    </p>
+                                    <h2 className="text-lg font-black text-dark tracking-tight leading-tight">
+                                        {t("chat_blocked_title")}
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Body */}
+                        <div className="px-6 py-5 space-y-3">
+                            <p className="text-xs text-dark/50 font-medium leading-relaxed">
+                                {t("chat_blocked_desc")}
+                            </p>
+                            {/* Missing fields checklist */}
+                            <div className="space-y-2 pt-1">
+                                {missingItems.map(({ label, done }) => (
+                                    <div
+                                        key={label}
+                                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold ${
+                                            done
+                                                ? "bg-green/5 border border-green/10 text-green/70"
+                                                : "bg-orange-50 border border-orange-100/80 text-orange-700/70"
+                                        }`}
+                                    >
+                                        <span className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-black ${
+                                            done ? "bg-green text-white" : "bg-orange-200 text-orange-600"
+                                        }`}>
+                                            {done ? "✓" : "!"}
+                                        </span>
+                                        {label}
+                                        <span className="ml-auto text-[10px] uppercase tracking-wider font-black opacity-50">
+                                            {done ? "Done" : "Missing"}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="px-6 pb-6 flex flex-col gap-2.5">
+                            <Link
+                                href="/onboarding"
+                                className="w-full py-3.5 bg-green text-white font-black rounded-[14px] text-sm text-center block transition-all hover:shadow-lg hover:shadow-green/20 active:scale-95"
+                            >
+                                {t("complete_profile_btn")}
+                            </Link>
+                            <Link
+                                href="/profile"
+                                className="w-full py-3 bg-white border border-green/12 text-dark/50 font-bold rounded-[14px] text-sm text-center block hover:bg-green/5 hover:border-green/20 transition-all"
+                            >
+                                {t("back_to_profile_btn")}
+                            </Link>
+                        </div>
                     </div>
                 </motion.div>
             </div>

@@ -64,6 +64,25 @@ export default function OnboardingPage() {
         c.toLowerCase().includes(citySearch.toLowerCase())
     );
 
+    // Pre-fill from existing user data (handles returning users with partial profiles)
+    useEffect(() => {
+        if (!user) return;
+        setSelections(prev => ({
+            ...prev,
+            birthday: user.birthday
+                ? new Date(user.birthday as any).toISOString().split('T')[0]
+                : prev.birthday,
+            gender:   (user.gender as string)  || prev.gender,
+            city:     user.city                || prev.city,
+            school:   user.schoolName          || prev.school,
+            phone:    user.phone               || prev.phone,
+            schoolId:   user.selectedPath?.schoolId   || prev.schoolId,
+            levelId:    user.selectedPath?.levelId    || prev.levelId,
+            guidanceId: user.selectedPath?.guidanceId || prev.guidanceId,
+        }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.id]);
+
     // Pre-fill from Google profile if available
     useEffect(() => {
         const stored = sessionStorage.getItem('googleOnboardingData');
@@ -208,9 +227,9 @@ export default function OnboardingPage() {
                 await api.patch("/user/profile", {
                     birthday: final.birthday,
                     gender:   final.gender,
-                    city:     final.city   || undefined,
-                    school:   final.school || undefined,
-                    phone:    final.phone  || undefined,
+                    city:       final.city   || undefined,
+                    schoolName: final.school || undefined,
+                    phone:      final.phone  || undefined,
                     selectedPath: { schoolId: final.schoolId, levelId: final.levelId, guidanceId: final.guidanceId },
                     level: {
                         school:   selectedSchool?.title   || "",
@@ -397,9 +416,7 @@ export default function OnboardingPage() {
                                                                 </div>
                                                             </div>
                                                             <div className="max-h-44 overflow-y-auto p-1.5">
-                                                                {filteredCities.length === 0 ? (
-                                                                    <p className="text-xs text-center py-3 font-medium text-dark/30">No cities found</p>
-                                                                ) : filteredCities.map(city => (
+                                                                {filteredCities.map(city => (
                                                                     <button
                                                                         key={city}
                                                                         type="button"
@@ -413,6 +430,20 @@ export default function OnboardingPage() {
                                                                         {selections.city === city && <Check size={12} className="text-green" />}
                                                                     </button>
                                                                 ))}
+                                                                {/* Allow entering a custom city not in the list */}
+                                                                {citySearch.trim() && !moroccanCities.some(c => c.toLowerCase() === citySearch.trim().toLowerCase()) && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => { setSelections(p => ({ ...p, city: citySearch.trim() })); setShowCityDropdown(false); setCitySearch(""); }}
+                                                                        className={`w-full px-3.5 py-2.5 text-left text-xs font-bold rounded-xl transition-all flex items-center gap-2 text-dark/50 hover:text-green hover:bg-green/5${filteredCities.length > 0 ? " border-t border-green/8 mt-1 pt-3" : ""}`}
+                                                                    >
+                                                                        <MapPin size={11} className="text-green/40 shrink-0" />
+                                                                        Use &ldquo;<span className="text-green font-black">{citySearch.trim()}</span>&rdquo;
+                                                                    </button>
+                                                                )}
+                                                                {filteredCities.length === 0 && !citySearch.trim() && (
+                                                                    <p className="text-xs text-center py-3 font-medium text-dark/30">No cities found</p>
+                                                                )}
                                                             </div>
                                                         </motion.div>
                                                     )}
@@ -598,20 +629,36 @@ export default function OnboardingPage() {
                                                 Nothing found — check your connection.
                                             </div>
                                         ) : (
-                                            options.map((item, index) => (
-                                                <button
-                                                    key={item.id}
-                                                    onClick={() => handleSelect(item.id)}
-                                                    className="selection-card"
-                                                    style={{ animationDelay: `${index * 40}ms` }}
-                                                >
-                                                    <div className="selection-card-row">
-                                                        <span className="selection-card-num">{String(index + 1).padStart(2, "0")}</span>
-                                                        <span className="selection-card-label">{item.title}</span>
-                                                        <ChevronRight size={15} className="selection-card-chevron" />
-                                                    </div>
-                                                </button>
-                                            ))
+                                            options.map((item, index) => {
+                                                const currentSelectionId =
+                                                    currentStep === 1 ? selections.schoolId :
+                                                    currentStep === 2 ? selections.levelId :
+                                                    selections.guidanceId;
+                                                const isSelected = item.id === currentSelectionId;
+                                                return (
+                                                    <button
+                                                        key={item.id}
+                                                        onClick={() => handleSelect(item.id)}
+                                                        className="selection-card"
+                                                        style={{
+                                                            animationDelay: `${index * 40}ms`,
+                                                            ...(isSelected ? {
+                                                                borderColor: "rgba(58,170,106,0.5)",
+                                                                background: "rgba(58,170,106,0.04)",
+                                                                boxShadow: "0 0 0 3px rgba(58,170,106,0.08)",
+                                                            } : {})
+                                                        }}
+                                                    >
+                                                        <div className="selection-card-row">
+                                                            <span className="selection-card-num" style={isSelected ? { background: "rgba(58,170,106,0.18)", color: "#3aaa6a" } : {}}>
+                                                                {isSelected ? "✓" : String(index + 1).padStart(2, "0")}
+                                                            </span>
+                                                            <span className="selection-card-label" style={isSelected ? { color: "#3aaa6a" } : {}}>{item.title}</span>
+                                                            <ChevronRight size={15} className="selection-card-chevron" style={isSelected ? { color: "#3aaa6a" } : {}} />
+                                                        </div>
+                                                    </button>
+                                                );
+                                            })
                                         )}
                                     </div>
 

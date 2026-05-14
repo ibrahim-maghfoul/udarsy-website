@@ -161,6 +161,7 @@ export interface User {
     nickname?: string;
     city?: string;
     age?: number;
+    birthday?: string;
     gender?: string;
     schoolName?: string;
     studyLocation?: string;

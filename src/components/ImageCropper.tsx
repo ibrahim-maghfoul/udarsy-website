@@ -14,6 +14,7 @@ interface ImageCropperProps {
 const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave }) => {
     const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
+    const MIN_ZOOM = 0.4;
     const [rotation, setRotation] = useState(0);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
@@ -60,6 +61,8 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
             canvas.width = bWidth;
             canvas.height = bHeight;
 
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, bWidth, bHeight);
             ctx.translate(bWidth / 2, bHeight / 2);
             ctx.rotate(rotRad);
             ctx.translate(-image.width / 2, -image.height / 2);
@@ -160,6 +163,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
                                 zoom={zoom}
                                 rotation={rotation}
                                 aspect={1 / 1}
+                                minZoom={MIN_ZOOM}
                                 onCropChange={setCrop}
                                 onCropComplete={onCropComplete}
                                 onZoomChange={setZoom}
@@ -182,9 +186,9 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
                                 <input
                                     type="range"
                                     value={zoom}
-                                    min={1}
+                                    min={MIN_ZOOM}
                                     max={3}
-                                    step={0.1}
+                                    step={0.05}
                                     onChange={(e) => setZoom(Number(e.target.value))}
                                     className="w-full h-1.5 bg-green/10 rounded-full appearance-none cursor-pointer accent-green"
                                 />
