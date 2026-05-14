@@ -1,10 +1,13 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = {
-  title: "إنشاء حساب | Créer un Compte",
-  description: "انضم إلى يودرسي مجاناً وابدأ رحلتك التعليمية اليوم. Rejoignez Udarsy gratuitement.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: await pageTitle({ ar: "إنشاء حساب", fr: "S'inscrire", en: "Sign Up" }),
+    description: "انضم إلى يودرسي مجاناً وابدأ رحلتك التعليمية اليوم.",
+    robots: { index: false, follow: false },
+  };
+}
 
 export default function SignupLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;

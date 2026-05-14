@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSnackbar } from "@/contexts/SnackbarContext";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import type { TeacherProfile, TeacherRoom, School, Level, Guidance, Subject } from "@/types";
@@ -30,6 +31,7 @@ export default function TeacherDashboardPage() {
     const { user, loading: authLoading, getPhotoURL, logout } = useAuth();
     const { showSnackbar } = useSnackbar();
     const router = useRouter();
+    const t = useTranslations('TeacherDashboard');
 
     const [profile, setProfile] = useState<TeacherProfile | null>(null);
     const [rooms, setRooms] = useState<TeacherRoom[]>([]);
@@ -101,7 +103,7 @@ export default function TeacherDashboardPage() {
                 }
                 await fetchRequests(fetchedRooms);
             } catch (err: any) {
-                if (err?.response?.status !== 404) showSnackbar("Failed to load dashboard", "error");
+                if (err?.response?.status !== 404) showSnackbar(t("load_failed"), "error");
             } finally {
                 setLoading(false);
             }
@@ -122,7 +124,7 @@ export default function TeacherDashboardPage() {
 
     const handleCreateRoom = async () => {
         if (!roomForm.name || !roomForm.guidanceId || !roomForm.subjectId) {
-            showSnackbar("Fill in all required fields", "error");
+            showSnackbar(t("fill_fields"), "error");
             return;
         }
         setCreatingRoom(true);
@@ -131,9 +133,9 @@ export default function TeacherDashboardPage() {
             setRooms(prev => [res.data.room, ...prev]);
             setShowCreateRoom(false);
             setRoomForm({ name: "", description: "", guidanceId: "", subjectId: "" });
-            showSnackbar(`Room created! Invite code: ${res.data.roomCode}`, "success");
+            showSnackbar(t("room_created", { code: res.data.roomCode }), "success");
         } catch (err: any) {
-            showSnackbar(err?.response?.data?.error || "Failed to create room", "error");
+            showSnackbar(err?.response?.data?.error || t("room_create_failed"), "error");
         } finally {
             setCreatingRoom(false);
         }
@@ -141,16 +143,16 @@ export default function TeacherDashboardPage() {
 
     const copyInviteLink = (code: string) => {
         navigator.clipboard.writeText(`${window.location.origin}/teacher/join/${code}`);
-        showSnackbar("Invite link copied!", "success");
+        showSnackbar(t("invite_copied"), "success");
     };
 
     const deleteRoom = async (roomId: string) => {
         try {
             await api.delete(`/teacher/rooms/${roomId}`);
             setRooms(prev => prev.filter(r => r._id !== roomId));
-            showSnackbar("Room deleted", "success");
+            showSnackbar(t("room_deleted"), "success");
         } catch {
-            showSnackbar("Failed to delete room", "error");
+            showSnackbar(t("room_delete_failed"), "error");
         }
     };
 
@@ -168,9 +170,9 @@ export default function TeacherDashboardPage() {
                     r._id === roomId ? { ...r, members: [...(r.members as any[]), { _id: userId }] } : r
                 ));
             }
-            showSnackbar(action === "accept" ? "Student accepted!" : "Request rejected", action === "accept" ? "success" : "error");
+            showSnackbar(action === "accept" ? t("student_accepted") : t("request_rejected"), action === "accept" ? "success" : "error");
         } catch {
-            showSnackbar("Failed to review request", "error");
+            showSnackbar(t("review_failed"), "error");
         } finally {
             setReviewingRequest(null);
         }

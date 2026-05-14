@@ -179,12 +179,12 @@ export default function OnboardingPage() {
             });
             await checkAuth(); // Refresh user
             setPhotoUploadStatus("success");
-            showSnackbar("Profile picture updated!", "success");
+            showSnackbar(t("photo_updated"), "success");
             setTimeout(() => setPhotoUploadStatus("idle"), 3000);
         } catch (err) {
             console.error("Photo upload failed:", err);
             setPhotoUploadStatus("error");
-            showSnackbar("Failed to upload photo", "error");
+            showSnackbar(t("photo_failed"), "error");
             setTimeout(() => setPhotoUploadStatus("idle"), 3000);
         }
     };
@@ -267,12 +267,12 @@ export default function OnboardingPage() {
                         ════════════════════════════════ */}
                         {currentStep === 0 && (
                             <div
-                                className="bg-white rounded-[28px] border border-green/8 overflow-hidden"
+                                className="bg-white rounded-[28px] border border-green/8"
                                 style={{ boxShadow: "0 4px 28px rgba(58,170,106,0.08), 0 1px 4px rgba(0,0,0,0.04)" }}
                             >
                                 {/* Header */}
                                 <div
-                                    className="relative px-6 pt-7 pb-6 border-b border-green/6"
+                                    className="relative px-6 pt-7 pb-6 border-b border-green/6 overflow-hidden rounded-t-[28px]"
                                     style={{ background: "linear-gradient(135deg, #f0faf5 0%, #e8f5ee 100%)" }}
                                 >
                                     <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle, rgba(58,170,106,0.15) 1px, transparent 1px)", backgroundSize: "14px 14px" }} />
@@ -301,9 +301,9 @@ export default function OnboardingPage() {
                                             onClick={() => fileInputRef.current?.click()}
                                         >
                                             <div className="absolute inset-x-1 -inset-y-2 bg-gradient-to-tr from-green/20 to-emerald-400/20 rounded-[2rem] -z-10 blur-xl group-hover:blur-2xl transition-all duration-500" />
-                                            {photoPreview || user?.photoURL ? (
+                                            {(photoPreview || (user?.photoURL?.startsWith('http') ? user.photoURL : null)) ? (
                                                 <img
-                                                    src={photoPreview || (user?.photoURL?.startsWith('http') ? user.photoURL : `/data/images/profile-picture/${user?.photoURL}`)}
+                                                    src={photoPreview || user!.photoURL!}
                                                     alt="Profile"
                                                     className="w-full h-full object-cover rounded-[2rem] border-[3px] border-green shadow-lg bg-white relative z-10"
                                                 />
@@ -348,7 +348,7 @@ export default function OnboardingPage() {
                                             <DatePicker
                                                 value={selections.birthday}
                                                 onChange={(val: string) => setSelections(prev => ({ ...prev, birthday: val }))}
-                                                placeholder="Pick date"
+                                                placeholder={t("pick_date")}
                                             />
                                         </div>
 

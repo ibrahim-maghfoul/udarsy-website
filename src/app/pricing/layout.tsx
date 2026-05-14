@@ -1,23 +1,25 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = {
-  title: "أسعار الاشتراكات | Tarifs et Abonnements",
-  description:
-    "اشترك في يودرسي بدءاً من 100 درهم/شهر — خطط مجانية ومدفوعة للتلاميذ المغاربة. Abonnez-vous à Udarsy à partir de 100 MAD/mois — plans gratuits et premium pour les élèves marocains.",
-  openGraph: {
-    title: "أسعار الاشتراكات | Udarsy",
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: await pageTitle({ ar: "الأسعار", fr: "Tarifs", en: "Pricing" }),
     description:
-      "اشترك في يودرسي بدءاً من 100 درهم/شهر — خطط مجانية ومدفوعة.",
-    type: "website",
-    url: "/pricing",
-  },
-  twitter: {
-    card: "summary",
-    title: "أسعار الاشتراكات | Udarsy",
-    description: "اشترك في يودرسي بدءاً من 100 درهم/شهر.",
-  },
-  alternates: { canonical: "/pricing" },
-};
+      "اشترك في يودرسي بدءاً من 100 درهم/شهر — خطط مجانية ومدفوعة للتلاميذ المغاربة.",
+    openGraph: {
+      title: "الأسعار | Udarsy",
+      description: "اشترك في يودرسي بدءاً من 100 درهم/شهر — خطط مجانية ومدفوعة.",
+      type: "website",
+      url: "/pricing",
+    },
+    twitter: {
+      card: "summary",
+      title: "الأسعار | Udarsy",
+      description: "اشترك في يودرسي بدءاً من 100 درهم/شهر.",
+    },
+    alternates: { canonical: "/pricing" },
+  };
+}
 
 export default function PricingLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;

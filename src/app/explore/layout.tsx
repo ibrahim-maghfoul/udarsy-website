@@ -1,23 +1,25 @@
 import type { Metadata } from "next";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = {
-  title: "استكشف المواد الدراسية | Explorer les Matières",
-  description:
-    "تصفح المناهج الدراسية المغربية — اختر مدرستك، مستواك، مسارك والمادة التي تريد تعلمها. Parcourez le programme scolaire marocain par école, niveau, filière et matière.",
-  openGraph: {
-    title: "استكشف المواد الدراسية | Udarsy",
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: await pageTitle({ ar: "استكشاف المواد", fr: "Explorer", en: "Explore" }),
     description:
-      "تصفح المناهج الدراسية المغربية — اختر مدرستك، مستواك ومادتك.",
-    type: "website",
-    url: "/explore",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "استكشف المواد الدراسية | Udarsy",
-    description: "تصفح المناهج الدراسية المغربية.",
-  },
-  alternates: { canonical: "/explore" },
-};
+      "تصفح المناهج الدراسية المغربية — اختر مدرستك، مستواك، مسارك والمادة التي تريد تعلمها.",
+    openGraph: {
+      title: "استكشاف المواد | Udarsy",
+      description: "تصفح المناهج الدراسية المغربية — اختر مدرستك، مستواك ومادتك.",
+      type: "website",
+      url: "/explore",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "استكشاف المواد | Udarsy",
+      description: "تصفح المناهج الدراسية المغربية.",
+    },
+    alternates: { canonical: "/explore" },
+  };
+}
 
 export default function ExploreLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;

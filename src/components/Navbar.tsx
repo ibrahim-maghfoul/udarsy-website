@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import api from "@/lib/api";
 import { useSnackbar } from "@/contexts/SnackbarContext";
+import { io as socketIO } from "socket.io-client";
 
 interface Notification {
   _id: string;
@@ -23,7 +24,7 @@ interface Notification {
 }
 
 function NotificationBell() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const locale = useLocale();
   const isRTL = locale === 'ar';
   const t = useTranslations('Navbar');
@@ -41,11 +42,26 @@ function NotificationBell() {
   };
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !user?.id) return;
+
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 300000);
-    return () => clearInterval(interval);
-  }, [isAuthenticated]);
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const socket = socketIO(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
+      auth: { token },
+      transports: ['websocket'],
+    });
+
+    socket.on('connect', () => {
+      socket.emit('join_user_room', user.id);
+    });
+
+    socket.on('new_notification', (notif: Notification) => {
+      setNotifications(prev => [notif, ...prev]);
+    });
+
+    return () => { socket.disconnect(); };
+  }, [isAuthenticated, user?.id]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

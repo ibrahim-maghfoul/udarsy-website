@@ -28,7 +28,7 @@ export default function LoginPage() {
             await login(email, password, rememberMe);
             trackEvent({ event: 'login', category: 'Auth', label: 'email' });
         } catch (err: any) {
-            showSnackbar(err.message || 'Login failed', 'error');
+            showSnackbar(err.message || t('login_failed'), 'error');
         } finally {
             setLoading(false);
         }
@@ -43,13 +43,13 @@ export default function LoginPage() {
                 await googleLogin(tokenResponse.access_token, undefined, rememberMe);
                 trackEvent({ event: 'login', category: 'Auth', label: 'google' });
             } catch (err: any) {
-                showSnackbar(err.message || 'Google Login failed', 'error');
+                showSnackbar(err.message || t('google_login_failed'), 'error');
             } finally {
                 setLoading(false);
             }
         },
         onError: () => {
-            showSnackbar('Google Login Failed', 'error');
+            showSnackbar(t('google_login_failed'), 'error');
         }
     });
 

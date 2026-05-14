@@ -69,6 +69,7 @@ export default function ProfilePage() {
     const [showRewardDialog, setShowRewardDialog] = useState(false);
     const [rewardRequesting, setRewardRequesting] = useState(false);
     const [myRewardRequests, setMyRewardRequests] = useState<any[]>([]);
+    const [previewOpen, setPreviewOpen] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
@@ -152,10 +153,10 @@ export default function ProfilePage() {
         setRewardRequesting(true);
         try {
             await api.post('/user/reward-request');
-            showSnackbar('Reward request submitted! The admin will review it shortly.', 'success');
+            showSnackbar(t('reward_request_success'), 'success');
             fetchMyRewardRequests();
         } catch (err: any) {
-            showSnackbar(err.response?.data?.error || 'Failed to submit reward request', 'error');
+            showSnackbar(err.response?.data?.error || t('reward_request_failed'), 'error');
         } finally {
             setRewardRequesting(false);
         }
@@ -167,9 +168,9 @@ export default function ProfilePage() {
         setSavingSettings(true);
         try {
             await api.patch('/user/profile', { settings: updated });
-            showSnackbar("Settings saved", "success");
+            showSnackbar(t('settings_saved'), "success");
         } catch {
-            showSnackbar("Failed to save settings", "error");
+            showSnackbar(t('settings_failed'), "error");
         } finally {
             setSavingSettings(false);
         }
@@ -192,6 +193,12 @@ export default function ProfilePage() {
     }, [profileDataLoading]);
 
     const handlePhotoClick = () => {
+        if (currentPhoto) { setPreviewOpen(true); return; }
+        fileInputRef.current?.click();
+    };
+
+    const handleCameraClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
         fileInputRef.current?.click();
     };
 
@@ -473,7 +480,7 @@ export default function ProfilePage() {
                                         <Camera size={32} className="text-white" />
                                     </div>
                                     {/* Static Camera Icon on Edge */}
-                                    <div className="absolute -bottom-1 -right-1 bg-green text-white p-2.5 rounded-full border-4 border-[#F8F9FA] shadow-md z-30 group-hover:scale-110 transition-transform">
+                                    <div onClick={handleCameraClick} className="absolute -bottom-1 -right-1 bg-green text-white p-2.5 rounded-full border-4 border-[#F8F9FA] shadow-md z-30 group-hover:scale-110 transition-transform">
                                         <Camera size={18} />
                                     </div>
 
@@ -863,9 +870,9 @@ export default function ProfilePage() {
                                         const code = res.data.affiliateCode;
                                         const link = `${window.location.origin}/signup?ref=${code}`;
                                         await navigator.clipboard.writeText(link);
-                                        showSnackbar("✦ Invite link copied! Earn +100 pts when they register.", "success");
+                                        showSnackbar(t('invite_link_copied'), "success");
                                     } catch {
-                                        showSnackbar("Failed to get your invite link", "error");
+                                        showSnackbar(t('invite_link_failed'), "error");
                                     }
                                 }}
                                 className="svc-card"
@@ -885,7 +892,7 @@ export default function ProfilePage() {
                                     if (navigator.share) {
                                         navigator.share({ title: 'Udarsy', text: 'Check out Udarsy — the ultimate education platform!', url: window.location.origin });
                                     } else {
-                                        showSnackbar("Sharing not supported on this browser", "info");
+                                        showSnackbar(t('sharing_not_supported'), "info");
                                     }
                                 }}
                                 className="svc-card"
@@ -1071,6 +1078,42 @@ export default function ProfilePage() {
                         onClose={() => setIsCropping(false)}
                         onCropSave={handleCropSave}
                     />
+                )}
+            </AnimatePresence>
+
+            {/* Original photo preview modal */}
+            <AnimatePresence>
+                {previewOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+                        onClick={() => setPreviewOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.85, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.85, opacity: 0 }}
+                            className="relative max-w-lg w-full"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <img
+                                src={user?.photoURLOriginal || currentPhoto || ''}
+                                alt={user?.displayName}
+                                className="w-full rounded-3xl shadow-2xl object-contain"
+                            />
+                            <button
+                                onClick={() => setPreviewOpen(false)}
+                                className="absolute -top-3 -right-3 w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-lg text-dark hover:bg-red-50 hover:text-red-500 transition-all"
+                            >
+                                <X size={18} />
+                            </button>
+                            <div onClick={handleCameraClick} className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-green text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg cursor-pointer hover:bg-green/90 transition-all">
+                                <Camera size={14} /> {t("change_photo") || "Change photo"}
+                            </div>
+                        </motion.div>
+                    </motion.div>
                 )}
             </AnimatePresence>
 

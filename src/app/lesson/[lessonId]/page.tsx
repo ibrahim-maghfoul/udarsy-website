@@ -316,12 +316,12 @@ export default function LessonPage() {
             const newFavStatus = !isFavorite;
             setIsFavorite(newFavStatus);
             await toggleFavorite(lessonId, lesson?.subjectId);
-            showSnackbar(newFavStatus ? "Added to favorites" : "Removed from favorites", "success");
+            showSnackbar(newFavStatus ? t('fav_added_snack') : t('fav_removed_snack'), "success");
             refreshUser();
         } catch (error) {
             console.error('Failed to toggle favorite:', error);
             setIsFavorite(!isFavorite);
-            showSnackbar("Failed to update favorites", "error");
+            showSnackbar(t('fav_failed'), "error");
         }
     }, [user, isFavorite, lessonId, lesson?.subjectId, refreshUser, showSnackbar, router]);
 

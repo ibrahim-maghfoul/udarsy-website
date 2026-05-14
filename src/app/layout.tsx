@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s | Udarsy",
   },
   description:
-    "يودرسي — منصة تعليمية مغربية للتلاميذ. دروس، تمارين وامتحانات للباكالوريا والبريفي. Plateforme éducative marocaine pour le BAC, le Brevet et le lycée.",
+    "يودرسي — دروس مجانية، تمارين تفاعلية وامتحانات نموذجية وفق المنهج المغربي. للتلاميذ من الابتدائي إلى الباكالوريا في المغرب.",
   keywords: [
     "udarsy", "يودرسي", "درسي", "تعلم", "المغرب", "باكالوريا", "بريفي",
     "bac maroc", "cours maroc", "éducation maroc", "brevet maroc",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     siteName: "Udarsy",
     title: "Udarsy — منصة التعلم المغربية",
     description:
-      "يودرسي — منصة تعليمية مغربية للتلاميذ. دروس، تمارين وامتحانات للباكالوريا والبريفي.",
+      "يودرسي — دروس مجانية، تمارين تفاعلية وامتحانات نموذجية وفق المنهج المغربي. للتلاميذ من الابتدائي إلى الباكالوريا في المغرب.",
     images: [
       {
         url: "/og-image.png",
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Udarsy — منصة التعلم المغربية",
     description:
-      "يودرسي — منصة تعليمية مغربية للتلاميذ. دروس، تمارين وامتحانات للباكالوريا والبريفي.",
+      "يودرسي — دروس مجانية، تمارين تفاعلية وامتحانات نموذجية وفق المنهج المغربي. للتلاميذ من الابتدائي إلى الباكالوريا في المغرب.",
     images: ["/og-image.png"],
     creator: "@UdarsyMa",
   },
@@ -87,11 +87,11 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <head>
-        {/* Preconnect + preload Material Icons to reduce render-blocking */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=android" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=ios" />
+        {process.env.NEXT_PUBLIC_BACKEND_URL && (
+          <link rel="preconnect" href={process.env.NEXT_PUBLIC_BACKEND_URL} crossOrigin="anonymous" />
+        )}
       </head>
       <body className={`${cairo.variable} font-cairo antialiased`} suppressHydrationWarning>
         {/* Google Analytics 4 — script injected after interactive, won't block render */}

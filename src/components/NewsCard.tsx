@@ -143,7 +143,7 @@ export default function NewsCard({
         e.preventDefault();
         e.stopPropagation();
         if (!user) {
-            showSnackbar('Please log in to save articles.', 'info');
+            showSnackbar(t('login_to_save'), 'info');
             return;
         }
         if (isSaving || !articleId) return;
@@ -153,7 +153,7 @@ export default function NewsCard({
             const res = await api.post('/user/saved-news', { newsId: articleId });
             const isSavedNow = res.data.savedNews.includes(articleId);
             setIsSaved(isSavedNow);
-            showSnackbar(isSavedNow ? "Article saved to favorites" : "Article removed from favorites", "success");
+            showSnackbar(isSavedNow ? t('article_saved') : t('article_removed'), "success");
             await checkAuth(); // update context
         } catch (error) {
             console.error('Failed to toggle save', error);

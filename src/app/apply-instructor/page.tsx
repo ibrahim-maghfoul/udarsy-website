@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSnackbar } from "@/contexts/SnackbarContext";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { School, Level, Guidance, Subject } from "@/types";
 
 interface FormData {
@@ -142,6 +143,7 @@ export default function ApplyInstructorPage() {
     const { user } = useAuth();
     const { showSnackbar } = useSnackbar();
     const router = useRouter();
+    const t = useTranslations('ApplyInstructor');
 
     const [step, setStep]         = useState(0);
     const [submitting, setSubmitting] = useState(false);
@@ -189,8 +191,8 @@ export default function ApplyInstructorPage() {
     };
 
     const handleSubmit = async () => {
-        if (!user) { showSnackbar("Please log in first", "error"); return; }
-        if (!videoFile) { showSnackbar("Please upload your demo video", "error"); return; }
+        if (!user) { showSnackbar(t("login_required"), "error"); return; }
+        if (!videoFile) { showSnackbar(t("video_required"), "error"); return; }
         setSubmitting(true);
         try {
             const fd = new FormData();
@@ -198,9 +200,9 @@ export default function ApplyInstructorPage() {
             fd.append("video", videoFile);
             await api.post("/teacher/apply", fd, { headers: { "Content-Type": "multipart/form-data" }, timeout: 300000 });
             setSubmitted(true);
-            showSnackbar("Application submitted!", "success");
+            showSnackbar(t("submit_success"), "success");
         } catch (err: any) {
-            showSnackbar(err?.response?.data?.error || "Failed to submit", "error");
+            showSnackbar(err?.response?.data?.error || t("submit_failed"), "error");
         } finally {
             setSubmitting(false);
         }
@@ -501,7 +503,7 @@ export default function ApplyInstructorPage() {
                                         <input type="file" accept="video/mp4,video/webm,video/quicktime" className="hidden"
                                             onChange={e => {
                                                 const f = e.target.files?.[0];
-                                                if (f) { if (f.size > 500 * 1024 * 1024) { showSnackbar("Video must be under 500MB", "error"); return; } setVideoFile(f); }
+                                                if (f) { if (f.size > 500 * 1024 * 1024) { showSnackbar(t("video_too_large"), "error"); return; } setVideoFile(f); }
                                             }} />
                                     </label>
                                 </>)}

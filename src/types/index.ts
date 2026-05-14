@@ -142,7 +142,9 @@ export interface User {
     email: string;
     role: 'user' | 'admin' | 'instructor' | 'teacher';
     photoURL?: string;
+    photoURLOriginal?: string;
     coverPhotoURL?: string;
+    coverPhotoURLOriginal?: string;
     points?: number;
     totalGuidanceResources?: number;
     subscription: {

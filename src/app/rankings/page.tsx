@@ -157,9 +157,9 @@ export default function RankingsPage() {
 
                                             {/* Avatar */}
                                             <div className="w-10 h-10 rounded-[12px] bg-green/10 overflow-hidden flex items-center justify-center shrink-0 relative">
-                                                {rankedUser.photoURL ? (
+                                                {getPhotoURL(rankedUser.photoURL) ? (
                                                     <Image
-                                                        src={getPhotoURL(rankedUser.photoURL) || ""}
+                                                        src={getPhotoURL(rankedUser.photoURL)!}
                                                         alt={rankedUser.displayName}
                                                         fill
                                                         sizes="40px"
@@ -234,8 +234,8 @@ function PodiumCard({
 
             {/* Avatar */}
             <div className={`relative rounded-[18px] overflow-hidden border-2 shrink-0 ${isFirst ? "w-16 h-16 border-amber-400 shadow-lg shadow-amber-200" : "w-12 h-12 border-green/20"}`}>
-                {user.photoURL ? (
-                    <Image src={getPhotoURL(user.photoURL) || ""} alt={user.displayName} fill sizes="64px" className="object-cover" />
+                {getPhotoURL(user.photoURL) ? (
+                    <Image src={getPhotoURL(user.photoURL)!} alt={user.displayName} fill sizes="64px" className="object-cover" />
                 ) : (
                     <div className="w-full h-full bg-green/10 flex items-center justify-center">
                         <User size={isFirst ? 28 : 20} className="text-green/50" />

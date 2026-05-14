@@ -287,7 +287,11 @@
         "no_account": "Don't have an account?",
         "have_account": "Already have an account?",
         "google_btn": "Sign in with Google",
-        "or": "or"
+        "or": "or",
+        "login_failed": "Login failed",
+        "google_login_failed": "Google login failed",
+        "signup_failed": "Sign up failed",
+        "google_signup_failed": "Google sign up failed"
     },
     "Subjects": {
         "title": "Explore Subjects",
@@ -338,7 +342,18 @@
         "login_to_ask": "Log In to Ask",
         "login_hint": "Have a question? Log in to ask the community or admin.",
         "save": "Save",
-        "saved": "Saved"
+        "saved": "Saved",
+        "login_to_rate": "Please log in to rate articles.",
+        "rating_thanks": "Thank you for your rating!",
+        "rating_failed": "Failed to submit rating.",
+        "login_to_save": "Please log in to save articles.",
+        "session_expired": "Session expired. Please log in again.",
+        "save_failed": "Failed to save article. Please try again.",
+        "question_failed": "Failed to post question. Please try again.",
+        "answer_success": "Answer posted successfully!",
+        "answer_failed": "Failed to post answer.",
+        "article_saved": "Article saved to favorites",
+        "article_removed": "Article removed from favorites"
     },
     "Pricing": {
         "title": "Choose your ",
@@ -535,7 +550,10 @@
         "school_name": "School Name",
         "phone": "Phone Number",
         "optional": "optional",
-        "next": "Next Step"
+        "next": "Next Step",
+        "photo_updated": "Profile picture updated!",
+        "photo_failed": "Failed to upload photo",
+        "pick_date": "Pick a date"
     },
     "Lesson": {
         "syllabus": "Lesson Syllabus",
@@ -592,7 +610,10 @@
         "ai_doc_questions": "questions/doc",
         "ai_daily_questions": "questions/day",
         "view_doc": "View Document",
-        "understand_with_ai": "Understand with AI"
+        "understand_with_ai": "Understand with AI",
+        "fav_added_snack": "Added to favorites",
+        "fav_removed_snack": "Removed from favorites",
+        "fav_failed": "Failed to update favorites"
     },
     "Profile": {
         "settings": "Settings",
@@ -649,6 +670,7 @@
         "updated": "Updated!",
         "photo_updated_success": "Profile picture updated!",
         "photo_updated_error": "Failed to upload photo",
+        "change_photo": "Change photo",
         "upload_failed": "Upload failed",
         "contribute_title": "Contribute Resources",
         "contribute_desc": "Share your PDF notes and materials with others.",
@@ -770,7 +792,14 @@
         "specialist": "Specialist",
         "target_course": "Target Course",
         "instructor_dashboard": "Dashboard",
-        "view_profile": "View Profile"
+        "view_profile": "View Profile",
+        "reward_request_success": "Reward request submitted! The admin will review it shortly.",
+        "reward_request_failed": "Failed to submit reward request",
+        "settings_saved": "Settings saved",
+        "settings_failed": "Failed to save settings",
+        "invite_link_copied": "Invite link copied! Earn +100 pts when they register.",
+        "invite_link_failed": "Failed to get your invite link",
+        "sharing_not_supported": "Sharing not supported on this browser"
     },
     "Instructors": {
         "loading": "Loading...",
@@ -912,7 +941,9 @@
         "monthly_limit_title": "Monthly Limit Reached",
         "monthly_limit_desc": "You've used all 30 contributions for this month. Your count resets on the 1st of next month. Upgrade to Premium for unlimited contributions!",
         "upgrade_premium": "Upgrade to Premium",
-        "ok_got_it": "OK, Got It"
+        "ok_got_it": "OK, Got It",
+        "load_error": "Failed to load contributions data",
+        "contribute_error": "Failed to contribute"
     },
     "SubjectCards": {
         "badge": "Subject Library",
@@ -1002,5 +1033,24 @@
         "snack_label": "Calendar",
         "delete_confirm_msg": "Delete \"{title}\"? This cannot be undone.",
         "custom_category_placeholder": "Custom category name…"
+    },
+    "ApplyInstructor": {
+        "login_required": "Please log in first",
+        "video_required": "Please upload your demo video",
+        "submit_success": "Application submitted!",
+        "submit_failed": "Failed to submit",
+        "video_too_large": "Video must be under 500MB"
+    },
+    "TeacherDashboard": {
+        "load_failed": "Failed to load dashboard",
+        "fill_fields": "Fill in all required fields",
+        "room_created": "Room created! Invite code: {code}",
+        "room_create_failed": "Failed to create room",
+        "invite_copied": "Invite link copied!",
+        "room_deleted": "Room deleted",
+        "room_delete_failed": "Failed to delete room",
+        "student_accepted": "Student accepted!",
+        "request_rejected": "Request rejected",
+        "review_failed": "Failed to review request"
     }
 }

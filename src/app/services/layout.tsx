@@ -1,23 +1,25 @@
 import type { Metadata } from "next";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = {
-  title: "خدمات مدرسية | Services Scolaires Maroc",
-  description:
-    "اطلع على التقويمات المدرسية، فترات التسجيل والتوجيه في المدارس المغربية. Consultez les calendriers scolaires, périodes d'inscription et orientation des écoles marocaines.",
-  openGraph: {
-    title: "خدمات مدرسية | Udarsy",
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: await pageTitle({ ar: "الخدمات المدرسية", fr: "Services Scolaires", en: "School Services" }),
     description:
-      "التقويمات المدرسية، فترات التسجيل والتوجيه في المدارس المغربية.",
-    type: "website",
-    url: "/services",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "خدمات مدرسية | Udarsy",
-    description: "التقويمات المدرسية والتوجيه في المدارس المغربية.",
-  },
-  alternates: { canonical: "/services" },
-};
+      "اطلع على التقويمات المدرسية، فترات التسجيل والتوجيه في المدارس المغربية.",
+    openGraph: {
+      title: "الخدمات المدرسية | Udarsy",
+      description: "التقويمات المدرسية، فترات التسجيل والتوجيه في المدارس المغربية.",
+      type: "website",
+      url: "/services",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "الخدمات المدرسية | Udarsy",
+      description: "التقويمات المدرسية والتوجيه في المدارس المغربية.",
+    },
+    alternates: { canonical: "/services" },
+  };
+}
 
 export default function ServicesLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;

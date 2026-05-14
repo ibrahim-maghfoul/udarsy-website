@@ -314,7 +314,6 @@ export default function CircleRing({ users, currentUser, getPhotoURL, theme = 'd
         const url = getPhotoURL(u.photoURL);
         if (url) {
           const img = new window.Image();
-          img.crossOrigin = "anonymous";
           img.src = url;
           loadedImages.current.set(u.photoURL, img);
         }
@@ -325,11 +324,10 @@ export default function CircleRing({ users, currentUser, getPhotoURL, theme = 'd
       const url = getPhotoURL(currentUser.photoURL);
       if (url) {
         const img = new window.Image();
-        img.crossOrigin = "anonymous";
         img.src = url;
         img.onload = () => {
-             setCurrentUserImg(img);
-             currentUserImgRef.current = img;
+          setCurrentUserImg(img);
+          currentUserImgRef.current = img;
         };
       }
     }

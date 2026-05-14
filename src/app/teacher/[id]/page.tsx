@@ -11,11 +11,9 @@ import {
     MapPin, CheckCircle2, MessageCircle, Loader2, Copy, Check,
 } from 'lucide-react';
 
-function imgURL(url?: string | null, type: 'avatar' | 'cover' = 'avatar') {
-    if (!url) return null;
-    if (url.startsWith('http')) return url;
-    const dir = type === 'avatar' ? 'profile-picture' : 'cover-photos';
-    return `/data/images/${dir}/${url}`;
+function imgURL(url?: string | null) {
+    if (!url || !url.startsWith('http')) return null;
+    return url;
 }
 
 function Stars({ value, max = 5, interactive = false, onChange }: {
@@ -166,7 +164,7 @@ export default function TeacherPublicProfilePage() {
 
     if (!profile) return null;
 
-    const coverPhoto = imgURL(profile.userId?.coverPhotoURL, 'cover');
+    const coverPhoto = imgURL(profile.userId?.coverPhotoURL);
     const avatarPhoto = getPhotoURL(profile.photoURL || profile.userId?.photoURL);
     const displayRatings = profile.ratings?.filter(r => r.comment).slice(0, 5) || [];
 

@@ -220,7 +220,7 @@ export default function NewsDetailPage() {
 
     const handleRate = async (rating: number) => {
         if (!user) {
-            showSnackbar('Please log in to rate articles.', 'info');
+            showSnackbar(t('login_to_rate'), 'info');
             return;
         }
         if (userRating > 0) return; // Already rated
@@ -231,16 +231,16 @@ export default function NewsDetailPage() {
             if (res.data.rating) {
                 setArticle({ ...article, rating: res.data.rating });
             }
-            showSnackbar('Thank you for your rating!', 'success');
+            showSnackbar(t('rating_thanks'), 'success');
         } catch (err) {
             console.error('Rating error:', err);
-            showSnackbar('Failed to submit rating.', 'error');
+            showSnackbar(t('rating_failed'), 'error');
         }
     };
 
     const handleSave = async () => {
         if (!user) {
-            showSnackbar('Please log in to save articles.', 'info');
+            showSnackbar(t('login_to_save'), 'info');
             return;
         }
         if (isSaving) return;
@@ -253,10 +253,10 @@ export default function NewsDetailPage() {
         } catch (error: any) {
             console.error('Failed to toggle save', error);
             if (error?.response?.status === 401) {
-                showSnackbar('Session expired. Please log in again.', 'info');
+                showSnackbar(t('session_expired'), 'info');
                 refreshUser();
             } else {
-                showSnackbar('Failed to save article. Please try again.', 'error');
+                showSnackbar(t('save_failed'), 'error');
             }
         } finally {
             setIsSaving(false);
@@ -274,7 +274,7 @@ export default function NewsDetailPage() {
             setNewQuestion("");
         } catch (err) {
             console.error('Ask question error:', err);
-            showSnackbar('Failed to post question. Please try again.', 'error');
+            showSnackbar(t('question_failed'), 'error');
         } finally {
             setIsSubmittingQ(false);
         }
@@ -289,10 +289,10 @@ export default function NewsDetailPage() {
             setQuestions(questions.map(q => q._id === questionId ? res.data : q));
             setAdminAnswer("");
             setReplyingToId(null);
-            showSnackbar('Answer posted successfully!', 'success');
+            showSnackbar(t('answer_success'), 'success');
         } catch (err) {
             console.error('Answer question error:', err);
-            showSnackbar('Failed to post answer.', 'error');
+            showSnackbar(t('answer_failed'), 'error');
         } finally {
             setIsSubmittingA(false);
         }

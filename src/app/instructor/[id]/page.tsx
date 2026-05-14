@@ -13,11 +13,9 @@ import {
 } from 'lucide-react';
 import { InstructorCourse, InstructorRating } from '@/types';
 
-function imgURL(url?: string | null, type: 'avatar' | 'cover' = 'avatar') {
-    if (!url) return null;
-    if (url.startsWith('http')) return url;
-    const dir = type === 'avatar' ? 'profile-picture' : 'cover-photos';
-    return `/data/images/${dir}/${url}`;
+function imgURL(url?: string | null) {
+    if (!url || !url.startsWith('http')) return null;
+    return url;
 }
 
 function Stars({ value, max = 5, interactive = false, onChange }: {
@@ -134,7 +132,7 @@ export default function InstructorProfilePage() {
 
     const { user: instrUser, profile: instrProfile, courses } = profile;
     const isOwnProfile = user?.id === instrUser._id;
-    const coverUrl = imgURL(instrUser.coverPhotoURL, 'cover');
+    const coverUrl = imgURL(instrUser.coverPhotoURL);
     const avatarUrl = imgURL(instrUser.photoURL);
     const displayedRatings = showAllReviews
         ? (ratingsData?.ratings || [])

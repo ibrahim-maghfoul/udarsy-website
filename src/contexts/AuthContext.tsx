@@ -179,21 +179,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [router]);
 
-    const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || '';
-
     const getPhotoURL = useCallback((url: string | undefined | null) => {
-        if (!url) return null;
-        if (url.startsWith('http')) return url;
-        if (!url.includes('/')) return `${BACKEND}/data/images/profile-picture/${url}`;
-        return url.startsWith('/') ? `${BACKEND}${url}` : `${BACKEND}/${url}`;
-    }, [BACKEND]);
+        if (!url || !url.startsWith('http')) return null;
+        return url;
+    }, []);
 
     const getResourceURL = useCallback((url: string | undefined | null) => {
-        if (!url) return null;
-        if (url.startsWith('http')) return url;
-        if (!url.includes('/')) return `${BACKEND}/data/resources/${url}`;
-        return url.startsWith('/') ? `${BACKEND}${url}` : `${BACKEND}/${url}`;
-    }, [BACKEND]);
+        if (!url || !url.startsWith('http')) return null;
+        return url;
+    }, []);
 
     const updateUser = useCallback((userData: User) => {
         setUser(userData);

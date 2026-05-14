@@ -287,7 +287,11 @@
         "no_account": "ليس لديك حساب؟",
         "have_account": "لديك حساب بالفعل؟",
         "google_btn": "تسجيل الدخول باستخدام جوجل",
-        "or": "أو"
+        "or": "أو",
+        "login_failed": "فشل تسجيل الدخول",
+        "google_login_failed": "فشل تسجيل الدخول عبر جوجل",
+        "signup_failed": "فشل إنشاء الحساب",
+        "google_signup_failed": "فشل التسجيل عبر جوجل"
     },
     "Subjects": {
         "title": "استكشف المواد",
@@ -338,7 +342,18 @@
         "login_to_ask": "سجل الدخول للسؤال",
         "login_hint": "هل لديك سؤال؟ سجل الدخول لتسأل المجتمع أو المسؤول.",
         "save": "حفظ",
-        "saved": "محفوظ"
+        "saved": "محفوظ",
+        "login_to_rate": "يرجى تسجيل الدخول لتقييم المقالات.",
+        "rating_thanks": "شكرًا على تقييمك!",
+        "rating_failed": "فشل إرسال التقييم.",
+        "login_to_save": "يرجى تسجيل الدخول لحفظ المقالات.",
+        "session_expired": "انتهت جلستك. يرجى تسجيل الدخول مجددًا.",
+        "save_failed": "فشل حفظ المقال. يرجى المحاولة مرة أخرى.",
+        "question_failed": "فشل نشر السؤال. يرجى المحاولة مرة أخرى.",
+        "answer_success": "تم نشر الإجابة بنجاح!",
+        "answer_failed": "فشل نشر الإجابة.",
+        "article_saved": "تم حفظ المقال في المفضلة",
+        "article_removed": "تمت إزالة المقال من المفضلة"
     },
     "Pricing": {
         "title": "اختر ",
@@ -534,7 +549,10 @@
         "school_name": "اسم المدرسة",
         "phone": "رقم الهاتف",
         "optional": "اختياري",
-        "next": "الخطوة التالية"
+        "next": "الخطوة التالية",
+        "photo_updated": "تم تحديث صورة الملف الشخصي!",
+        "photo_failed": "فشل تحميل الصورة",
+        "pick_date": "اختر تاريخاً"
     },
     "Lesson": {
         "syllabus": "منهج الدرس",
@@ -591,7 +609,10 @@
         "ai_doc_questions": "سؤال/مستند",
         "ai_daily_questions": "سؤال/يوم",
         "view_doc": "عرض المستند",
-        "understand_with_ai": "افهم مع الذكاء الاصطناعي"
+        "understand_with_ai": "افهم مع الذكاء الاصطناعي",
+        "fav_added_snack": "تمت الإضافة للمفضلة",
+        "fav_removed_snack": "تمت الإزالة من المفضلة",
+        "fav_failed": "فشل تحديث المفضلة"
     },
     "Profile": {
         "settings": "الاعدادات",
@@ -648,6 +669,7 @@
         "updated": "تم التحديث!",
         "photo_updated_success": "تم تحديث صورة الملف الشخصي!",
         "photo_updated_error": "فشل تحميل الصورة",
+        "change_photo": "تغيير الصورة",
         "contribute_title": "المساهمة بالموارد",
         "contribute_desc": "شارك ملاحظاتك وموادك بصيغة PDF مع الآخرين.",
         "select_subject": "المادة",
@@ -769,7 +791,14 @@
         "specialist": "التخصص",
         "target_course": "الدرس المستهدف",
         "instructor_dashboard": "لوحة التحكم",
-        "view_profile": "عرض الملف الشخصي"
+        "view_profile": "عرض الملف الشخصي",
+        "reward_request_success": "تم إرسال طلب المكافأة! سيقوم المسؤول بمراجعته قريبًا.",
+        "reward_request_failed": "فشل إرسال طلب المكافأة",
+        "settings_saved": "تم حفظ الإعدادات",
+        "settings_failed": "فشل حفظ الإعدادات",
+        "invite_link_copied": "تم نسخ رابط الدعوة! احصل على +100 نقطة عند تسجيلهم.",
+        "invite_link_failed": "فشل الحصول على رابط الدعوة",
+        "sharing_not_supported": "المشاركة غير مدعومة في هذا المتصفح"
     },
     "Instructors": {
         "loading": "جارٍ التحميل...",
@@ -911,7 +940,9 @@
         "monthly_limit_title": "تم الوصول للحد الشهري",
         "monthly_limit_desc": "لقد استخدمت جميع مساهماتك الـ 30 لهذا الشهر. يُعاد حسابك في الأول من كل شهر. قم بالترقية إلى بريميوم للحصول على مساهمات غير محدودة!",
         "upgrade_premium": "الترقية إلى بريميوم",
-        "ok_got_it": "حسنًا، فهمت"
+        "ok_got_it": "حسنًا، فهمت",
+        "load_error": "فشل تحميل بيانات المساهمات",
+        "contribute_error": "فشلت المساهمة"
     },
     "SubjectCards": {
         "badge": "مكتبة المواد",
@@ -1001,5 +1032,24 @@
         "snack_label": "التقويم",
         "delete_confirm_msg": "حذف \"{title}\"؟ لا يمكن التراجع عن هذا الإجراء.",
         "custom_category_placeholder": "اسم الفئة المخصصة…"
+    },
+    "ApplyInstructor": {
+        "login_required": "يرجى تسجيل الدخول أولاً",
+        "video_required": "يرجى رفع فيديو الديمو",
+        "submit_success": "تم إرسال الطلب!",
+        "submit_failed": "فشل إرسال الطلب",
+        "video_too_large": "حجم الفيديو يجب أن يكون أقل من 500 ميجابايت"
+    },
+    "TeacherDashboard": {
+        "load_failed": "فشل تحميل لوحة التحكم",
+        "fill_fields": "يرجى تعبئة جميع الحقول المطلوبة",
+        "room_created": "تم إنشاء الغرفة! رمز الدعوة: {code}",
+        "room_create_failed": "فشل إنشاء الغرفة",
+        "invite_copied": "تم نسخ رابط الدعوة!",
+        "room_deleted": "تم حذف الغرفة",
+        "room_delete_failed": "فشل حذف الغرفة",
+        "student_accepted": "تم قبول الطالب!",
+        "request_rejected": "تم رفض الطلب",
+        "review_failed": "فشل مراجعة الطلب"
     }
 }

@@ -10,6 +10,8 @@ export default function DownloadPage() {
 
     return (
         <main className="min-h-screen bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,#d8f5e8_0%,#f2fbf5_40%,#ffffff_100%)] flex flex-col items-center justify-center px-6 py-16 md:py-32">
+            {/* Material Symbols loaded only on this page (used by iOS card icon) — Next.js hoists <link> to <head> */}
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=ios" />
 
             {/* Decorative floating blobs */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">

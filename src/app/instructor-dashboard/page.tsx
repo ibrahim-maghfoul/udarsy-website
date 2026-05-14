@@ -15,8 +15,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 function coverURL(url?: string | null) {
-    if (!url) return null;
-    return url.startsWith('http') ? url : `/data/images/cover-photos/${url}`;
+    if (!url || !url.startsWith('http')) return null;
+    return url;
 }
 
 interface Course {

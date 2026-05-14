@@ -287,7 +287,11 @@
         "no_account": "Pas de compte ?",
         "have_account": "Déjà un compte ?",
         "google_btn": "Se connecter avec Google",
-        "or": "ou"
+        "or": "ou",
+        "login_failed": "Échec de la connexion",
+        "google_login_failed": "Échec de la connexion Google",
+        "signup_failed": "Échec de l'inscription",
+        "google_signup_failed": "Échec de l'inscription Google"
     },
     "Subjects": {
         "title": "Explorer les matières",
@@ -338,7 +342,18 @@
         "login_to_ask": "Se connecter pour demander",
         "login_hint": "Vous avez une question ? Connectez-vous pour demander à la communauté ou à l'administrateur.",
         "save": "Sauvegarder",
-        "saved": "Sauvegardé"
+        "saved": "Sauvegardé",
+        "login_to_rate": "Connectez-vous pour évaluer les articles.",
+        "rating_thanks": "Merci pour votre évaluation !",
+        "rating_failed": "Échec de l'envoi de l'évaluation.",
+        "login_to_save": "Connectez-vous pour enregistrer les articles.",
+        "session_expired": "Session expirée. Veuillez vous reconnecter.",
+        "save_failed": "Échec de l'enregistrement de l'article. Veuillez réessayer.",
+        "question_failed": "Échec de la publication de la question. Veuillez réessayer.",
+        "answer_success": "Réponse publiée avec succès !",
+        "answer_failed": "Échec de la publication de la réponse.",
+        "article_saved": "Article enregistré dans les favoris",
+        "article_removed": "Article retiré des favoris"
     },
     "Pricing": {
         "title": "Choisissez votre ",
@@ -534,7 +549,10 @@
         "school_name": "Nom de l'école",
         "phone": "Téléphone",
         "optional": "facultatif",
-        "next": "Étape suivante"
+        "next": "Étape suivante",
+        "photo_updated": "Photo de profil mise à jour !",
+        "photo_failed": "Échec du téléchargement de la photo",
+        "pick_date": "Choisir une date"
     },
     "Lesson": {
         "syllabus": "Programme de la leçon",
@@ -591,7 +609,10 @@
         "ai_doc_questions": "questions/doc",
         "ai_daily_questions": "questions/jour",
         "view_doc": "Voir le document",
-        "understand_with_ai": "Comprendre avec l'IA"
+        "understand_with_ai": "Comprendre avec l'IA",
+        "fav_added_snack": "Ajouté aux favoris",
+        "fav_removed_snack": "Retiré des favoris",
+        "fav_failed": "Échec de la mise à jour des favoris"
     },
     "Profile": {
         "settings": "Paramètres",
@@ -648,6 +669,7 @@
         "updated": "Mis à jour !",
         "photo_updated_success": "Photo de profil mise à jour !",
         "photo_updated_error": "Échec du téléchargement de la photo",
+        "change_photo": "Changer la photo",
         "upload_failed": "Échec du téléchargement",
         "contribute_title": "Contribuer des ressources",
         "contribute_desc": "Partagez vos notes PDF et vos supports avec les autres.",
@@ -769,7 +791,14 @@
         "specialist": "Spécialité",
         "target_course": "Cours cible",
         "instructor_dashboard": "Tableau de bord",
-        "view_profile": "Voir le profil"
+        "view_profile": "Voir le profil",
+        "reward_request_success": "Demande de récompense envoyée ! L'administrateur l'examinera bientôt.",
+        "reward_request_failed": "Échec de l'envoi de la demande de récompense",
+        "settings_saved": "Paramètres enregistrés",
+        "settings_failed": "Échec de l'enregistrement des paramètres",
+        "invite_link_copied": "Lien d'invitation copié ! Gagnez +100 pts à chaque inscription.",
+        "invite_link_failed": "Échec de la récupération du lien d'invitation",
+        "sharing_not_supported": "Le partage n'est pas pris en charge par ce navigateur"
     },
     "Instructors": {
         "loading": "Chargement...",
@@ -911,7 +940,9 @@
         "monthly_limit_title": "Limite Mensuelle Atteinte",
         "monthly_limit_desc": "Vous avez utilisé toutes vos 30 contributions ce mois. Votre compteur se réinitialise le 1er du mois prochain. Passez à Premium pour des contributions illimitées !",
         "upgrade_premium": "Passer à Premium",
-        "ok_got_it": "OK, Compris"
+        "ok_got_it": "OK, Compris",
+        "load_error": "Échec du chargement des données de contributions",
+        "contribute_error": "Échec de la contribution"
     },
     "SubjectCards": {
         "badge": "Bibliothèque des Matières",
@@ -1001,5 +1032,24 @@
         "snack_label": "Calendrier",
         "delete_confirm_msg": "Supprimer \"{title}\" ? Cette action est irréversible.",
         "custom_category_placeholder": "Nom de catégorie personnalisée…"
+    },
+    "ApplyInstructor": {
+        "login_required": "Veuillez vous connecter d'abord",
+        "video_required": "Veuillez télécharger votre vidéo de démonstration",
+        "submit_success": "Candidature soumise !",
+        "submit_failed": "Échec de la soumission",
+        "video_too_large": "La vidéo doit faire moins de 500 Mo"
+    },
+    "TeacherDashboard": {
+        "load_failed": "Échec du chargement du tableau de bord",
+        "fill_fields": "Veuillez remplir tous les champs requis",
+        "room_created": "Salle créée ! Code d'invitation : {code}",
+        "room_create_failed": "Échec de la création de la salle",
+        "invite_copied": "Lien d'invitation copié !",
+        "room_deleted": "Salle supprimée",
+        "room_delete_failed": "Échec de la suppression de la salle",
+        "student_accepted": "Élève accepté !",
+        "request_rejected": "Demande rejetée",
+        "review_failed": "Échec de l'examen de la demande"
     }
 }

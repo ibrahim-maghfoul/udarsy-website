@@ -70,20 +70,8 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
 
             if (!croppedCtx) return null;
 
-            // Compress by capping max dimensions to 500px for profile pictures
-            const MAX_DIMENSION = 500;
-            let outWidth = pixelCrop.width;
-            let outHeight = pixelCrop.height;
-
-            if (outWidth > MAX_DIMENSION || outHeight > MAX_DIMENSION) {
-                if (outWidth > outHeight) {
-                    outHeight = Math.round((MAX_DIMENSION / outWidth) * outHeight);
-                    outWidth = MAX_DIMENSION;
-                } else {
-                    outWidth = Math.round((MAX_DIMENSION / outHeight) * outWidth);
-                    outHeight = MAX_DIMENSION;
-                }
-            }
+            const outWidth = pixelCrop.width;
+            const outHeight = pixelCrop.height;
 
             croppedCanvas.width = outWidth;
             croppedCanvas.height = outHeight;
@@ -104,7 +92,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
                 croppedCanvas.toBlob((file) => {
                     if (file) resolve(file);
                     else reject(new Error('Canvas toBlob failed'));
-                }, 'image/jpeg', 0.85); // Reduced quality for compression
+                }, 'image/jpeg', 1.0);
             });
         } catch (e) {
             console.error('getCroppedImg error:', e);

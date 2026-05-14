@@ -1,10 +1,13 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = {
-  title: "إعداد الحساب | Configuration du Compte",
-  description: "أكمل إعداد حسابك على منصة يودرسي.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: await pageTitle({ ar: "إعداد الحساب", fr: "Configuration", en: "Setup" }),
+    description: "أكمل إعداد حسابك على منصة يودرسي.",
+    robots: { index: false, follow: false },
+  };
+}
 
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;

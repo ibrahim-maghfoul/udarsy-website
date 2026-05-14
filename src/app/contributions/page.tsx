@@ -31,6 +31,14 @@ interface RecentContribution {
     };
 }
 
+function Avatar({ src, name, size = "w-10 h-10" }: { src: string | null; name: string; size?: string }) {
+    const [failed, setFailed] = useState(false);
+    if (!src || failed) return (
+        <span className="text-green font-black text-sm">{name.charAt(0)}</span>
+    );
+    return <Image src={src} alt={name} fill sizes="40px" className="object-cover" onError={() => setFailed(true)} />;
+}
+
 export default function ContributionsPage() {
     const t = useTranslations("Contributions");
     const { user, getPhotoURL, getResourceURL } = useAuth();
@@ -95,7 +103,7 @@ export default function ContributionsPage() {
                 }
             } catch (error) {
                 console.error("Failed to fetch contributions:", error);
-                showSnackbar("Failed to load contributions data", "error");
+                showSnackbar(t("load_error"), "error");
             } finally {
                 setLoading(false);
             }
@@ -173,7 +181,7 @@ export default function ContributionsPage() {
             setRecent(recentRes.data);
         } catch (error: any) {
             console.error("Contribution failed:", error);
-            const msg = error?.response?.data?.error || "Failed to contribute";
+            const msg = error?.response?.data?.error || t("contribute_error");
             showSnackbar(msg, "error");
         } finally {
             setIsUploading(false);
@@ -325,11 +333,7 @@ export default function ContributionsPage() {
                                             >
                                                 {/* Avatar */}
                                                 <div className="w-10 h-10 rounded-[11px] overflow-hidden shrink-0 border border-green/10 bg-green/5 flex items-center justify-center relative">
-                                                    {avatarUrl ? (
-                                                        <Image src={avatarUrl} alt={item.user.displayName} fill className="object-cover" />
-                                                    ) : (
-                                                        <span className="text-green font-black text-sm">{item.user.displayName.charAt(0)}</span>
-                                                    )}
+                                                    <Avatar src={avatarUrl} name={item.user.displayName} />
                                                 </div>
 
                                                 {/* Content */}

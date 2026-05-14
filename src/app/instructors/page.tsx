@@ -137,11 +137,9 @@ export default function InstructorsPage() {
                                                 backgroundSize: 'auto, 14px 14px',
                                             }}
                                         >
-                                            {instructor.photoURL ? (
+                                            {instructor.photoURL?.startsWith('http') ? (
                                                 <Image
-                                                    src={instructor.photoURL.startsWith('http')
-                                                        ? instructor.photoURL
-                                                        : `${process.env.NEXT_PUBLIC_BACKEND_URL}/data/images/profile-picture/${instructor.photoURL}`}
+                                                    src={instructor.photoURL}
                                                     alt={instructor.displayName}
                                                     width={80}
                                                     height={80}

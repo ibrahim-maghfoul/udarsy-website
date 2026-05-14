@@ -18,11 +18,7 @@ export async function generateMetadata({
     const description = article.description
       ? article.description.slice(0, 160)
       : "اقرأ آخر أخبار التعليم المغربي على منصة درسي.";
-    const image = article.image
-      ? article.image.startsWith("http")
-        ? article.image
-        : `${BACKEND}/data/resources/${article.image}`
-      : "/og-image.png";
+    const image = article.image?.startsWith("http") ? article.image : "/og-image.png";
     return {
       title,
       description,

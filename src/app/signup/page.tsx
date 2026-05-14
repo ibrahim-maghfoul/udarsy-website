@@ -41,7 +41,7 @@ export default function SignupPage() {
             await register(email, password, name, nickname, referralCode || undefined);
             trackEvent({ event: 'sign_up', category: 'Auth', label: 'email', referred: !!referralCode });
         } catch (err: any) {
-            showSnackbar(err.message || 'Sign up failed', 'error');
+            showSnackbar(err.message || t('signup_failed'), 'error');
         } finally {
             setLoading(false);
         }
@@ -56,13 +56,13 @@ export default function SignupPage() {
                 await googleLogin(tokenResponse.access_token, referralCode || undefined, rememberMe);
                 trackEvent({ event: 'sign_up', category: 'Auth', label: 'google', referred: !!referralCode });
             } catch (err: any) {
-                showSnackbar(err.message || 'Google Sign up failed', 'error');
+                showSnackbar(err.message || t('google_signup_failed'), 'error');
             } finally {
                 setLoading(false);
             }
         },
         onError: () => {
-            showSnackbar('Google Sign up failed', 'error');
+            showSnackbar(t('google_signup_failed'), 'error');
         }
     });
 

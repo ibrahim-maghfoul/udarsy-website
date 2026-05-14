@@ -1,10 +1,13 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = {
-  title: "ملفي الشخصي | Mon Profil",
-  description: "اعرض إحصائياتك الدراسية، دروسك المفضلة وإعداداتك على منصة يودرسي.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: await pageTitle({ ar: "ملفي الشخصي", fr: "Mon Profil", en: "My Profile" }),
+    description: "اعرض إحصائياتك الدراسية، دروسك المفضلة وإعداداتك على منصة يودرسي.",
+    robots: { index: false, follow: false },
+  };
+}
 
 export default function ProfileLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
