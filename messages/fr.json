@@ -294,7 +294,7 @@
         "google_signup_failed": "Échec de l'inscription Google"
     },
     "Subjects": {
-        "title": "Explorer les matières",
+        "title": "Cours",
         "desc": "Choisissez une matière pour commencer votre parcours d'apprentissage avec des mentors experts.",
         "student": "Étudiant",
         "search_placeholder": "Rechercher des matières...",
@@ -353,7 +353,9 @@
         "answer_success": "Réponse publiée avec succès !",
         "answer_failed": "Échec de la publication de la réponse.",
         "article_saved": "Article enregistré dans les favoris",
-        "article_removed": "Article retiré des favoris"
+        "article_removed": "Article retiré des favoris",
+        "no_articles": "Pas encore d'articles",
+        "no_articles_desc": "Revenez bientôt pour les dernières nouvelles et mises à jour."
     },
     "Pricing": {
         "title": "Choisissez votre ",
@@ -1051,5 +1053,33 @@
         "student_accepted": "Élève accepté !",
         "request_rejected": "Demande rejetée",
         "review_failed": "Échec de l'examen de la demande"
+    },
+    "FuturisticHero": {
+        "badge": "Votre réussite, notre mission",
+        "headline_1": "Apprenez.",
+        "headline_2": "Progressez.",
+        "headline_3": "Réussissez.",
+        "subtitle": "Plateforme d'apprentissage IA pour les lycéens marocains. Cours structurés, progression personnalisée, préparation BAC & Brevet.",
+        "cta_start": "Commencer gratuitement",
+        "cta_demo": "Voir la démo",
+        "stat_students": "Étudiants actifs",
+        "stat_courses": "Cours disponibles",
+        "stat_scholarships": "Bourses & opportunités",
+        "stat_satisfaction": "Satisfaction étudiante",
+        "dialog_title": "Comment fonctionne Udarsy",
+        "dialog_subtitle": "Votre parcours vers la réussite en 4 étapes",
+        "dialog_close": "Fermer",
+        "dialog_free": "100% gratuit pour commencer",
+        "dialog_start": "Commencer →",
+        "step_1_title": "Explorez les cours",
+        "step_1_desc": "Plus de 1 200 cours organisés par matière, niveau et filière. Du Brevet au BAC, tout est là.",
+        "step_2_title": "Suivez votre progression",
+        "step_2_desc": "Stats personnalisées, recommandations IA et objectifs quotidiens pour rester motivé.",
+        "step_3_title": "Rejoignez la communauté",
+        "step_3_desc": "Des milliers d'étudiants marocains dans des salles de chat par matière et niveau.",
+        "step_4_title": "Réussissez vos examens",
+        "step_4_desc": "Exercices ciblés, examens blancs corrigés et préparation intensive pour le BAC & Brevet.",
+        "card_students": "étudiants",
+        "card_progress": "Progression"
     }
 }

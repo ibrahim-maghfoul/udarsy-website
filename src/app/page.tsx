@@ -1,5 +1,6 @@
 "use client";
 
+import { FuturisticHero } from "@/components/FuturisticHero";
 import { HeroSection } from "@/components/HeroSection";
 // SubjectCardsSection is static-imported (not dynamic) so its bundle is part of
 // the main chunk — parsed during page load instead of mid-scroll. This kills
@@ -55,8 +56,10 @@ export default function Home() {
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
-    window.addEventListener('resize', check, { passive: true });
-    return () => window.removeEventListener('resize', check);
+    let timer: ReturnType<typeof setTimeout>;
+    const onResize = () => { clearTimeout(timer); timer = setTimeout(check, 150); };
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => { window.removeEventListener('resize', onResize); clearTimeout(timer); };
   }, []);
 
   useEffect(() => {
@@ -111,6 +114,8 @@ export default function Home() {
       <div className="absolute top-0 left-0 w-full h-[120vh] bg-gradient-to-b from-green/[0.03] to-transparent pointer-events-none" />
 
       <main className="flex flex-col pt-0 md:pt-[72px]">
+        {/* FuturisticHero: negative margin counteracts navbar top padding so it fills the viewport edge-to-edge */}
+        <div className="md:-mt-[72px]"><FuturisticHero /></div>
         <HeroSection />
 
         {/* Trusted Strip */}
@@ -139,17 +144,17 @@ export default function Home() {
         </div>
 
         <LazySection minHeight={700}><SubjectCardsSection /></LazySection>
-        <LazySection minHeight={600}><BelieveSection /></LazySection>
+        <div className="hidden sm:block"><LazySection minHeight={600}><BelieveSection /></LazySection></div>
         <LazySection minHeight={500}><ChatFeatureSection /></LazySection>
         <LazySection minHeight={600}>
           <div ref={setCoursesEl}><CoursesSection /></div>
         </LazySection>
-        <LazySection minHeight={500}><WorksSection /></LazySection>
+        <div className="hidden sm:block"><LazySection minHeight={500}><WorksSection /></LazySection></div>
         <LazySection minHeight={700}><PlatformFeatures /></LazySection>
         <LazySection minHeight={500}><PricingSection /></LazySection>
         <div ref={setTeamsEl}><LazySection minHeight={400}><TeamSection /></LazySection></div>
 
-        <Link href="/explore" aria-hidden={!(showButton && !(isMobile && teamsVisible))} tabIndex={showButton && !(isMobile && teamsVisible) ? 0 : -1}>
+        <Link href="/courses" aria-hidden={!(showButton && !(isMobile && teamsVisible))} tabIndex={showButton && !(isMobile && teamsVisible) ? 0 : -1}>
           <button
             onClick={() => trackEvent({ event: 'cta_click', category: 'Conversion', label: 'floating_start_learning' })}
             className={`fixed bottom-24 right-4 md:bottom-8 md:right-8 bg-dark text-white font-semibold text-sm p-[14px_26px] rounded-full shadow-[0_6px_28px_rgba(0,0,0,0.28)] z-[100] transition-[opacity,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_36px_rgba(0,0,0,0.35)] ${

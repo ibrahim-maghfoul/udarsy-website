@@ -8,6 +8,7 @@ const withNextIntl = createNextIntlPlugin(
 const isDev = process.env.NODE_ENV === 'development';
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   images: {
     remotePatterns: [
       {
@@ -39,7 +40,13 @@ const nextConfig: NextConfig = {
       { pathname: "/**" },
     ],
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60 * 60 * 24, // 24h
+    minimumCacheTTL: 60 * 60 * 24 * 365, // 1 year
+  },
+  async redirects() {
+    return [
+      { source: '/explore', destination: '/courses', permanent: true },
+      { source: '/explore/subject/:path*', destination: '/courses/subject/:path*', permanent: true },
+    ];
   },
   async headers() {
     if (isDev) {
@@ -74,7 +81,7 @@ const nextConfig: NextConfig = {
   compress: true,
   // Reduce unused JavaScript sent to client
   experimental: {
-    optimizePackageImports: ['lucide-react', 'framer-motion'],
+    optimizePackageImports: ['lucide-react', 'framer-motion', 'date-fns', 'd3-geo'],
   },
 };
 

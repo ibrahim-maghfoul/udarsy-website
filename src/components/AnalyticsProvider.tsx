@@ -38,13 +38,15 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
         // Remove the minutes we are about to sync
         activeSeconds.current -= (minutes * 60);
 
-        // Standard fetch with keepalive ensures it fires even if the page unloads
+        // keepalive fetch ensures the request fires even if the page unloads
         const token = localStorage.getItem('token');
+        const apiKey = process.env.NEXT_PUBLIC_APP_API_KEY;
         fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/progress/track-session`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+            ...(apiKey ? { 'X-App-Key': apiKey } : {}),
           },
           body: JSON.stringify({ minutes }),
           keepalive: true

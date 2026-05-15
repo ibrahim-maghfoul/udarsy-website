@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+import { serverFetch } from "@/lib/serverFetch";
 
 export async function generateMetadata({
   params,
@@ -9,11 +8,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   try {
-    const res = await fetch(`${BACKEND}/api/news/${id}`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) throw new Error("Not found");
-    const article = await res.json();
+    const article = await serverFetch(`/news/${id}`, { revalidate: 3600 });
+    if (!article) throw new Error("Not found");
     const title = article.title || "خبر تعليمي";
     const description = article.description
       ? article.description.slice(0, 160)

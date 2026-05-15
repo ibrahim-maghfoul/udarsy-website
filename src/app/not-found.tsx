@@ -48,7 +48,7 @@ export default function NotFound() {
                         {t("back_home")}
                     </Link>
                     <Link
-                        href="/explore"
+                        href="/courses"
                         className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-green text-white font-bold text-sm rounded-2xl shadow-[0_4px_20px_rgba(58,170,106,0.35)] hover:shadow-[0_8px_28px_rgba(58,170,106,0.45)] hover:-translate-y-[2px] active:scale-95 transition-all uppercase tracking-wide"
                     >
                         <BookOpen size={18} />

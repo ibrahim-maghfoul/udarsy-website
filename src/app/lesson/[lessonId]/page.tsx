@@ -13,8 +13,6 @@ import {
     Clock,
     ChevronRight,
     ChevronLeft,
-    PanelRightClose,
-    PanelRightOpen,
     Search,
     Heart,
     Sparkles,
@@ -31,7 +29,7 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import Link from "next/link";
-import { getLessonById, getLessons } from "@/services/data";
+import { getLessonById, getLessons, getLessonBySlug, lessonSlug } from "@/services/data";
 import { trackResourceView, markResourceComplete, updateResourceProgress, toggleFavorite } from "@/services/progress";
 import { trackEvent } from "@/lib/analytics";
 import { useAuth } from "@/contexts/AuthContext";
@@ -74,10 +72,11 @@ export default function LessonPage() {
     const locale = useLocale();
     const isRTL = locale === 'ar';
     const params = useParams();
-    const lessonId = params.lessonId as string;
+    const slug = params.lessonId as string; // folder is [lessonId] but value is now a slug
     const router = useRouter();
     const { user, refreshUser, getResourceURL } = useAuth();
     const [lesson, setLesson] = useState<any>(null);
+    const [lessonId, setLessonId] = useState('');
     const [loading, setLoading] = useState(true);
 
     const [localCompletedResources, setLocalCompletedResources] = useState<string[]>([]);
@@ -166,13 +165,15 @@ export default function LessonPage() {
 
     // Fetch lesson data + siblings in parallel
     useEffect(() => {
-        if (!lessonId) return;
+        if (!slug) return;
         let cancelled = false;
 
         (async () => {
-            const res = await getLessonById(lessonId);
+            const res = await getLessonBySlug(slug);
             if (cancelled) return;
             setLesson(res);
+            const lessonId = res?._id ?? res?.id ?? '';
+            setLessonId(lessonId);
 
             if (res) {
                 trackEvent({ event: 'lesson_view', category: 'Content', label: res.title, lesson_id: lessonId });
@@ -202,7 +203,7 @@ export default function LessonPage() {
         })();
 
         return () => { cancelled = true; };
-    }, [lessonId]);
+    }, [slug]);
 
     // Progress save on unmount / resource switch — using refs to avoid re-renders
     const lastSavedRef = useRef(Date.now());
@@ -511,10 +512,26 @@ export default function LessonPage() {
     }, [activeResource, localCompletedResources]);
 
     if (loading) return (
-        <div className="min-h-screen px-6 flex items-center justify-center">
-            <div className="flex flex-col items-center gap-4">
-                <div className="w-12 h-12 border-4 border-green/20 border-t-green rounded-full animate-spin" />
-                <p className="text-muted-foreground font-medium">{t("loading")}</p>
+        <div className="min-h-screen bg-white overflow-x-hidden">
+            {/* Header skeleton */}
+            <div className="bg-white border-b border-green/10 md:pt-32 pt-4 pb-4 md:pb-8 px-6">
+                <div className="max-w-7xl mx-auto flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-green/10 animate-pulse shrink-0" />
+                    <div className="h-6 bg-green/10 rounded-xl animate-pulse flex-1 max-w-xs" />
+                </div>
+            </div>
+            {/* Body skeleton */}
+            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-0 p-6 lg:p-0">
+                {/* Viewer skeleton */}
+                <div className="flex-1 lg:p-12 hidden lg:block">
+                    <div className="h-[75vh] min-h-[500px] bg-dark/5 rounded-[10px] animate-pulse" />
+                </div>
+                {/* Sidebar skeleton */}
+                <div className="lg:w-80 xl:w-96 p-6 space-y-4">
+                    {[1,2,3,4].map(i => (
+                        <div key={i} className="h-14 bg-green/[0.06] rounded-2xl animate-pulse" />
+                    ))}
+                </div>
             </div>
         </div>
     );
@@ -522,7 +539,7 @@ export default function LessonPage() {
     if (!lesson) return (
         <div className="min-h-screen px-6 text-center">
             <h1 className="text-2xl font-bold">{t("not_found")}</h1>
-            <Link href="/explore" className="text-green hover:underline">{t("return_explore")}</Link>
+            <Link href="/courses" className="text-green hover:underline">{t("return_explore")}</Link>
         </div>
     );
 
@@ -532,7 +549,7 @@ export default function LessonPage() {
         const isPdfType = type !== 'video';
         return (
             <div className="space-y-2">
-                <h4 className={`text-xs font-bold text-muted-foreground uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'}`}>{label}</h4>
+                <h4 className={`text-xs font-bold text-green md:text-muted-foreground uppercase tracking-wider py-1 md:border-0 ${isRTL ? 'text-right border-r-2 border-green pr-3' : 'text-left border-l-2 border-green pl-3'}`}>{label}</h4>
                 {items.map((res: any, idx: number) => {
                     const id = safeId(res);
                     const isCompleted = localCompletedResources.includes(id);
@@ -610,9 +627,9 @@ export default function LessonPage() {
                         return (
                             <div className="space-y-1">
                                 <p className={`font-bold text-dark text-sm mt-2 mb-1 ${isRTL ? 'text-right' : 'text-left'}`}>{t('understand_with_ai')}</p>
-                                <div className="flex gap-2">
+                                <div className="flex flex-col gap-2">
                                     <button
-                                        className={`flex items-center gap-3 flex-1 p-4 border rounded-2xl font-bold text-sm active:scale-[0.98] transition-transform ${aiLocked ? 'bg-amber-50 border-amber-200/60 text-amber-700' : 'bg-[#f0f4ff] border-indigo-200/50 text-dark'}`}
+                                        className={`flex items-center gap-3 w-full p-4 border rounded-2xl font-bold text-sm active:scale-[0.98] transition-transform ${aiLocked ? 'bg-amber-50 border-amber-200/60 text-amber-700' : 'bg-[#f0f4ff] border-indigo-200/50 text-dark'}`}
                                         onClick={() => {
                                             closeMobileMenu();
                                             if (!user) { router.push('/login'); return; }
@@ -627,13 +644,14 @@ export default function LessonPage() {
                                     {user && (
                                         <button
                                             disabled={isMobileCompleted}
-                                            className={`flex items-center gap-2 px-4 py-4 border rounded-2xl font-bold text-sm active:scale-[0.98] transition-transform shrink-0 ${isMobileCompleted ? 'bg-green text-white border-green cursor-default' : 'bg-green/8 border-green/20 text-green hover:bg-green hover:text-white'}`}
+                                            className={`flex items-center justify-center gap-2 w-full p-4 border rounded-2xl font-bold text-sm active:scale-[0.98] transition-transform ${isMobileCompleted ? 'bg-green text-white border-green cursor-default' : 'bg-green/8 border-green/20 text-green hover:bg-green hover:text-white'}`}
                                             onClick={() => {
                                                 handleMarkMobileResourceComplete(mobileMenu.resource, mobileMenu.type);
                                                 closeMobileMenu();
                                             }}
                                         >
                                             <CheckCircle2 size={18} />
+                                            {isMobileCompleted ? t('mark_completed_done') : t('mark_completed')}
                                         </button>
                                     )}
                                 </div>
@@ -641,15 +659,15 @@ export default function LessonPage() {
                         );
                     })()}
                     <button
-                        className="flex items-center justify-center w-full p-3 text-sm font-medium text-dark/50 active:bg-dark/5 rounded-2xl transition-colors"
+                        className="flex items-center justify-center gap-2 w-full p-4 border border-dark/10 bg-dark/[0.03] rounded-2xl font-bold text-sm text-dark/50 active:scale-[0.98] transition-transform"
                         onClick={closeMobileMenu}
                     >
-                        <X size={16} className="mr-1.5" /> Cancel
+                        <X size={16} /> Cancel
                     </button>
                 </div>
             </div>
         )}
-        <div className="min-h-screen bg-white pb-20 md:pb-0 animate-slide-up">
+        <div className="min-h-screen bg-white pb-20 md:pb-0 animate-slide-up overflow-x-hidden">
 
 
             {/* Header */}
@@ -658,9 +676,9 @@ export default function LessonPage() {
                     <div className="space-y-2">
                         {/* Mobile: back button + title on one line */}
                         <div className={`flex items-center gap-3 md:hidden ${isRTL ? 'flex-row-reverse' : ''}`}>
-                            <Link href="/explore" className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-green/8 border border-green/15 text-green hover:bg-green/15 transition-colors active:scale-95">
+                            <button onClick={() => router.back()} className="shrink-0 flex items-center justify-center w-9 h-9 rounded-full bg-green/8 border border-green/15 text-green hover:bg-green/15 transition-colors active:scale-95">
                                 {isRTL ? <ChevronRight size={18} /> : <ArrowLeft size={18} />}
-                            </Link>
+                            </button>
                             <h1 className={`flex-1 text-lg font-bold text-dark leading-tight line-clamp-2 ${isRTL ? 'text-right' : 'text-left'}`}>{lesson.title}</h1>
                             <button
                                 onClick={handleToggleFavorite}
@@ -672,10 +690,10 @@ export default function LessonPage() {
                         </div>
                         {/* Desktop: back link above, title below */}
                         <div className="hidden md:block">
-                            <Link href="/explore" className={`btn-back ${isRTL ? 'flex-row-reverse' : ''}`}>
+                            <button onClick={() => router.back()} className={`btn-back ${isRTL ? 'flex-row-reverse' : ''}`}>
                                 {isRTL ? <ChevronRight size={14} className="btn-back-arrow" /> : <ArrowLeft size={14} className="btn-back-arrow" />}
                                 {t("back_subjects")}
-                            </Link>
+                            </button>
                         </div>
                         <div className={`hidden md:flex flex-wrap items-center gap-4 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             <h1 className="text-3xl font-bold text-dark">{lesson.title}</h1>
@@ -685,14 +703,6 @@ export default function LessonPage() {
             </header>
 
             <div className={`max-w-7xl mx-auto flex flex-col ${isRTL ? 'lg:flex-row-reverse' : 'lg:flex-row'} bg-white min-h-[calc(100vh-200px)] relative overflow-hidden`}>
-                {/* Mobile sidebar toggle */}
-                <button
-                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className={`fixed bottom-8 ${isRTL ? 'right-8' : 'left-8'} z-[110] p-4 bg-green text-white rounded-full shadow-2xl hover:scale-110 transition-transform active:scale-95 lg:hidden`}
-                    title={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
-                >
-                    {isSidebarOpen ? <PanelRightClose size={24} /> : <PanelRightOpen size={24} />}
-                </button>
 
                 {/* Content viewer — desktop only */}
                 <div className="flex-1 p-6 lg:p-12 transition-all duration-200 hidden lg:block">
@@ -953,8 +963,9 @@ export default function LessonPage() {
                                     </div>
                                 )}
 
-                                {/* Q&A — ask anything about this document */}
-                                {user && (
+                                {/* Q&A — only mounted after AI panel is expanded to avoid rendering
+                                    the full textarea + message list on every resource open */}
+                                {user && aiExpanded && (
                                     <div className="px-5 pb-5 border-t border-green/10 pt-4">
                                         <div className="flex items-center gap-2 mb-3">
                                             <div className="w-5 h-5 rounded-lg bg-green/10 flex items-center justify-center flex-shrink-0">
@@ -1066,9 +1077,9 @@ export default function LessonPage() {
                     className={`overflow-hidden border-${isRTL ? 'r' : 'l'} border-green/10 bg-green/5 shrink-0 transition-all duration-300 ease-out
                         ${isSidebarOpen ? 'w-full lg:w-96 opacity-100' : 'w-0 opacity-0 pointer-events-none'}`}
                 >
-                    <div className={`p-6 space-y-8 min-w-[384px] ${isRTL ? 'text-right' : 'text-left'}`}>
+                    <div className={`p-6 space-y-8 min-w-[384px] max-w-full overflow-x-hidden ${isRTL ? 'text-right' : 'text-left'}`}>
                         <div className="space-y-6">
-                            <h3 className="text-lg font-bold text-dark flex items-center gap-2">
+                            <h3 className="hidden md:flex text-lg font-bold text-dark items-center gap-2">
                                 <ClipboardList size={20} className="text-green" />
                                 {t("syllabus")}
                             </h3>
@@ -1106,15 +1117,15 @@ export default function LessonPage() {
                         </div>
 
                         {nextLesson && (
-                            <div className="relative p-6 rounded-3xl bg-green text-white space-y-4 shadow-xl shadow-green/20 overflow-hidden">
+                            <div className="relative p-4 md:p-5 rounded-2xl bg-green text-white shadow-lg shadow-green/20 overflow-hidden">
                                 {/* Texture overlay */}
                                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
-                                <div className="relative z-10">
-                                    <h4 className="font-bold">{t("next_lesson")}</h4>
-                                    <p className="text-white/80 text-sm mt-4 mb-4">{nextLesson.title}</p>
+                                <div className="relative z-10 flex flex-col gap-2">
+                                    <h4 className="font-bold text-sm">{t("next_lesson")}</h4>
+                                    <p className="text-white/80 text-sm leading-snug line-clamp-2" dir="auto">{nextLesson.title}</p>
                                     <button
-                                        onClick={() => router.push(`/lesson/${nextLesson.id || nextLesson._id}`)}
-                                        className="w-full py-3 bg-white text-green font-bold rounded-xl hover:scale-[1.02] transition-transform"
+                                        onClick={() => router.push(`/lesson/${nextLesson.slug ?? lessonSlug(nextLesson.title)}`)}
+                                        className="w-full py-2 bg-white text-green font-bold rounded-xl hover:scale-[1.02] transition-transform text-sm"
                                     >
                                         {t("continue_path")}
                                     </button>

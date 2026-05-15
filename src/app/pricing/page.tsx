@@ -573,7 +573,7 @@ export default function PricingPage() {
                   <div>
                     {plan.key === "free" ? (
                       <Link
-                        href="/explore"
+                        href="/courses"
                         className="block text-center py-3.5 px-6 rounded-2xl font-semibold text-sm border border-gray-200 text-gray-600 hover:border-green hover:text-green transition-colors"
                       >
                         {plan.cta}

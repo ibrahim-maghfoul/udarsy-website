@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Facebook, Twitter, Instagram, Youtube, Send, Loader2, CheckCircle, Globe } from "lucide-react";
 import Link from "next/link";
 import { UdarsyLogo } from "./UdarsyLogo";
+import api from "@/lib/api";
 
 import { useTranslations } from "next-intl";
 import { SOCIALS } from "@/lib/constants";
@@ -18,20 +19,9 @@ export function Footer() {
         if (!email) return;
         setSubStatus("loading");
         try {
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/newsletter/subscribe`,
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email }),
-                }
-            );
-            if (res.ok) {
-                setSubStatus("success");
-                setEmail("");
-            } else {
-                setSubStatus("error");
-            }
+            await api.post('/newsletter/subscribe', { email });
+            setSubStatus("success");
+            setEmail("");
         } catch {
             setSubStatus("error");
         }
@@ -75,7 +65,7 @@ export function Footer() {
                     {/* Product Column */}
                     <div className="flex flex-col gap-3">
                         <h4 className="text-[11px] font-black tracking-widest uppercase text-white mb-1">{t('product')}</h4>
-                        <Link href="/explore" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('explore')}</Link>
+                        <Link href="/courses" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('explore')}</Link>
                         <Link href="/pricing" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('pricing')}</Link>
                         <Link href="/services" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('services')}</Link>
                         <Link href="/news" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('news')}</Link>

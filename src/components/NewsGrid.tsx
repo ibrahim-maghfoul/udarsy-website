@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import NewsCard from '@/components/NewsCard';
 import { useTranslations } from 'next-intl';
 import { BookOpen, GraduationCap, Users, LayoutGrid } from 'lucide-react';
+import { useIsLowEndDevice } from '@/lib/performance';
 
 interface NewsItem {
     id: string;
@@ -25,10 +26,18 @@ const containerVariants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.06 } },
 };
+const containerVariantsReduced = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { duration: 0.15 } },
+};
 
 const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+};
+const itemVariantsReduced = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { duration: 0.15 } },
 };
 
 const ITEMS_PER_PAGE = 9;
@@ -40,24 +49,29 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
     College: Users,
 };
 
+const CATEGORIES = ['All', 'Bac', 'Etudiant', 'College'];
+
 export default function NewsGrid({ items }: { items: NewsItem[] }) {
     const t = useTranslations('News');
+    const prefersReducedMotion = useReducedMotion();
+    const isLowEnd = useIsLowEndDevice();
+    const simplifyMotion = prefersReducedMotion || isLowEnd;
     const [activeCategory, setActiveCategory] = React.useState('All');
     const [currentPage, setCurrentPage] = React.useState(1);
 
-    const categories = ['All', 'Bac', 'Etudiant', 'College'];
+    const categories = CATEGORIES;
 
-    const getCategoryLabel = (tab: string) => {
+    const getCategoryLabel = React.useCallback((tab: string) => {
         if (tab === 'All') return t('tab_all');
         if (tab === 'Bac') return t('tab_bac');
         if (tab === 'Etudiant') return t('tab_etudiant');
         if (tab === 'College') return t('tab_college');
         return tab;
-    };
+    }, [t]);
 
     const categoryCounts = React.useMemo(() => {
         const counts: Record<string, number> = { All: items.length };
-        categories.forEach(c => {
+        CATEGORIES.forEach(c => {
             if (c !== 'All') counts[c] = items.filter(i => i.category === c).length;
         });
         return counts;
@@ -123,14 +137,14 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
             <AnimatePresence mode="wait">
                 <motion.div
                     key={`${activeCategory}-${currentPage}`}
-                    variants={containerVariants}
+                    variants={simplifyMotion ? containerVariantsReduced : containerVariants}
                     initial="hidden"
                     animate="show"
                     exit="hidden"
                     className="flex flex-wrap justify-center gap-8 gap-y-14 sm:gap-y-8"
                 >
                     {currentItems.map((item) => (
-                        <motion.div key={item.id} variants={itemVariants}>
+                        <motion.div key={item.id} variants={simplifyMotion ? itemVariantsReduced : itemVariants}>
                             <NewsCard
                                 title={item.title}
                                 subtitle={item.subtitle}

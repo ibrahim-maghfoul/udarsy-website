@@ -193,11 +193,14 @@ export interface BackendEventPayload {
 export async function trackServerEvent(payload: BackendEventPayload): Promise<void> {
   try {
     const clientId = getGAClientId();
+    const apiKey = process.env.NEXT_PUBLIC_APP_API_KEY;
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/event`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(apiKey ? { 'X-App-Key': apiKey } : {}),
+      },
       body: JSON.stringify({ ...payload, clientId }),
-      // Fire-and-forget: don't block UI on this
       keepalive: true,
     });
   } catch {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cairo } from "next/font/google";
+import { Cairo, Barlow_Condensed, Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import "../styles/pickers.css";
 import { Navbar } from "@/components/Navbar";
@@ -18,8 +18,22 @@ import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 const cairo = Cairo({
   variable: "--font-cairo",
   subsets: ["arabic", "latin"],
-  weight: ["300", "400", "500", "700", "900"],
-  display: "swap", // Prevent FOIT — show fallback font immediately
+  weight: ["400", "500", "700"],
+  display: "swap",
+});
+
+const barlowCondensed = Barlow_Condensed({
+  variable: "--font-barlow-condensed",
+  subsets: ["latin"],
+  weight: ["700", "900"],
+  display: "swap",
+});
+
+const instrumentSans = Instrument_Sans({
+  variable: "--font-instrument-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -93,7 +107,7 @@ export default async function RootLayout({
           <link rel="preconnect" href={process.env.NEXT_PUBLIC_BACKEND_URL} crossOrigin="anonymous" />
         )}
       </head>
-      <body className={`${cairo.variable} font-cairo antialiased`} suppressHydrationWarning>
+      <body className={`${cairo.variable} ${barlowCondensed.variable} ${instrumentSans.variable} font-cairo antialiased`} suppressHydrationWarning>
         {/* Google Analytics 4 — script injected after interactive, won't block render */}
         <GoogleAnalytics />
         <NextIntlClientProvider messages={messages}>

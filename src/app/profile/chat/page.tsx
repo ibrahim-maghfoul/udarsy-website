@@ -500,34 +500,67 @@ export default function ChatPage() {
     // ── Not logged in ──
     if (!user) {
         return (
-            <div className="min-h-[100dvh] bg-bg flex items-center justify-center p-6">
+            <div className="min-h-[100dvh] flex flex-col items-center justify-center px-6 py-16 gap-8" style={{ background: "var(--color-bg)" }}>
+                {/* Sad face illustration */}
                 <motion.div
-                    initial={{ opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                    className="max-w-md w-full bg-white rounded-[32px] border border-green/10 p-10 shadow-[0_20px_60px_rgba(0,0,0,0.08),_0_4px_16px_rgba(0,0,0,0.04)] text-center space-y-8"
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 >
-                    <div
-                        className="w-20 h-20 rounded-[22px] flex items-center justify-center mx-auto relative overflow-hidden"
-                        style={{ background: "linear-gradient(135deg, #f0faf5, #e8f5ee)" }}
+                    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        {/* Face circle */}
+                        <circle cx="60" cy="60" r="56" fill="#f0faf5" stroke="#3aaa6a" strokeWidth="2.5" strokeOpacity="0.3" />
+                        {/* Left eye */}
+                        <ellipse cx="42" cy="48" rx="5" ry="6" fill="#1a3a2a" fillOpacity="0.55" />
+                        {/* Right eye */}
+                        <ellipse cx="78" cy="48" rx="5" ry="6" fill="#1a3a2a" fillOpacity="0.55" />
+                        {/* Tear left */}
+                        <path d="M41 57 Q39.5 63 41 67 Q42.5 63 41 57Z" fill="#3aaa6a" fillOpacity="0.45" />
+                        {/* Tear right */}
+                        <path d="M79 57 Q77.5 63 79 67 Q80.5 63 79 57Z" fill="#3aaa6a" fillOpacity="0.45" />
+                        {/* Sad mouth */}
+                        <path d="M40 80 Q60 68 80 80" stroke="#1a3a2a" strokeWidth="3" strokeLinecap="round" fill="none" strokeOpacity="0.45" />
+                        {/* Lock icon in center-bottom of face */}
+                        <rect x="51" y="86" width="18" height="13" rx="3" fill="#3aaa6a" fillOpacity="0.18" stroke="#3aaa6a" strokeWidth="1.5" strokeOpacity="0.4" />
+                        <path d="M54 86 V83 a6 6 0 0 1 12 0 V86" stroke="#3aaa6a" strokeWidth="1.5" strokeLinecap="round" fill="none" strokeOpacity="0.4" />
+                        <circle cx="60" cy="92.5" r="2" fill="#3aaa6a" fillOpacity="0.5" />
+                    </svg>
+                </motion.div>
+
+                {/* Title */}
+                <motion.div
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.38, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                    className="text-center space-y-3"
+                >
+                    <h1 className="text-2xl md:text-3xl font-black text-dark leading-tight">{t("chat_sign_in_title")}</h1>
+                    <p className="text-base font-medium leading-relaxed max-w-xs mx-auto" style={{ color: "rgba(26,58,42,0.45)" }}>
+                        {t("chat_sign_in_desc")}
+                    </p>
+                </motion.div>
+
+                {/* Buttons */}
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-xs"
+                >
+                    <Link
+                        href="/login"
+                        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-[14px] font-black text-sm text-white bg-green hover:bg-green/90 active:scale-95 transition-all"
+                        style={{ boxShadow: "0 4px 16px rgba(58,170,106,0.3)" }}
                     >
-                        <div className="absolute inset-0 opacity-60" style={{ backgroundImage: DOT_TEXTURE, backgroundSize: "14px 14px" }} />
-                        <MessageCircle size={36} className="text-green relative z-10" />
-                    </div>
-                    <div className="space-y-3">
-                        <h1 className="text-3xl font-black text-dark">{t("chat_sign_in_title")}</h1>
-                        <p className="text-sm text-dark/50 leading-relaxed font-medium">
-                            {t("chat_sign_in_desc")}
-                        </p>
-                    </div>
-                    <div className="flex flex-col gap-3">
-                        <Link href="/login" className="w-full py-4 bg-green text-white font-black rounded-[14px] hover:bg-green/90 transition-colors text-sm flex items-center justify-center gap-2 shadow-lg shadow-green/20">
-                            <LogIn size={16} /> {t("chat_sign_in_btn")}
-                        </Link>
-                        <Link href="/" className="w-full py-4 bg-white border-[1.5px] border-green/15 text-dark/50 font-bold rounded-[14px] hover:bg-green/5 hover:border-green/25 transition-all text-sm">
-                            {t("chat_return_home")}
-                        </Link>
-                    </div>
+                        <LogIn size={15} /> {t("chat_sign_in_btn")}
+                    </Link>
+                    <Link
+                        href="/"
+                        className="w-full flex items-center justify-center py-3.5 rounded-[14px] font-bold text-sm transition-all hover:bg-white"
+                        style={{ color: "rgba(26,58,42,0.45)", border: "1.5px solid rgba(58,170,106,0.15)" }}
+                    >
+                        {t("chat_return_home")}
+                    </Link>
                 </motion.div>
             </div>
         );
@@ -536,74 +569,88 @@ export default function ChatPage() {
     // ── Profile incomplete ──
     if (!isProfileComplete) {
         const missingItems = [
-            { label: "Age / Birthday",   done: !!user?.age },
-            { label: "City",             done: !!user?.city },
-            { label: "Grade level",      done: !!user?.level?.level },
-            { label: "Subject track",    done: !!user?.level?.guidance },
+            { label: "Age / Birthday", done: !!user?.age },
+            { label: "City",           done: !!user?.city },
+            { label: "Grade level",    done: !!user?.level?.level },
+            { label: "Subject track",  done: !!user?.level?.guidance },
         ];
+        const doneCount = missingItems.filter(m => m.done).length;
 
         return (
             <div
                 className="min-h-screen flex flex-col items-center justify-center px-4 py-12"
-                style={{ background: "linear-gradient(160deg, #ffffff 0%, #f4fbf7 55%, #eaf5ef 100%)" }}
+                style={{ background: "var(--color-bg)" }}
             >
                 <motion.div
-                    initial={{ opacity: 0, y: 18 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                     className="w-full max-w-sm"
                 >
                     <div
-                        className="bg-white rounded-[28px] border border-green/8 overflow-hidden"
-                        style={{ boxShadow: "0 4px 28px rgba(58,170,106,0.08), 0 1px 4px rgba(0,0,0,0.04)" }}
+                        className="bg-white rounded-[32px] border border-green/8 overflow-hidden"
+                        style={{ boxShadow: "0 8px 32px rgba(58,170,106,0.10), 0 2px 8px rgba(0,0,0,0.04)" }}
                     >
-                        {/* Header band */}
+                        {/* Header */}
                         <div
-                            className="relative px-6 pt-7 pb-6 border-b border-green/6"
-                            style={{ background: "linear-gradient(135deg, #f0faf5 0%, #e8f5ee 100%)" }}
+                            className="relative px-6 pt-8 pb-7 text-center border-b border-green/6"
+                            style={{ background: "linear-gradient(160deg, #f0faf5 0%, #e8f5ee 100%)" }}
                         >
                             <div
                                 className="absolute inset-0 pointer-events-none"
                                 style={{ backgroundImage: "radial-gradient(circle, rgba(58,170,106,0.15) 1px, transparent 1px)", backgroundSize: "14px 14px" }}
                             />
-                            <div className="relative z-10 flex items-center gap-3.5">
-                                <div className="w-12 h-12 rounded-[14px] bg-white flex items-center justify-center border border-green/15 shadow-sm flex-shrink-0">
-                                    <MessageCircle size={22} className="text-green" />
+                            <div className="relative z-10">
+                                <div className="w-16 h-16 bg-white rounded-[20px] border border-green/15 shadow-sm flex items-center justify-center mx-auto mb-3">
+                                    <MessageCircle size={28} className="text-green" />
                                 </div>
-                                <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5 text-green/50">
-                                        Class Chat
-                                    </p>
-                                    <h2 className="text-lg font-black text-dark tracking-tight leading-tight">
-                                        {t("chat_blocked_title")}
-                                    </h2>
-                                </div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-green/40 mb-1">Class Chat</p>
+                                <h2 className="text-xl font-black text-dark tracking-tight leading-tight">
+                                    {t("chat_blocked_title")}
+                                </h2>
                             </div>
                         </div>
 
                         {/* Body */}
-                        <div className="px-6 py-5 space-y-3">
-                            <p className="text-xs text-dark/50 font-medium leading-relaxed">
+                        <div className="px-5 pt-5 pb-3">
+                            <p className="text-[11px] text-dark/40 font-medium leading-relaxed text-center px-1 mb-4">
                                 {t("chat_blocked_desc")}
                             </p>
+
+                            {/* Profile completion bar */}
+                            <div className="mb-4">
+                                <div className="flex justify-between items-center mb-1.5">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-dark/30">Profile</span>
+                                    <span className="text-[10px] font-black text-green">{doneCount}/{missingItems.length}</span>
+                                </div>
+                                <div className="h-1.5 bg-green/8 rounded-full overflow-hidden">
+                                    <motion.div
+                                        className="h-full bg-green rounded-full"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${(doneCount / missingItems.length) * 100}%` }}
+                                        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                                    />
+                                </div>
+                            </div>
+
                             {/* Missing fields checklist */}
-                            <div className="space-y-2 pt-1">
+                            <div className="space-y-1.5">
                                 {missingItems.map(({ label, done }) => (
                                     <div
                                         key={label}
-                                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold ${
+                                        className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold ${
                                             done
-                                                ? "bg-green/5 border border-green/10 text-green/70"
-                                                : "bg-orange-50 border border-orange-100/80 text-orange-700/70"
+                                                ? "bg-green/6 text-green/70"
+                                                : "bg-orange-50 border border-orange-100 text-orange-700/80"
                                         }`}
                                     >
-                                        <span className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-black ${
-                                            done ? "bg-green text-white" : "bg-orange-200 text-orange-600"
+                                        <span className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-black ${
+                                            done ? "bg-green text-white" : "bg-orange-100 text-orange-500"
                                         }`}>
                                             {done ? "✓" : "!"}
                                         </span>
-                                        {label}
-                                        <span className="ml-auto text-[10px] uppercase tracking-wider font-black opacity-50">
+                                        <span className="flex-1">{label}</span>
+                                        <span className="text-[9px] uppercase tracking-wider font-black opacity-40">
                                             {done ? "Done" : "Missing"}
                                         </span>
                                     </div>
@@ -612,16 +659,16 @@ export default function ChatPage() {
                         </div>
 
                         {/* Actions */}
-                        <div className="px-6 pb-6 flex flex-col gap-2.5">
+                        <div className="px-5 pt-3 pb-6 flex flex-col gap-2">
                             <Link
                                 href="/onboarding"
-                                className="w-full py-3.5 bg-green text-white font-black rounded-[14px] text-sm text-center block transition-all hover:shadow-lg hover:shadow-green/20 active:scale-95"
+                                className="w-full py-3.5 bg-green text-white font-black rounded-[16px] text-sm text-center block transition-all hover:shadow-xl hover:shadow-green/20 active:scale-[0.98]"
                             >
                                 {t("complete_profile_btn")}
                             </Link>
                             <Link
                                 href="/profile"
-                                className="w-full py-3 bg-white border border-green/12 text-dark/50 font-bold rounded-[14px] text-sm text-center block hover:bg-green/5 hover:border-green/20 transition-all"
+                                className="w-full py-2.5 text-dark/30 font-bold text-xs text-center block hover:text-dark/50 transition-colors"
                             >
                                 {t("back_to_profile_btn")}
                             </Link>

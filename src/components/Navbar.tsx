@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { UdarsyLogo } from "./UdarsyLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, LogIn, LayoutGrid, BookOpen, House, CalendarDays, Menu, X, Users, MessageCircle, Share2, Bell, Check, CheckCheck, UserCheck } from "lucide-react";
@@ -31,6 +32,7 @@ function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const socketRef = useRef<ReturnType<typeof socketIO> | null>(null);
 
   const unread = notifications.filter(n => !n.read).length;
 
@@ -46,11 +48,15 @@ function NotificationBell() {
 
     fetchNotifications();
 
+    // Guard against double-mount (React StrictMode) and dependency re-fires
+    if (socketRef.current) return;
+
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     const socket = socketIO(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
       auth: { token },
       transports: ['websocket'],
     });
+    socketRef.current = socket;
 
     socket.on('connect', () => {
       socket.emit('join_user_room', user.id);
@@ -60,7 +66,10 @@ function NotificationBell() {
       setNotifications(prev => [notif, ...prev]);
     });
 
-    return () => { socket.disconnect(); };
+    return () => {
+      socket.disconnect();
+      socketRef.current = null;
+    };
   }, [isAuthenticated, user?.id]);
 
   useEffect(() => {
@@ -225,7 +234,7 @@ function BottomNavBar({ bottomTabs, isTabActive, isAuthenticated, user, getPhoto
         <div className={`relative z-10 transition-all duration-200 ${isProfileActive ? 'scale-110' : ''}`}>
           {isAuthenticated && user?.photoURL ? (
             <div className={`rounded-full overflow-hidden border-2 transition-all ${isProfileActive ? 'w-6 h-6 border-green' : 'w-6 h-6 border-dark/20'}`}>
-              <img src={getPhotoURL(user.photoURL) || ''} alt="" className="w-full h-full object-cover" />
+              <Image src={getPhotoURL(user.photoURL) || ''} alt="" width={24} height={24} className="w-full h-full object-cover" unoptimized={!getPhotoURL(user.photoURL)?.startsWith('http')} />
             </div>
           ) : (
             <User size={22} strokeWidth={isProfileActive ? 2.5 : 1.8} className={`transition-colors ${isProfileActive ? 'text-green' : 'text-dark/35'}`} />
@@ -283,7 +292,7 @@ export const Navbar = () => {
 
   const navLinksBase = [
     { href: "/", label: t('home'), icon: House },
-    { href: "/explore", label: t('explore'), icon: LayoutGrid },
+    { href: "/courses", label: t('explore'), icon: LayoutGrid },
     { href: "/news", label: t('news'), icon: BookOpen },
     { href: "/profile/chat", label: t('chat_room'), icon: MessageCircle },
     ...(isAuthenticated ? [
@@ -295,7 +304,7 @@ export const Navbar = () => {
 
   const bottomTabs = [
     { href: "/", label: t('home'), icon: House },
-    { href: "/explore", label: t('explore'), icon: LayoutGrid },
+    { href: "/courses", label: t('explore'), icon: LayoutGrid },
     { href: "/news", label: t('news'), icon: BookOpen },
     { href: "/profile/chat", label: t('chat_room'), icon: MessageCircle },
   ];
@@ -327,7 +336,7 @@ export const Navbar = () => {
             <NotificationBell />
             <Link href={isAuthenticated ? "/profile" : "/login"} className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-green overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.06)] border border-green/10 hover:scale-105 active:scale-95 transition-all">
               {isAuthenticated && user?.photoURL ? (
-                <img src={getPhotoURL(user.photoURL) || ''} alt="Profile" className="w-full h-full object-cover" />
+                <Image src={getPhotoURL(user.photoURL) || ''} alt="Profile" width={36} height={36} className="w-full h-full object-cover" unoptimized={!getPhotoURL(user.photoURL)?.startsWith('http')} />
               ) : (
                 <User size={18} strokeWidth={2.5} />
               )}
@@ -375,7 +384,7 @@ export const Navbar = () => {
                     </div>
                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-green shadow-sm border border-green/10 group-hover:shadow-md group-hover:scale-105 transition-all overflow-hidden">
                       {user?.photoURL ? (
-                        <img src={getPhotoURL(user.photoURL) || ''} alt="" className="w-full h-full object-cover" />
+                        <Image src={getPhotoURL(user.photoURL) || ''} alt="" width={40} height={40} className="w-full h-full object-cover" unoptimized={!getPhotoURL(user.photoURL)?.startsWith('http')} />
                       ) : (
                         <User size={20} />
                       )}

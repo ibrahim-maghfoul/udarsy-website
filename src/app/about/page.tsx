@@ -45,8 +45,8 @@ const stats = [
 const team = [
     { id: "ibrahim-maghfoul", name: "Ibrahim Maghfoul", role: "Website Manager", initials: "IM", color: "bg-green", img: "" },
     { id: "abderrahman-aouinat", name: "Abderrahman Aouinat", role: "Multimedia Responsable", initials: "AA", color: "bg-blue-500", img: "" },
-    { id: "mouhamed-demo", name: "Mouhamed Demo", role: "Marketing Manager", initials: "MD", color: "bg-amber-500", img: "" },
-    { id: "ayman-nouri", name: "Ayman Nouri", role: "Developer", initials: "AN", color: "bg-purple-500", img: "" },
+    { id: "abdelhakim-taouqi", name: "Abdelhakim Taouqi", role: "Marketing Manager", initials: "AT", color: "bg-amber-500", img: "" },
+    { id: "mouhamed-el-wardi", name: "Mouhamed El Wardi", role: "Developer", initials: "MW", color: "bg-purple-500", img: "" },
     { id: "asmae-monaghim", name: "Asmae Monaghim", role: "Finance Manager", initials: "AM", color: "bg-red-500", img: "" },
     { id: "safae-el-oujdi", name: "Safae El Oujdi", role: "Logistic", initials: "SO", color: "bg-cyan-500", img: "" },
 ];
@@ -113,8 +113,8 @@ export default function AboutPage() {
     const team = [
         { id: "ibrahim-maghfoul", name: "Ibrahim Maghfoul", role: "Website Manager", initials: "IM", color: "bg-green", img: "/team/ibrahim-maghfoul.png" },
         { id: "abderrahman-aouinat", name: "Abderrahman Aouinat", role: "Multimedia Responsable", initials: "AA", color: "bg-blue-500", img: "/team/abderrahman-aouinat.png" },
-        { id: "mouhamed-demo", name: "Mouhamed El Wardi", role: "Marketing Manager", initials: "MD", color: "bg-amber-500", img: "/team/mouhamed-el-wardi.png" },
-        { id: "ayman-nouri", name: "Ayman Nouri", role: "Developer", initials: "AN", color: "bg-purple-500", img: "/team/ayman-nouri.png" },
+        { id: "abdelhakim-taouqi", name: "Abdelhakim Taouqi", role: "Marketing Manager", initials: "AT", color: "bg-amber-500", img: "/team/abdelhakim-taouqi.png" },
+        { id: "mouhamed-el-wardi", name: "Mouhamed El Wardi", role: "Developer", initials: "MW", color: "bg-purple-500", img: "/team/mouhamed-el-wardi.png" },
         { id: "asmae-monaghim", name: "Asmae Monaghim", role: "Finance Manager", initials: "AM", color: "bg-red-500", img: "/team/asmae-monaghim.png" },
         { id: "safae-el-oujdi", name: "Safae El Oujdi", role: "Logistic", initials: "SO", color: "bg-cyan-500", img: "/team/safae-el-oujdi.png" },
     ];
@@ -158,7 +158,7 @@ export default function AboutPage() {
                         {t('desc')}
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <Link href="/explore" className="px-8 py-4 bg-green text-white font-bold rounded-2xl flex items-center gap-2 hover:scale-[1.03] hover:shadow-xl hover:shadow-green/20 transition-all">
+                        <Link href="/courses" className="px-8 py-4 bg-green text-white font-bold rounded-2xl flex items-center gap-2 hover:scale-[1.03] hover:shadow-xl hover:shadow-green/20 transition-all">
                             {t('start_btn')} <ArrowRight size={20} />
                         </Link>
                         <Link href="/news" className="px-8 py-4 bg-green/5 text-dark font-bold rounded-2xl flex items-center gap-2 hover:bg-green/10 transition-all">
@@ -368,10 +368,10 @@ export default function AboutPage() {
                     <div className="relative z-10 space-y-8">
                         <h2 className="text-2xl md:text-3xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">{t('cta_title')}</h2>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Link href="/explore" className="w-full sm:w-auto px-10 py-4 bg-white text-green font-bold rounded-2xl hover:scale-105 transition-all shadow-xl flex items-center justify-center gap-2">
+                            <Link href="/courses" className="w-full sm:w-auto px-10 py-4 bg-white text-green font-bold rounded-2xl hover:scale-105 transition-all shadow-xl flex items-center justify-center gap-2">
                                 {t('start_btn')} <ArrowRight size={20} />
                             </Link>
-                            <Link href="/explore" className="w-full sm:w-auto px-10 py-4 bg-white/10 text-white font-bold rounded-2xl hover:bg-white/20 transition-all border border-white/20 flex items-center justify-center gap-2 backdrop-blur-sm">
+                            <Link href="/courses" className="w-full sm:w-auto px-10 py-4 bg-white/10 text-white font-bold rounded-2xl hover:bg-white/20 transition-all border border-white/20 flex items-center justify-center gap-2 backdrop-blur-sm">
                                 {t('explore_courses')} <ChevronRight size={20} />
                             </Link>
                         </div>

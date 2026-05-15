@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+import { serverFetch } from "@/lib/serverFetch";
 
 export async function generateMetadata({
   params,
@@ -9,11 +8,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   try {
-    const res = await fetch(`${BACKEND}/api/data/school-services`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) throw new Error("Not found");
-    const services: { _id: string; title: string; description: string }[] = await res.json();
+    const services = await serverFetch<{ _id: string; title: string; description: string }[]>(
+      '/data/school-services',
+      { revalidate: 3600 }
+    );
+    if (!services) throw new Error("Not found");
     const service = services.find((s) => s._id === id);
     if (!service) throw new Error("Not found");
     return {

@@ -4,18 +4,14 @@ import { getTranslations } from 'next-intl/server';
 import { Tag } from 'lucide-react';
 import NewsGrid from '@/components/NewsGrid';
 import NewsletterCTA from '@/components/NewsletterCTA';
+import { serverFetch } from '@/lib/serverFetch';
 
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=60';
 
 async function getNewsItems() {
     try {
-        const res = await fetch(`${BACKEND}/api/news?limit=500`, {
-            next: { revalidate: 60 }, // ISR: revalidate every 60 seconds
-        });
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-        const data = await res.json();
-        const articles = Array.isArray(data) ? data : (data.news || []);
+        const data = await serverFetch<any>('/news?limit=500', { cache: 'no-store' });
+        const articles = Array.isArray(data) ? data : (data?.news || []);
 
         return articles.map((art: any) => {
             const imageFromBlocks = art.content_blocks?.find((b: any) => b.type === 'image')?.src;
@@ -74,8 +70,8 @@ export default async function NewsPage() {
                 {/* Interactive paginated grid */}
                 {newsItems.length === 0 ? (
                     <div className="text-center py-20 text-dark/40">
-                        <p className="text-xl font-bold">No articles found</p>
-                        <p className="text-sm mt-2">Upload scraped data from the admin panel to get started.</p>
+                        <p className="text-xl font-bold">{t('no_articles')}</p>
+                        <p className="text-sm mt-2">{t('no_articles_desc')}</p>
                     </div>
                 ) : (
                     <NewsGrid items={newsItems} />

@@ -9,7 +9,7 @@ interface AuthContextType {
     user: User | null;
     loading: boolean;
     login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
-    register: (email: string, password: string, name: string, nickname: string, referralCode?: string) => Promise<void>;
+    register: (email: string, password: string, name: string, referralCode?: string) => Promise<void>;
     googleLogin: (accessToken: string, referralCode?: string, rememberMe?: boolean) => Promise<void>;
     logout: () => Promise<void>;
     isAuthenticated: boolean;
@@ -117,9 +117,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [router]);
 
-    const register = useCallback(async (email: string, password: string, name: string, nickname: string, referralCode?: string) => {
+    const register = useCallback(async (email: string, password: string, name: string, referralCode?: string) => {
         try {
-            const res = await api.post('/auth/register', { displayName: name, email, password, nickname, ...(referralCode ? { referralCode } : {}) });
+            const res = await api.post('/auth/register', { displayName: name, email, password, ...(referralCode ? { referralCode } : {}) });
             const { token, user: userData } = res.data;
 
             if (typeof window !== 'undefined') {

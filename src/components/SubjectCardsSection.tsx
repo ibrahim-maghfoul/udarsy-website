@@ -548,7 +548,7 @@ export function SubjectCardsSection() {
         {/* Button */}
         <div style={{ position:"absolute", top:8, left:0, right:0, display:"flex", justifyContent:"center", zIndex:3 }}>
           <DownloadButton
-            href="/explore"
+            href="/courses"
             text={t("cta")}
             icon={<BookOpen size={20} />}
             className="!w-[280px]"

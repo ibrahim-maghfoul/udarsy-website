@@ -19,7 +19,6 @@ export default function SignupPage() {
     const t_pricing = useTranslations('Pricing');
     const searchParams = useSearchParams();
     const [name, setName] = useState("");
-    const [nickname, setNickname] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -38,7 +37,7 @@ export default function SignupPage() {
         e.preventDefault();
         setLoading(true);
         try {
-            await register(email, password, name, nickname, referralCode || undefined);
+            await register(email, password, name, referralCode || undefined);
             trackEvent({ event: 'sign_up', category: 'Auth', label: 'email', referred: !!referralCode });
         } catch (err: any) {
             showSnackbar(err.message || t('signup_failed'), 'error');
@@ -67,7 +66,7 @@ export default function SignupPage() {
     });
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-start md:justify-center bg-gradient-to-br from-white via-white to-green/10 p-4 pt-8 md:pt-32">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-white via-white to-green/10 p-4 py-8">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -96,18 +95,6 @@ export default function SignupPage() {
                                 onChange={(e) => setName(e.target.value)}
                                 className="w-full pl-12 pr-4 py-4 rounded-2xl bg-green/5 border border-transparent focus:border-green focus:bg-white focus:ring-4 focus:ring-green/5 outline-none transition-all font-medium"
                                 autoComplete="name"
-                                required
-                            />
-                        </div>
-                        <div className="relative">
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-green" size={20} />
-                            <input
-                                type="text"
-                                placeholder={t('nickname')}
-                                value={nickname}
-                                onChange={(e) => setNickname(e.target.value)}
-                                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-green/5 border border-transparent focus:border-green focus:bg-white focus:ring-4 focus:ring-green/5 outline-none transition-all font-medium"
-                                autoComplete="username"
                                 required
                             />
                         </div>

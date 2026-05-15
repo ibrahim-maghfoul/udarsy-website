@@ -1,30 +1,28 @@
 import type { Metadata } from "next";
-
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+import { serverFetch } from "@/lib/serverFetch";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ subjectId: string }>;
 }): Promise<Metadata> {
-  const { subjectId } = await params;
+  const slug = (await params).subjectId; // param name matches folder; value is a slug
   try {
-    const res = await fetch(`${BACKEND}/api/data/lessons/${subjectId}`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) throw new Error("Not found");
-    const lessons: { title: string }[] = await res.json();
-    const count = lessons.length;
+    const subject = await serverFetch<{ _id: string; title: string; slug: string }>(`/data/subject/by-slug/${slug}`, { revalidate: 3600 });
+    if (!subject) throw new Error("Not found");
+    const lessons = await serverFetch<unknown[]>(`/data/lessons/${subject._id}`, { revalidate: 3600 });
+    const count = lessons?.length ?? 0;
+    const canonicalSlug = subject.slug ?? slug;
     return {
-      title: `${count} درس — استكشف المادة`,
-      description: `اكتشف ${count} درساً بالفيديوهات والتمارين والامتحانات على منصة درسي. Découvrez ${count} leçons avec vidéos, exercices et examens sur Udarsy.`,
+      title: `${subject.title} — Udarsy`,
+      description: `اكتشف دروس ${subject.title} بالفيديوهات والتمارين والامتحانات على منصة درسي. Découvrez les leçons de ${subject.title} avec vidéos, exercices et examens.`,
       openGraph: {
-        title: `استكشف المادة (${count} درس) | Udarsy`,
+        title: `${subject.title} | Udarsy`,
         description: `${count} درساً بالفيديوهات والتمارين والامتحانات على منصة درسي.`,
         type: "website",
-        url: `/explore/subject/${subjectId}`,
+        url: `/explore/subject/${canonicalSlug}`,
       },
-      alternates: { canonical: `/explore/subject/${subjectId}` },
+      alternates: { canonical: `/explore/subject/${canonicalSlug}` },
     };
   } catch {
     return {

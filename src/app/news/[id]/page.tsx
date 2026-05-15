@@ -14,7 +14,6 @@ import { useSnackbar } from "@/contexts/SnackbarContext";
 import api from "@/lib/api";
 import { useTranslations } from "next-intl";
 
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 
 const viewedNewsIds = new Set<string>();
 
@@ -192,8 +191,8 @@ export default function NewsDetailPage() {
     useEffect(() => {
         let cancelled = false;
         Promise.all([
-            fetch(`${BACKEND}/api/news/${id}`).then(r => { if (!r.ok) throw new Error('Not found'); return r.json(); }),
-            fetch(`${BACKEND}/api/news/${id}/questions`).then(r => r.ok ? r.json() : [])
+            api.get(`/news/${id}`).then(r => r.data),
+            api.get(`/news/${id}/questions`).then(r => r.data).catch(() => [])
         ])
             .then(([articleData, qData]) => {
                 if (cancelled) return;

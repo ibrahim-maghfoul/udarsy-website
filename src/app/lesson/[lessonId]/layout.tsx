@@ -1,20 +1,17 @@
 import type { Metadata } from "next";
-
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+import { serverFetch } from "@/lib/serverFetch";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ lessonId: string }>;
 }): Promise<Metadata> {
-  const { lessonId } = await params;
+  const slug = (await params).lessonId; // folder is [lessonId] but value is now a slug
   try {
-    const res = await fetch(`${BACKEND}/api/data/lesson/${lessonId}`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) throw new Error("Not found");
-    const lesson = await res.json();
+    const lesson = await serverFetch(`/data/lesson/by-slug/${slug}`, { revalidate: 3600 });
+    if (!lesson) throw new Error("Not found");
     const title = lesson.title || "درس";
+    const canonicalSlug = lesson.slug ?? slug;
     return {
       title,
       description: `تعلم درس "${title}" — دروس، تمارين وامتحانات على منصة درسي. Apprenez "${title}" avec cours, exercices et examens sur Udarsy.`,
@@ -22,14 +19,14 @@ export async function generateMetadata({
         title: `${title} | Udarsy`,
         description: `دروس وتمارين لـ "${title}" على منصة درسي.`,
         type: "article",
-        url: `/lesson/${lessonId}`,
+        url: `/lesson/${canonicalSlug}`,
       },
       twitter: {
         card: "summary_large_image",
         title: `${title} | Udarsy`,
         description: `دروس وتمارين لـ "${title}" على منصة درسي.`,
       },
-      alternates: { canonical: `/lesson/${lessonId}` },
+      alternates: { canonical: `/lesson/${canonicalSlug}` },
     };
   } catch {
     return {

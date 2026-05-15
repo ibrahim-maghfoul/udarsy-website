@@ -55,7 +55,7 @@ export default function FavoriteCoursesPage() {
                             </p>
                         </div>
                     </div>
-                    <Link href="/explore"
+                    <Link href="/courses"
                         className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-green text-white rounded-2xl text-sm font-bold hover:bg-green/80 transition-all shadow-md shadow-green/20">
                         Explore more <ChevronRight size={16} />
                     </Link>
@@ -72,7 +72,7 @@ export default function FavoriteCoursesPage() {
                         </div>
                         <p className="font-bold text-dark/50 text-lg mb-1">No favorites yet</p>
                         <p className="text-dark/30 text-sm mb-8">Mark lessons as favorites while browsing to save them here</p>
-                        <Link href="/explore"
+                        <Link href="/courses"
                             className="inline-flex items-center gap-2 px-6 py-3 bg-green text-white rounded-2xl font-bold text-sm hover:bg-green/80 transition-all shadow-md shadow-green/20">
                             Browse Courses <ChevronRight size={16} />
                         </Link>
@@ -113,7 +113,7 @@ export default function FavoriteCoursesPage() {
 
                 {favorites.length > 0 && (
                     <div className="mt-6 text-center sm:hidden">
-                        <Link href="/explore"
+                        <Link href="/courses"
                             className="inline-flex items-center gap-2 px-6 py-3 bg-green text-white rounded-2xl font-bold text-sm hover:bg-green/80 transition-all">
                             Explore more courses <ChevronRight size={16} />
                         </Link>

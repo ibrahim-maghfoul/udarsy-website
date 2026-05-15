@@ -1,21 +1,7 @@
 import type { MetadataRoute } from "next";
+import { serverFetch } from "@/lib/serverFetch";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://udarsy.ma";
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
-
-async function fetchIds<T>(
-  url: string,
-  extract: (items: T[]) => string[]
-): Promise<string[]> {
-  try {
-    const res = await fetch(url, { next: { revalidate: 86400 } });
-    if (!res.ok) return [];
-    const data: T[] = await res.json();
-    return extract(data);
-  } catch {
-    return [];
-  }
-}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -40,20 +26,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/calendar`, lastModified: now, changeFrequency: "daily", priority: 0.7 },
   ];
 
-  const [newsIds, lessonIds] = await Promise.all([
-    fetchIds<{ _id: string }>(
-      `${BACKEND}/api/news?limit=200`,
-      (items) => {
-        const arr = (items as unknown as { news?: { _id: string }[]; _id?: string }) as any;
-        const list: { _id: string }[] = arr.news || items;
-        return list.map((n) => String(n._id));
-      }
-    ),
-    fetchIds<{ _id: string }>(
-      `${BACKEND}/api/data/lessons/all`,
-      (items) => items.map((l) => String(l._id))
-    ),
+  const [newsData, lessonData] = await Promise.all([
+    serverFetch<any>('/news?limit=200', { revalidate: 86400 }),
+    serverFetch<{ _id: string }[]>('/data/lessons/all', { revalidate: 86400 }),
   ]);
+
+  const newsList: { _id: string }[] = newsData?.news || (Array.isArray(newsData) ? newsData : []);
+  const lessonList: { _id: string }[] = Array.isArray(lessonData) ? lessonData : [];
+
+  const newsIds = newsList.map((n) => String(n._id));
+  const lessonIds = lessonList.map((l) => String(l._id));
 
   const newsRoutes: MetadataRoute.Sitemap = newsIds.map((id) => ({
     url: `${SITE_URL}/news/${id}`,

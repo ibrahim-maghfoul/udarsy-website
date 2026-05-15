@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useCallback } from 'react';
-import Cropper, { Area, Point } from 'react-easy-crop';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, ZoomIn, ZoomOut, RotateCcw, Loader2 } from 'lucide-react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { X, Check, ZoomIn, RotateCcw, Loader2 } from 'lucide-react';
 
 interface ImageCropperProps {
     image: string;
@@ -11,120 +10,162 @@ interface ImageCropperProps {
     onCropSave: (croppedImage: Blob) => void;
 }
 
-const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave }) => {
-    const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const MIN_ZOOM = 0.4;
-    const [rotation, setRotation] = useState(0);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+interface Rect { left: number; top: number; width: number; height: number }
+interface Vec2 { x: number; y: number }
+interface Size { w: number; h: number }
 
-    const [isReady, setIsReady] = useState(false);
+/**
+ * Returns the largest rect that fits (nW × nH) inside (cW × cH) using object-fit: contain math.
+ * This is the "crop frame" — the exact region the image occupies at zoom = 1.
+ */
+function containRect(cW: number, cH: number, nW: number, nH: number): Rect {
+    const imgAspect = nW / nH;
+    const conAspect = cW / cH;
+    const w = imgAspect >= conAspect ? cW : cH * imgAspect;
+    const h = imgAspect >= conAspect ? cW / imgAspect : cH;
+    return { left: (cW - w) / 2, top: (cH - h) / 2, width: w, height: h };
+}
+
+function clamp(v: number, lo: number, hi: number) { return Math.max(lo, Math.min(hi, v)); }
+
+async function exportCrop(
+    imgEl: HTMLImageElement,
+    base: Rect,
+    rendered: Rect,
+    rotation: number,
+): Promise<Blob | null> {
+    const nW = imgEl.naturalWidth;
+    const nH = imgEl.naturalHeight;
+
+    // Scale: container-pixel → natural-pixel
+    const sx = nW / rendered.width;
+    const sy = nH / rendered.height;
+
+    // Output canvas covers exactly the crop frame at full natural resolution
+    const outW = Math.round(base.width * sx);
+    const outH = Math.round(base.height * sy);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, outW, outH);
+    ctx.save();
+
+    // Map: container-pixel → output-pixel  (origin = crop frame top-left)
+    ctx.scale(sx, sy);
+    ctx.translate(-base.left, -base.top);
+
+    // Draw image at its rendered position, with rotation around its own center
+    const cx = rendered.left + rendered.width / 2;
+    const cy = rendered.top + rendered.height / 2;
+    ctx.translate(cx, cy);
+    if (rotation !== 0) ctx.rotate((rotation * Math.PI) / 180);
+    ctx.drawImage(imgEl, -rendered.width / 2, -rendered.height / 2, rendered.width, rendered.height);
+
+    ctx.restore();
+
+    return new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, 'image/jpeg', 0.92);
+    });
+}
+
+const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const imgRef = useRef<HTMLImageElement>(null);
+
+    const [natural, setNatural] = useState<Size>({ w: 1, h: 1 });
+    const [cSize, setCSize] = useState<Size>({ w: 0, h: 0 });
+    const [imageLoaded, setImageLoaded] = useState(false);
+    const [zoom, setZoom] = useState(1);
+    const [pan, setPan] = useState<Vec2>({ x: 0, y: 0 });
+    const [rotation, setRotation] = useState(0);
     const [isSaving, setIsSaving] = useState(false);
 
-    const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
-        setCroppedAreaPixels(croppedAreaPixels);
-        setIsReady(true);
+    // Track container dimensions with ResizeObserver
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el) return;
+        const ro = new ResizeObserver(([e]) => {
+            const { width, height } = e.contentRect;
+            setCSize({ w: width, h: height });
+        });
+        ro.observe(el);
+        return () => ro.disconnect();
     }, []);
 
-    const createImage = (url: string): Promise<HTMLImageElement> =>
-        new Promise((resolve, reject) => {
-            const image = new Image();
-            image.addEventListener('load', () => resolve(image));
-            image.addEventListener('error', (error) => {
-                console.error('Image load error:', error);
-                reject(error);
-            });
-            if (!url.startsWith('data:')) {
-                image.setAttribute('crossOrigin', 'anonymous');
-            }
-            image.src = url;
-        });
+    const onImgLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+        const el = e.currentTarget;
+        setNatural({ w: el.naturalWidth, h: el.naturalHeight });
+        setImageLoaded(true);
+        setZoom(1);
+        setPan({ x: 0, y: 0 });
+    }, []);
 
-    const getCroppedImg = async (
-        imageSrc: string,
-        pixelCrop: Area,
-        rotation = 0
-    ): Promise<Blob | null> => {
-        try {
-            const image = await createImage(imageSrc);
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+    // Crop frame: the exact rect the image occupies at zoom=1
+    const base = (cSize.w > 0 && imageLoaded)
+        ? containRect(cSize.w, cSize.h, natural.w, natural.h)
+        : { left: 0, top: 0, width: 0, height: 0 };
 
-            if (!ctx) return null;
+    // Current rendered image rect (accounting for zoom and pan)
+    const rendered: Rect = {
+        left: base.left - (base.width * (zoom - 1)) / 2 + pan.x,
+        top: base.top - (base.height * (zoom - 1)) / 2 + pan.y,
+        width: base.width * zoom,
+        height: base.height * zoom,
+    };
 
-            const rotRad = (rotation * Math.PI) / 180;
-            const { width: bWidth, height: bHeight } = {
-                width: Math.abs(Math.cos(rotRad) * image.width) + Math.abs(Math.sin(rotRad) * image.height),
-                height: Math.abs(Math.sin(rotRad) * image.width) + Math.abs(Math.cos(rotRad) * image.height),
-            };
+    const applyClamp = useCallback(
+        (raw: Vec2, z: number): Vec2 => {
+            if (base.width === 0) return { x: 0, y: 0 };
+            const mx = (base.width * (z - 1)) / 2;
+            const my = (base.height * (z - 1)) / 2;
+            return { x: clamp(raw.x, -mx, mx), y: clamp(raw.y, -my, my) };
+        },
+        [base.width, base.height],
+    );
 
-            canvas.width = bWidth;
-            canvas.height = bHeight;
+    // Pointer-based drag (works for mouse and touch)
+    const drag = useRef<{ x0: number; y0: number; px0: number; py0: number } | null>(null);
 
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, bWidth, bHeight);
-            ctx.translate(bWidth / 2, bHeight / 2);
-            ctx.rotate(rotRad);
-            ctx.translate(-image.width / 2, -image.height / 2);
-            ctx.drawImage(image, 0, 0);
+    const onPtrDown = (e: React.PointerEvent) => {
+        e.currentTarget.setPointerCapture(e.pointerId);
+        drag.current = { x0: e.clientX, y0: e.clientY, px0: pan.x, py0: pan.y };
+    };
 
-            const croppedCanvas = document.createElement('canvas');
-            const croppedCtx = croppedCanvas.getContext('2d');
+    const onPtrMove = (e: React.PointerEvent) => {
+        if (!drag.current) return;
+        setPan(applyClamp(
+            { x: drag.current.px0 + e.clientX - drag.current.x0, y: drag.current.py0 + e.clientY - drag.current.y0 },
+            zoom,
+        ));
+    };
 
-            if (!croppedCtx) return null;
+    const onPtrUp = () => { drag.current = null; };
 
-            const outWidth = pixelCrop.width;
-            const outHeight = pixelCrop.height;
-
-            croppedCanvas.width = outWidth;
-            croppedCanvas.height = outHeight;
-
-            croppedCtx.drawImage(
-                canvas,
-                pixelCrop.x,
-                pixelCrop.y,
-                pixelCrop.width,
-                pixelCrop.height,
-                0,
-                0,
-                outWidth,
-                outHeight
-            );
-
-            return new Promise((resolve, reject) => {
-                croppedCanvas.toBlob((file) => {
-                    if (file) resolve(file);
-                    else reject(new Error('Canvas toBlob failed'));
-                }, 'image/jpeg', 1.0);
-            });
-        } catch (e) {
-            console.error('getCroppedImg error:', e);
-            return null;
-        }
+    const onZoomChange = (z: number) => {
+        setZoom(z);
+        setPan(prev => applyClamp(prev, z));
     };
 
     const handleSave = async () => {
-        if (!isReady || !croppedAreaPixels) {
-            alert('المرجو تحريك الصورة قليلاً للبدء\nPlease move the image slightly to start.');
-            return;
-        }
-        if (isSaving) return;
-
+        if (isSaving || !imgRef.current || !imageLoaded || cSize.w === 0) return;
         setIsSaving(true);
         try {
-            const croppedImage = await getCroppedImg(image, croppedAreaPixels, rotation);
-            if (croppedImage) {
-                onCropSave(croppedImage);
-            } else {
-                alert('فشل في قص الصورة. حاول مجدداً.\nFailed to crop image. Please try again.');
-            }
-        } catch (err) {
-            console.error('Save error:', err);
-            alert('وقع خطأ ما. المرجو المحاولة مرة أخرى.\nSomething went wrong. Please try again.');
+            const blob = await exportCrop(imgRef.current, base, rendered, rotation);
+            if (blob) onCropSave(blob);
+            else alert('فشل في قص الصورة.\nFailed to crop image.');
+        } catch {
+            alert('وقع خطأ.\nSomething went wrong.');
         } finally {
             setIsSaving(false);
         }
     };
+
+    const ready = cSize.w > 0 && imageLoaded && base.width > 0;
 
     return (
         <motion.div
@@ -139,7 +180,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     className="bg-white rounded-[32px] md:rounded-[40px] w-full max-w-4xl shadow-2xl flex flex-col md:flex-row overflow-hidden"
                 >
-                    {/* Left Column (Cropper & Header) */}
+                    {/* ── Left column: cropper ── */}
                     <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-gray-100">
                         {/* Header */}
                         <div className="px-6 py-4 md:px-8 md:py-6 flex items-center justify-between border-b border-gray-100 flex-shrink-0">
@@ -155,64 +196,111 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
                             </button>
                         </div>
 
-                        {/* Cropper Area - Constrained height */}
-                        <div className="relative w-full h-[300px] md:h-[400px] md:flex-1 bg-black flex-shrink-0">
-                            <Cropper
-                                image={image}
-                                crop={crop}
-                                zoom={zoom}
-                                rotation={rotation}
-                                aspect={1 / 1}
-                                minZoom={MIN_ZOOM}
-                                onCropChange={setCrop}
-                                onCropComplete={onCropComplete}
-                                onZoomChange={setZoom}
-                                onRotationChange={setRotation}
-                                showGrid={true}
+                        {/* Crop stage */}
+                        <div
+                            ref={containerRef}
+                            className="relative w-full max-w-[480px] mx-auto aspect-square flex-shrink-0 overflow-hidden select-none cursor-grab active:cursor-grabbing"
+                            style={{ background: '#f0f0f0', touchAction: 'none' }}
+                            onPointerDown={onPtrDown}
+                            onPointerMove={onPtrMove}
+                            onPointerUp={onPtrUp}
+                            onPointerCancel={onPtrUp}
+                        >
+                            {/* Image — absolutely positioned at computed rendered rect */}
+                            <img
+                                ref={imgRef}
+                                src={image}
+                                alt=""
+                                onLoad={onImgLoad}
+                                crossOrigin="anonymous"
+                                draggable={false}
+                                style={{
+                                    position: 'absolute',
+                                    left: rendered.left,
+                                    top: rendered.top,
+                                    width: rendered.width,
+                                    height: rendered.height,
+                                    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+                                    transformOrigin: 'center center',
+                                    pointerEvents: 'none',
+                                    userSelect: 'none',
+                                    willChange: 'transform, left, top',
+                                }}
                             />
+
+                            {/* Dark masks — 4 rects surrounding the crop frame */}
+                            {ready && (
+                                <>
+                                    {/* top */}
+                                    <div style={{ position: 'absolute', left: 0, top: 0, width: cSize.w, height: base.top, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
+                                    {/* bottom */}
+                                    <div style={{ position: 'absolute', left: 0, top: base.top + base.height, width: cSize.w, height: cSize.h - base.top - base.height, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
+                                    {/* left */}
+                                    <div style={{ position: 'absolute', left: 0, top: base.top, width: base.left, height: base.height, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
+                                    {/* right */}
+                                    <div style={{ position: 'absolute', left: base.left + base.width, top: base.top, width: cSize.w - base.left - base.width, height: base.height, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
+                                </>
+                            )}
+
+                            {/* Crop frame — positioned exactly at the image's contain rect */}
+                            {ready && (
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        left: base.left,
+                                        top: base.top,
+                                        width: base.width,
+                                        height: base.height,
+                                        boxSizing: 'border-box',
+                                        border: '2px solid rgba(255,255,255,0.85)',
+                                        pointerEvents: 'none',
+                                    }}
+                                >
+                                    {/* Rule-of-thirds grid */}
+                                    <div style={{ position: 'absolute', left: '33.33%', top: 0, width: 1, height: '100%', background: 'rgba(255,255,255,0.3)' }} />
+                                    <div style={{ position: 'absolute', left: '66.66%', top: 0, width: 1, height: '100%', background: 'rgba(255,255,255,0.3)' }} />
+                                    <div style={{ position: 'absolute', top: '33.33%', left: 0, width: '100%', height: 1, background: 'rgba(255,255,255,0.3)' }} />
+                                    <div style={{ position: 'absolute', top: '66.66%', left: 0, width: '100%', height: 1, background: 'rgba(255,255,255,0.3)' }} />
+                                    {/* L-shaped corner handles */}
+                                    <div style={{ position: 'absolute', left: 0, top: 0, width: 20, height: 20, borderTop: '3px solid white', borderLeft: '3px solid white' }} />
+                                    <div style={{ position: 'absolute', right: 0, top: 0, width: 20, height: 20, borderTop: '3px solid white', borderRight: '3px solid white' }} />
+                                    <div style={{ position: 'absolute', left: 0, bottom: 0, width: 20, height: 20, borderBottom: '3px solid white', borderLeft: '3px solid white' }} />
+                                    <div style={{ position: 'absolute', right: 0, bottom: 0, width: 20, height: 20, borderBottom: '3px solid white', borderRight: '3px solid white' }} />
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Right Column (Controls & Actions) */}
+                    {/* ── Right column: controls ── */}
                     <div className="w-full md:w-[320px] flex flex-col flex-shrink-0 bg-white md:min-h-[400px]">
-                        {/* Controls Area (Scrollable if needed) */}
                         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-5">
-                            {/* Zoom Control */}
+                            {/* Zoom */}
                             <div className="space-y-3">
                                 <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-dark/40">
                                     <span className="flex items-center gap-1.5"><ZoomIn size={12} /> التكبير / Zoom</span>
                                     <span>{Math.round(zoom * 100)}%</span>
                                 </div>
                                 <input
-                                    type="range"
-                                    value={zoom}
-                                    min={MIN_ZOOM}
-                                    max={3}
-                                    step={0.05}
-                                    onChange={(e) => setZoom(Number(e.target.value))}
+                                    type="range" value={zoom} min={1} max={3} step={0.05}
+                                    onChange={(e) => onZoomChange(Number(e.target.value))}
                                     className="w-full h-1.5 bg-green/10 rounded-full appearance-none cursor-pointer accent-green"
                                 />
                             </div>
-
-                            {/* Rotation Control */}
+                            {/* Rotation */}
                             <div className="space-y-3">
                                 <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-dark/40">
                                     <span className="flex items-center gap-1.5"><RotateCcw size={12} /> التدوير / Rotation</span>
                                     <span>{rotation}°</span>
                                 </div>
                                 <input
-                                    type="range"
-                                    value={rotation}
-                                    min={0}
-                                    max={360}
-                                    step={1}
+                                    type="range" value={rotation} min={0} max={360} step={1}
                                     onChange={(e) => setRotation(Number(e.target.value))}
                                     className="w-full h-1.5 bg-green/10 rounded-full appearance-none cursor-pointer accent-green"
                                 />
                             </div>
                         </div>
 
-                        {/* Actions Pinned to Bottom */}
+                        {/* Actions pinned to bottom */}
                         <div className="flex-shrink-0 p-5 md:p-6 border-t border-gray-100 bg-white flex flex-col gap-3 z-10 w-full mt-auto">
                             <button
                                 onClick={onClose}
@@ -221,10 +309,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
                                 إلغاء / Cancel
                             </button>
                             <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    handleSave();
-                                }}
+                                onClick={handleSave}
                                 disabled={isSaving}
                                 className={`w-full py-4 bg-green text-white font-bold rounded-2xl shadow-xl shadow-green/20 hover:shadow-green/30 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm ${isSaving ? 'opacity-70 cursor-not-allowed' : 'hover:scale-[1.02]'}`}
                             >

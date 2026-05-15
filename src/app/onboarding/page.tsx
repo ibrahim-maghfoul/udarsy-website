@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
     ChevronRight, ChevronLeft, GraduationCap, School, BookOpen,
-    User, ChevronDown, MapPin, Phone, Search, Check, Camera,
+    User, ChevronDown, MapPin, Phone, Check, Camera,
 } from "lucide-react";
 import DatePicker from "@/components/ui/DatePicker";
 import { getSchools, getLevels, getGuidances } from "@/services/data";
@@ -41,9 +41,7 @@ export default function OnboardingPage() {
 
     const [currentStep, setCurrentStep] = useState(0);
     const [showGenderDropdown, setShowGenderDropdown] = useState(false);
-    const [showCityDropdown, setShowCityDropdown] = useState(false);
-    const [citySearch, setCitySearch] = useState("");
-    const cityRef = useRef<HTMLDivElement>(null);
+    const [showCitySuggestions, setShowCitySuggestions] = useState(false);
     const genderRef = useRef<HTMLDivElement>(null);
 
     // Profile photo state
@@ -59,10 +57,6 @@ export default function OnboardingPage() {
     });
     const [options, setOptions] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-
-    const filteredCities = moroccanCities.filter(c =>
-        c.toLowerCase().includes(citySearch.toLowerCase())
-    );
 
     // Pre-fill from existing user data (handles returning users with partial profiles)
     useEffect(() => {
@@ -98,11 +92,9 @@ export default function OnboardingPage() {
         } catch {}
     }, []);
 
-    // Close dropdowns on outside click
+    // Close gender dropdown on outside click
     useEffect(() => {
         const handler = (e: MouseEvent) => {
-            if (cityRef.current && !cityRef.current.contains(e.target as Node))
-                setShowCityDropdown(false);
             if (genderRef.current && !genderRef.current.contains(e.target as Node))
                 setShowGenderDropdown(false);
         };
@@ -208,6 +200,23 @@ export default function OnboardingPage() {
         }
     };
 
+    const handleStep0Next = async () => {
+        if (user) {
+            try {
+                await api.patch("/user/profile", {
+                    ...(selections.birthday  && { birthday:   selections.birthday }),
+                    ...(selections.gender    && { gender:     selections.gender }),
+                    ...(selections.city      && { city:       selections.city }),
+                    ...(selections.school    && { schoolName: selections.school }),
+                    ...(selections.phone     && { phone:      selections.phone }),
+                });
+            } catch (e) {
+                console.error("Failed to save personal info:", e);
+            }
+        }
+        setCurrentStep(1);
+    };
+
     const handleSelect = (id: string) => {
         const stepId = stepMeta[currentStep].id;
         setSelections(prev => ({ ...prev, [`${stepId}Id`]: id }));
@@ -239,7 +248,7 @@ export default function OnboardingPage() {
                 });
                 await checkAuth();
             }
-            router.push("/explore");
+            router.push("/courses");
         } catch (e) {
             console.error("Failed to save profile:", e);
             showSnackbar(t("save_error"), "error");
@@ -371,83 +380,50 @@ export default function OnboardingPage() {
                                             />
                                         </div>
 
-                                        {/* City dropdown */}
-                                        <div className="space-y-1.5" ref={cityRef}>
+                                        {/* City autocomplete */}
+                                        <div className="space-y-1.5">
                                             <label className={labelClass}>
                                                 {t("city")}
                                                 {optionalBadge}
                                             </label>
                                             <div className="relative">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => { setShowCityDropdown(v => !v); setCitySearch(""); }}
-                                                    className={`w-full px-4 py-[15px] rounded-2xl border transition-all text-left flex items-center justify-between text-sm font-medium ${showCityDropdown ? "border-green bg-white ring-4 ring-green/5" : "border-transparent bg-green/5"}`}
-                                                >
-                                                    <span className="flex items-center gap-2.5 min-w-0">
-                                                        <MapPin size={16} className="text-green/60 shrink-0" />
-                                                        <span className={`truncate ${selections.city ? "text-dark" : "text-dark/30"}`}>
-                                                            {selections.city || "City…"}
-                                                        </span>
-                                                    </span>
-                                                    <ChevronDown size={14} className={`shrink-0 transition-transform ${showCityDropdown ? "rotate-180 text-green" : "text-dark/20"}`} />
-                                                </button>
+                                                <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-green/60 pointer-events-none" />
+                                                <input
+                                                    type="text"
+                                                    value={selections.city}
+                                                    onChange={e => { setSelections(p => ({ ...p, city: e.target.value })); setShowCitySuggestions(true); }}
+                                                    onFocus={() => setShowCitySuggestions(true)}
+                                                    onBlur={() => setTimeout(() => setShowCitySuggestions(false), 150)}
+                                                    placeholder="City…"
+                                                    autoComplete="off"
+                                                    className="w-full pl-10 pr-4 py-[15px] rounded-2xl border border-transparent bg-green/5 focus:border-green focus:bg-white focus:ring-4 focus:ring-green/5 outline-none transition-all text-sm font-medium text-dark placeholder:text-dark/30"
+                                                />
 
-                                                <AnimatePresence>
-                                                    {showCityDropdown && (
-                                                        <motion.div
-                                                            initial={{ opacity: 0, y: 6, scale: 0.97 }}
-                                                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                            exit={{ opacity: 0, y: 4, scale: 0.97 }}
-                                                            transition={{ duration: 0.16, ease: [0.34, 1.4, 0.64, 1] }}
-                                                            className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-white border border-green/10 rounded-[20px] overflow-hidden"
-                                                            style={{ boxShadow: "0 16px 40px rgba(58,170,106,0.12), 0 4px 12px rgba(0,0,0,0.06)" }}
-                                                        >
-                                                            <div className="p-2.5 border-b" style={{ borderColor: "rgba(58,170,106,0.07)" }}>
-                                                                <div className="relative">
-                                                                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-green/40" />
-                                                                    <input
-                                                                        type="text"
-                                                                        value={citySearch}
-                                                                        onChange={e => setCitySearch(e.target.value)}
-                                                                        placeholder="Search…"
-                                                                        autoFocus
-                                                                        className="w-full pl-8 pr-3 py-2 rounded-xl bg-green/5 border border-transparent focus:border-green/30 outline-none text-xs font-medium text-dark placeholder:text-dark/30"
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            <div className="max-h-44 overflow-y-auto p-1.5">
-                                                                {filteredCities.map(city => (
-                                                                    <button
-                                                                        key={city}
-                                                                        type="button"
-                                                                        onClick={() => { setSelections(p => ({ ...p, city })); setShowCityDropdown(false); setCitySearch(""); }}
-                                                                        className={`w-full px-3.5 py-2.5 text-left text-xs font-bold rounded-xl transition-all flex items-center justify-between ${selections.city === city ? "text-green bg-green/5" : "text-dark/70 hover:text-green hover:bg-green/5"}`}
-                                                                    >
-                                                                        <span className="flex items-center gap-2">
-                                                                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${selections.city === city ? "bg-green" : "bg-green/20"}`} />
-                                                                            {city}
-                                                                        </span>
-                                                                        {selections.city === city && <Check size={12} className="text-green" />}
-                                                                    </button>
-                                                                ))}
-                                                                {/* Allow entering a custom city not in the list */}
-                                                                {citySearch.trim() && !moroccanCities.some(c => c.toLowerCase() === citySearch.trim().toLowerCase()) && (
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => { setSelections(p => ({ ...p, city: citySearch.trim() })); setShowCityDropdown(false); setCitySearch(""); }}
-                                                                        className={`w-full px-3.5 py-2.5 text-left text-xs font-bold rounded-xl transition-all flex items-center gap-2 text-dark/50 hover:text-green hover:bg-green/5${filteredCities.length > 0 ? " border-t border-green/8 mt-1 pt-3" : ""}`}
-                                                                    >
-                                                                        <MapPin size={11} className="text-green/40 shrink-0" />
-                                                                        Use &ldquo;<span className="text-green font-black">{citySearch.trim()}</span>&rdquo;
-                                                                    </button>
-                                                                )}
-                                                                {filteredCities.length === 0 && !citySearch.trim() && (
-                                                                    <p className="text-xs text-center py-3 font-medium text-dark/30">No cities found</p>
-                                                                )}
-                                                            </div>
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
+                                                {showCitySuggestions && selections.city && moroccanCities.filter(c => c.toLowerCase().includes(selections.city.toLowerCase())).length > 0 && (
+                                                    <div
+                                                        className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-white border border-green/10 rounded-[20px] max-h-44 overflow-y-auto p-1.5"
+                                                        style={{ boxShadow: "0 16px 40px rgba(58,170,106,0.12), 0 4px 12px rgba(0,0,0,0.06)" }}
+                                                    >
+                                                        {moroccanCities
+                                                            .filter(c => c.toLowerCase().includes(selections.city.toLowerCase()))
+                                                            .map(city => (
+                                                                <button
+                                                                    key={city}
+                                                                    type="button"
+                                                                    onMouseDown={e => e.preventDefault()}
+                                                                    onClick={() => { setSelections(p => ({ ...p, city })); setShowCitySuggestions(false); }}
+                                                                    className={`w-full px-3.5 py-2.5 text-left text-xs font-bold rounded-xl transition-all flex items-center justify-between ${selections.city === city ? "text-green bg-green/5" : "text-dark/70 hover:text-green hover:bg-green/5"}`}
+                                                                >
+                                                                    <span className="flex items-center gap-2">
+                                                                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${selections.city === city ? "bg-green" : "bg-green/20"}`} />
+                                                                        {city}
+                                                                    </span>
+                                                                    {selections.city === city && <Check size={12} className="text-green" />}
+                                                                </button>
+                                                            ))
+                                                        }
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -559,7 +535,7 @@ export default function OnboardingPage() {
 
                                     {/* Next button */}
                                     <button
-                                        onClick={() => setCurrentStep(1)}
+                                        onClick={handleStep0Next}
                                         disabled={!selections.birthday || !selections.gender}
                                         className="w-full py-4 bg-green text-white font-black rounded-2xl flex items-center justify-center gap-2 transition-all disabled:opacity-40 text-sm mt-1"
                                         style={{ boxShadow: selections.birthday && selections.gender ? "0 8px 24px rgba(58,170,106,0.28)" : "none" }}

@@ -5,26 +5,27 @@ import { useTranslations } from 'next-intl';
 import { BookOpen, TrendingUp, Newspaper } from 'lucide-react';
 import { Diagram } from "./Diagram";
 import { UdarsyLogo } from "./UdarsyLogo";
+import { useIsLowEndDevice } from "@/lib/performance";
 
 // Square clockwise: Free Materials(TL)→Track Progress(TR)→Latest News(BR)→Premium Prep(BL)
 const CARD_IDS = ["card-0", "card-1", "card-2", "card-3"];
 const CARD_INDEX: Record<string, number> = Object.fromEntries(CARD_IDS.map((id, i) => [id, i]));
-const HOLD_MS        = 2200;
-const TRAVEL_MS      = 1400;
-const TAIL_LAG       = 0.30;
-const W1_FRONT_LAG   = 0.10;
-const W1_TAIL_LAG    = 0.35;
-const W2_FRONT_LAG   = 0.20;
-const W2_TAIL_LAG    = 0.45;
+const HOLD_MS = 2200;
+const TRAVEL_MS = 1400;
+const TAIL_LAG = 0.30;
+const W1_FRONT_LAG = 0.10;
+const W1_TAIL_LAG = 0.35;
+const W2_FRONT_LAG = 0.20;
+const W2_TAIL_LAG = 0.45;
 const WAVE_TRIGGER_T = 0.78;
-const BLOB_ANIM_MS   = 700;
+const BLOB_ANIM_MS = 700;
 type CardPhase = 'idle' | 'entering' | 'active' | 'leaving';
 
 
 // ─── Maths ────────────────────────────────────────────────────────────────────
-type Pt = {x:number,y:number};
-const ZERO_PT: Pt = {x:0,y:0};
-const ease = (t: number) => t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t;
+type Pt = { x: number, y: number };
+const ZERO_PT: Pt = { x: 0, y: 0 };
+const ease = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
 const TWO_PI = Math.PI * 2;
 
@@ -66,9 +67,9 @@ const GOO_FILTER_ID = "hcard-goo";
 function BlobWave({ phase }: { phase: CardPhase | 'entering-top' | 'leaving-top' }) {
     if (phase === 'idle' || phase === 'active') return null;
     return (
-        <div style={{position:'absolute',inset:0,overflow:'hidden',zIndex:0,pointerEvents:'none',borderRadius:'inherit'}}>
-            <div className={`hcard-blob ${phase}`} style={{filter:`url('#${GOO_FILTER_ID}')`}}>
-                <span/><span/><span/><span/>
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0, pointerEvents: 'none', borderRadius: 'inherit' }}>
+            <div className={`hcard-blob ${phase}`} style={{ filter: `url('#${GOO_FILTER_ID}')` }}>
+                <span /><span /><span /><span />
             </div>
         </div>
     );
@@ -76,7 +77,7 @@ function BlobWave({ phase }: { phase: CardPhase | 'entering-top' | 'leaving-top'
 
 // ─── Desktop card (memoized — only re-renders when its own props change) ──────
 const DesktopCard = memo(function DesktopCard({ card, phase, isActive, badgeVal }: {
-    card: {id:string;icon:React.ReactNode;title:string;msg:string;color:string;iconColor:string};
+    card: { id: string; icon: React.ReactNode; title: string; msg: string; color: string; iconColor: string };
     phase: CardPhase;
     isActive: boolean;
     badgeVal: number;
@@ -88,14 +89,14 @@ const DesktopCard = memo(function DesktopCard({ card, phase, isActive, badgeVal 
                 transition-all duration-500 border-[1.5px]
                 ${isLight
                     ? 'bg-green border-green shadow-[0_6px_28px_rgba(58,170,106,0.40),0_0_0_2.5px_#3aaa6a]'
-                    : 'bg-white/90 border-[rgba(58,170,106,0.11)] shadow-[0_2px_10px_rgba(0,0,0,0.05),0_1px_3px_rgba(0,0,0,0.03)]'
+                    : 'bg-[#3aaa6a]/15 border-[#3aaa6a]/30 shadow-[0_2px_12px_rgba(58,170,106,0.12)]'
                 }`}
             style={{
                 width: 'clamp(142px,15.5vw,192px)',
                 borderRadius: '18px',
                 padding: '11px 13px',
             }}>
-            <BlobWave phase={phase}/>
+            <BlobWave phase={phase} />
 
             {/* Icon well */}
             <div className="relative flex-shrink-0 flex items-center justify-center z-10 transition-all duration-300"
@@ -104,18 +105,10 @@ const DesktopCard = memo(function DesktopCard({ card, phase, isActive, badgeVal 
                     borderRadius: 11,
                     background: isLight
                         ? 'rgba(255,255,255,0.22)'
-                        : 'linear-gradient(135deg, #f0faf5, #e8f5ee)',
-                    boxShadow: isLight ? '0 1px 8px rgba(0,0,0,0.10)' : 'none',
+                        : 'rgba(58,170,106,0.20)',
+                    boxShadow: isLight ? '0 1px 8px rgba(0,0,0,0.10)' : '0 0 0 1px rgba(58,170,106,0.25)',
                 }}>
-                {/* Dot texture — inactive only */}
-                {!isLight && (
-                    <div className="absolute inset-0 pointer-events-none" style={{
-                        borderRadius: 11,
-                        backgroundImage: 'radial-gradient(circle, rgba(58,170,106,0.22) 1px, transparent 1px)',
-                        backgroundSize: '6px 6px',
-                    }}/>
-                )}
-                <span className={`relative z-10 transition-colors duration-300 ${isLight ? 'text-white' : 'text-[#3aaa6a]'}`}>
+                <span className="relative z-10 transition-colors duration-300 text-[#3aaa6a]" style={isLight ? { color: 'white' } : {}}>
                     {card.icon}
                 </span>
                 {/* Badge */}
@@ -126,10 +119,10 @@ const DesktopCard = memo(function DesktopCard({ card, phase, isActive, badgeVal 
 
             {/* Text */}
             <div className="flex flex-col gap-[3px] min-w-0 relative z-10">
-                <div className={`text-[12px] font-black leading-[1.2] truncate transition-colors duration-300 tracking-tight ${isLight ? 'text-white' : 'text-[#1a3a2a]'}`}>
+                <div className={`text-[12px] font-black leading-[1.2] truncate transition-colors duration-300 tracking-tight ${isLight ? 'text-white' : 'text-[#1a5c38]'}`}>
                     {card.title}
                 </div>
-                <div className={`text-[10px] font-medium leading-[1.4] truncate transition-colors duration-300 ${isLight ? 'text-white/70' : 'text-[rgba(26,58,42,0.45)]'}`}>
+                <div className={`text-[10px] font-medium leading-[1.4] truncate transition-colors duration-300 ${isLight ? 'text-white/70' : 'text-[#3aaa6a]/70'}`}>
                     {card.msg}
                 </div>
             </div>
@@ -138,16 +131,16 @@ const DesktopCard = memo(function DesktopCard({ card, phase, isActive, badgeVal 
 });
 
 // ─── Mobile card list ─────────────────────────────────────────────────────────
-function MobileCardList({ cards }: {
-    cards: {id:string;icon:React.ReactNode;title:string;msg:string;color:string;iconColor:string}[];
+const MobileCardList = memo(function MobileCardList({ cards }: {
+    cards: { id: string; icon: React.ReactNode; title: string; msg: string; color: string; iconColor: string }[];
 }) {
     const cardsRef = useRef(cards);
 
     const [phases, setPhases] = useState<Record<string, CardPhase>>(
         () => Object.fromEntries(cards.map(c => [c.id, 'idle' as CardPhase]))
     );
-    const activeIdxRef  = useRef<number>(-1);
-    const timersRef     = useRef<ReturnType<typeof setTimeout>[]>([]);
+    const activeIdxRef = useRef<number>(-1);
+    const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
     const hasStartedRef = useRef(false);
 
     const advanceSequence = useCallback((nextIdx: number) => {
@@ -175,7 +168,7 @@ function MobileCardList({ cards }: {
 
         const t2 = setTimeout(() => advanceSequence(nextIdx + 1), BLOB_ANIM_MS + 1500);
         timersRef.current.push(t1, t2);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -215,9 +208,8 @@ function MobileCardList({ cards }: {
     return (
         <div className="flex flex-col gap-2 w-full">
             {cards.map(card => {
-                const phase     = phases[card.id] ?? 'idle';
-                const isLight   = phase === 'entering' || phase === 'active';
-                const isActive  = phase === 'active';
+                const phase = phases[card.id] ?? 'idle';
+                const isLight = phase === 'entering' || phase === 'active';
                 const isLeaving = phase === 'leaving';
 
                 return (
@@ -225,22 +217,22 @@ function MobileCardList({ cards }: {
                         className={`rounded-2xl p-3 flex items-center gap-3 relative overflow-hidden
                             transition-[box-shadow,background] duration-500 border
                             ${isLight ? 'bg-green border-green shadow-[0_4px_20px_rgba(58,170,106,0.3)]' : 'bg-white border-gray-100 shadow-sm'}`}>
-                        <BlobWave phase={phase}/>
+                        <BlobWave phase={phase} />
                         <div className="w-9 h-9 flex-shrink-0 rounded-xl flex items-center justify-center relative z-10 transition-[background,color] duration-300"
-                            style={isLight ? {background:'rgba(255,255,255,0.25)',color:'white'} : {background:'rgba(58,170,106,0.1)',color:'#3aaa6a'}}>
+                            style={isLight ? { background: 'rgba(255,255,255,0.25)', color: 'white' } : { background: 'rgba(58,170,106,0.1)', color: '#3aaa6a' }}>
                             {card.icon}
                         </div>
                         <div className="flex flex-col gap-0.5 min-w-0 relative z-10">
-                            <div className={`text-[12px] font-bold leading-snug truncate transition-colors duration-300 ${isLight?'text-white':'text-dark'}`}>{card.title}</div>
-                            <div className={`text-[10.5px] leading-snug truncate transition-colors duration-300 ${isLight?'text-white/75':'text-dark/50'}`}>{card.msg}</div>
+                            <div className={`text-[12px] font-bold leading-snug truncate transition-colors duration-300 ${isLight ? 'text-white' : 'text-dark'}`}>{card.title}</div>
+                            <div className={`text-[10.5px] leading-snug truncate transition-colors duration-300 ${isLight ? 'text-white/75' : 'text-dark/50'}`}>{card.msg}</div>
                         </div>
-                        <div className={`ml-auto w-2 h-2 rounded-full bg-white flex-shrink-0 relative z-10 transition-opacity duration-300 ${(isLight||isLeaving)?'opacity-100':'opacity-0'}`}/>
+                        <div className={`ml-auto w-2 h-2 rounded-full bg-white flex-shrink-0 relative z-10 transition-opacity duration-300 ${(isLight || isLeaving) ? 'opacity-100' : 'opacity-0'}`} />
                     </div>
                 );
             })}
         </div>
     );
-}
+});
 
 // ─── Flip text ────────────────────────────────────────────────────────────────
 type FlipPhase = 'visible' | 'exiting' | 'entering';
@@ -266,23 +258,21 @@ function FlipText({ words, interval = 2800 }: { words: string[]; interval?: numb
         return () => { clearInterval(iv); clearTimeout(t1); };
     }, [words.length, interval]);
 
+    // GPU-composited only: transform + opacity (no filter:blur — animating blur forces repaint)
     const phaseStyle: Record<FlipPhase, React.CSSProperties> = {
         visible: {
-            transform: 'translateY(0)',
+            transform: 'translateY(0) scale(1)',
             opacity: 1,
-            filter: 'blur(0px)',
-            transition: 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.38s ease-out, filter 0.5s ease-out',
+            transition: 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.38s ease-out',
         },
         exiting: {
-            transform: 'translateY(-60%)',
+            transform: 'translateY(-60%) scale(0.88)',
             opacity: 0,
-            filter: 'blur(10px)',
-            transition: 'transform 0.27s ease-in, opacity 0.2s ease-in, filter 0.27s ease-in',
+            transition: 'transform 0.27s ease-in, opacity 0.2s ease-in',
         },
         entering: {
-            transform: 'translateY(60%)',
+            transform: 'translateY(60%) scale(0.88)',
             opacity: 0,
-            filter: 'blur(10px)',
             transition: 'none',
         },
     };
@@ -308,25 +298,28 @@ function FlipText({ words, interval = 2800 }: { words: string[]; interval?: numb
 // ─── Main component ───────────────────────────────────────────────────────────
 export function HeroSection() {
     const t = useTranslations('Hero');
+    const isLowEnd = useIsLowEndDevice();
 
     const cardsData = useMemo(() => [
-        {id:"card-0", icon:<BookOpen   size={15}/>, title:t('card0_title'), msg:t('card0_msg'), color:"#e8f5ee", iconColor:"#3aaa6a"},
-        {id:"card-1", icon:<TrendingUp size={15}/>, title:t('card1_title'), msg:t('card1_msg'), color:"#e8f5ee", iconColor:"#3aaa6a"},
-        {id:"card-2", icon:<Newspaper  size={15}/>, title:t('card2_title'), msg:t('card2_msg'), color:"#e8f5ee", iconColor:"#3aaa6a"},
-        {id:"card-3", icon:<UdarsyLogo className="w-[15px] h-[15px]" color="#3aaa6a" />, title:t('card3_title'), msg:t('card3_msg'), color:"#e8f5ee", iconColor:"#3aaa6a"},
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        { id: "card-0", icon: <BookOpen size={15} />, title: t('card0_title'), msg: t('card0_msg'), color: "#e8f5ee", iconColor: "#3aaa6a" },
+        { id: "card-1", icon: <TrendingUp size={15} />, title: t('card1_title'), msg: t('card1_msg'), color: "#e8f5ee", iconColor: "#3aaa6a" },
+        { id: "card-2", icon: <Newspaper size={15} />, title: t('card2_title'), msg: t('card2_msg'), color: "#e8f5ee", iconColor: "#3aaa6a" },
+        { id: "card-3", icon: <UdarsyLogo className="w-[15px] h-[15px]" color="#3aaa6a" />, title: t('card3_title'), msg: t('card3_msg'), color: "#e8f5ee", iconColor: "#3aaa6a" },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     ], [t]);
 
-    const [activeIdx,  setActiveIdx]  = useState(0);
-    const [badgeVal,   setBadgeVal]   = useState(3);
-    const [cardPhases, setCardPhases] = useState<Record<string,CardPhase>>(
-        () => Object.fromEntries(CARD_IDS.map((id,i) => [id, i===0?'active':'idle']))
+    const [activeIdx, setActiveIdx] = useState(0);
+    const [badgeVal, setBadgeVal] = useState(3);
+    const [cardPhases, setCardPhases] = useState<Record<string, CardPhase>>(
+        () => Object.fromEntries(CARD_IDS.map((id, i) => [id, i === 0 ? 'active' : 'idle']))
     );
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     // ── Single effect: canvas + resize + visibility + animation loop ──────────
     useEffect(() => {
+        // Skip the continuous canvas RAF on weak hardware — cards still render statically
+        if (isLowEnd) return;
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -398,8 +391,10 @@ export function HeroSection() {
         const handleVisibility = () => { if (!document.hidden && visible) startRAF(); };
         document.addEventListener('visibilitychange', handleVisibility);
 
+        let roTimer: ReturnType<typeof setTimeout>;
         const ro = new ResizeObserver(() => {
-            posValid = false;
+            clearTimeout(roTimer);
+            roTimer = setTimeout(() => { posValid = false; }, 100);
         });
         const containerE = document.getElementById('hero-scene-container');
         if (containerE) ro.observe(containerE);
@@ -428,7 +423,7 @@ export function HeroSection() {
             rafId = requestAnimationFrame(tick);
 
             const from = getPos(CARD_IDS[aidx]);
-            const to   = getPos(CARD_IDS[(aidx + 1) % 4]);
+            const to = getPos(CARD_IDS[(aidx + 1) % 4]);
             if (from.x === 0 && from.y === 0) { posValid = false; return; }
 
             const elapsed = now - t0;
@@ -444,15 +439,15 @@ export function HeroSection() {
 
             // ── Travel phase — draw to canvas ────────────────────────────────
             const rawT = elapsed / TRAVEL_MS;
-            const mainFront  = Math.min(rawT, 1.0);
-            const mainTail   = Math.max(0, rawT - TAIL_LAG);
+            const mainFront = Math.min(rawT, 1.0);
+            const mainTail = Math.max(0, rawT - TAIL_LAG);
             const mainFrontE = ease(mainFront);
-            const mainTailE  = ease(Math.min(mainTail, 1.0));
+            const mainTailE = ease(Math.min(mainTail, 1.0));
 
             const w1Front = Math.min(Math.max(0, rawT - W1_FRONT_LAG), 1.0);
-            const w1Tail  = Math.max(0, rawT - W1_TAIL_LAG);
+            const w1Tail = Math.max(0, rawT - W1_TAIL_LAG);
             const w2Front = Math.min(Math.max(0, rawT - W2_FRONT_LAG), 1.0);
-            const w2Tail  = Math.max(0, rawT - W2_TAIL_LAG);
+            const w2Tail = Math.max(0, rawT - W2_TAIL_LAG);
 
             ctx.clearRect(0, 0, cw, ch);
 
@@ -508,7 +503,7 @@ export function HeroSection() {
             obs.disconnect();
             ro.disconnect();
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -521,14 +516,15 @@ export function HeroSection() {
         <div
             id="hero-scene-container"
             className="relative flex flex-col items-stretch overflow-visible min-h-[600px] bg-green/[0.03]"
+            style={{ opacity: 1 }}
         >
             {/* Shared goo filter — one definition for all BlobWave cards */}
             <svg style={{ position: 'absolute', width: 0, height: 0 }} aria-hidden="true">
                 <defs>
                     <filter id={GOO_FILTER_ID}>
-                        <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10"/>
-                        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 21 -7" result="goo"/>
-                        <feBlend in2="goo" in="SourceGraphic" result="mix"/>
+                        <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10" />
+                        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 21 -7" result="goo" />
+                        <feBlend in2="goo" in="SourceGraphic" result="mix" />
                     </filter>
                 </defs>
             </svg>
@@ -549,7 +545,7 @@ export function HeroSection() {
             />
 
             {/* Badge */}
-            <div className="relative z-[3] flex justify-center pt-[76px] md:pt-12 opacity-0 animate-[fadeSlideUp_0.6s_ease-out_0.1s_forwards]">
+            <div className="relative z-[3] flex justify-center pt-[76px] md:pt-12 opacity-0 animate-[fadeSlideUp_0.5s_ease-out_0.05s_forwards]">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[13px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)]">
                     <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
                     {t('badge') ?? 'AI-Powered Education Platform'}
@@ -570,24 +566,24 @@ export function HeroSection() {
                         <DesktopCard key={card.id} card={card}
                             phase={cardPhases[card.id] ?? 'idle'}
                             isActive={activeIdx === CARD_INDEX[card.id]}
-                            badgeVal={badgeVal}/>
+                            badgeVal={badgeVal} />
                     ))}
                 </div>
-                <div><Diagram/></div>
+                <div><Diagram /></div>
                 <div className="flex flex-col justify-between items-start px-[clamp(8px,2vw,36px)] py-1 min-w-0 overflow-hidden">
                     {[cardsData[1], cardsData[2]].map(card => (
                         <DesktopCard key={card.id} card={card}
                             phase={cardPhases[card.id] ?? 'idle'}
                             isActive={activeIdx === CARD_INDEX[card.id]}
-                            badgeVal={badgeVal}/>
+                            badgeVal={badgeVal} />
                     ))}
                 </div>
             </div>
 
             {/* Mobile cards + Diagram */}
             <div className="md:hidden relative z-[3] flex flex-col items-stretch pt-3 pb-6 gap-3 px-4 opacity-0 animate-[fadeSlideUp_0.7s_ease-out_0.55s_forwards]">
-                <div className="w-full flex justify-center mb-2"><Diagram/></div>
-                <MobileCardList cards={cardsData}/>
+                <div className="w-full flex justify-center mb-2"><Diagram /></div>
+                <MobileCardList cards={cardsData} />
             </div>
 
         </div>

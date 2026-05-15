@@ -3,9 +3,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { Search, BookOpen, ChevronRight, ChevronLeft, LogIn, Calculator, Atom, Globe, Microscope, Cpu, Music, Palette, Scale, Database, Dumbbell, Stethoscope, Lightbulb, Map, FlaskConical, Languages } from "lucide-react";
 import Link from "next/link";
-import { getSubjects, prefetchLessons } from "@/services/data";
+import { getSubjects, getGuidances, getSchools, getLevels, prefetchLessons, prefetchLevels, prefetchGuidances, subjectSlug, guidanceSlug } from "@/services/data";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import "./subject-cards.css";
 
@@ -31,7 +31,6 @@ const getSubjectIcon = (title: string) => {
 };
 
 // ---------- Guest Level Selector component ----------
-import { getSchools, getLevels, getGuidances, prefetchLevels, prefetchGuidances } from "@/services/data";
 import { GraduationCap, School, UserPlus } from "lucide-react";
 
 function GuestLevelSelector({ onSelect }: { onSelect: (guidanceId: string, title: string) => void }) {
@@ -246,7 +245,9 @@ export default function ExplorePage() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [anonymousPathParams, setAnonymousPathParams] = useState<any>(null);
+    const [guidanceName, setGuidanceName] = useState('');
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         if (!user) {
@@ -256,6 +257,7 @@ export default function ExplorePage() {
 
             if (guidanceId) {
                 setAnonymousPathParams({ guidanceId, guidanceTitle });
+                if (guidanceTitle) setGuidanceName(guidanceTitle);
                 fetchSubjects(guidanceId);
             } else {
                 setLoading(false);
@@ -265,7 +267,7 @@ export default function ExplorePage() {
 
         if (user.selectedPath?.guidanceId) {
             setAnonymousPathParams(null);
-            fetchSubjects(user.selectedPath.guidanceId);
+            fetchSubjects(user.selectedPath.guidanceId, user.selectedPath.levelId);
         } else {
             const params = new URLSearchParams(window.location.search);
             const guidanceId = params.get('guidanceId');
@@ -273,6 +275,7 @@ export default function ExplorePage() {
 
             if (guidanceId) {
                 setAnonymousPathParams({ guidanceId, guidanceTitle });
+                if (guidanceTitle) setGuidanceName(guidanceTitle);
                 fetchSubjects(guidanceId);
                 return;
             }
@@ -280,11 +283,18 @@ export default function ExplorePage() {
         }
     }, [user, router]);
 
-    const fetchSubjects = async (guidanceId: string) => {
+    const fetchSubjects = async (guidanceId: string, levelId?: string) => {
         setLoading(true);
         try {
-            const res = await getSubjects(guidanceId);
-            setSubjects(res);
+            const [subjectsRes, guidances] = await Promise.all([
+                getSubjects(guidanceId),
+                levelId ? getGuidances(levelId) : Promise.resolve(null),
+            ]);
+            setSubjects(subjectsRes);
+            if (guidances) {
+                const g = guidances.find((g: any) => (g.id || g._id) === guidanceId);
+                if (g) setGuidanceName(g.title);
+            }
         } catch {
             setSubjects([]);
         } finally {
@@ -301,61 +311,93 @@ export default function ExplorePage() {
     // If not logged in and no path is selected yet, show selector
     if (!user && !loading && !anonymousPathParams) {
         return <GuestLevelSelector onSelect={(guidanceId, title) => {
-            setAnonymousPathParams({ guidanceId, guidanceTitle: title });
-            fetchSubjects(guidanceId);
+            router.replace(`/courses/${guidanceSlug(title)}`);
         }} />;
     }
 
     return (
-        <div className="min-h-screen bg-white animate-slide-up">
-            {/* Header */}
-            <header className="bg-green/5 border-b border-green/10 pt-4 md:pt-32 pb-8 md:pb-16 px-6">
-                <div className="max-w-7xl mx-auto space-y-6">
-                    <div className="space-y-2">
-                        <h1 className="text-2xl md:text-4xl font-bold text-dark">{nt('welcome')}, {user?.displayName?.split(' ')[0] || t('student')}!</h1>
-                        <p className="text-muted-foreground text-lg">{t('desc')}</p>
-                    </div>
+        <div className="min-h-screen bg-[#fafbfc] animate-slide-up">
+            {/* Mobile sticky header */}
+            <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-green/8 flex items-center gap-3 px-4 py-3 shadow-sm">
+                <span className="font-bold text-dark/70 text-sm truncate">
+                    {guidanceName || t('title')}
+                </span>
+            </div>
 
-                    {user ? (
-                        <div className="flex flex-col md:flex-row gap-4 max-w-2xl">
-                            <div className="relative flex-1">
-                                <Search className={`absolute ${isAr ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-muted-foreground`} size={20} />
-                                <input
-                                    type="text"
-                                    placeholder={t('search_placeholder')}
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className={`w-full ${isAr ? 'pr-12 pl-4' : 'pl-12 pr-4'} py-3 rounded-2xl bg-white border border-green/10 focus:border-green focus:ring-4 focus:ring-green/5 outline-none transition-all`}
-                                />
-                            </div>
+            {/* Desktop header */}
+            <header className="hidden md:block relative overflow-hidden bg-gradient-to-b from-[#f0f7f3] to-transparent border-b border-green/8 pt-32 pb-10 px-6">
+                <div className="absolute top-0 right-0 w-[420px] h-[420px] rounded-full bg-green/5 blur-3xl pointer-events-none" style={{ transform: 'translate3d(30%, -30%, 0)' }} />
+                <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-green/4 blur-2xl pointer-events-none" style={{ transform: 'translate3d(-20%, 20%, 0)' }} />
+                <div className="max-w-7xl mx-auto relative">
+                    <div className="space-y-2 mb-6">
+                        <h1 className="text-2xl md:text-4xl font-bold text-dark">
+                            {nt('welcome')}, {user?.displayName?.split(' ')[0] || t('student')}!
+                        </h1>
+                        {guidanceName && (
+                            <p className="text-muted-foreground text-lg">{guidanceName}</p>
+                        )}
+                    </div>
+                    <div className={`flex items-center justify-between gap-6 ${isAr ? 'flex-row-reverse' : ''}`}>
+                        <div className="relative w-72 shrink-0">
+                            <Search
+                                size={15}
+                                className="absolute top-1/2 -translate-y-1/2 text-green/40 pointer-events-none"
+                                style={{ [isAr ? 'right' : 'left']: '12px' }}
+                            />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder={t('search_placeholder')}
+                                className={`w-full py-2.5 text-sm bg-white border border-green/20 rounded-xl text-dark placeholder:text-gray-400 focus:outline-none focus:border-green/40 focus:ring-2 focus:ring-green/8 ${isAr ? 'pr-9 pl-4 text-right' : 'pl-9 pr-4'}`}
+                                dir={isAr ? 'rtl' : undefined}
+                            />
                         </div>
-                    ) : (
-                        <div
-                            className="relative overflow-hidden bg-[#1e7a46] rounded-2xl px-4 py-3 shadow-lg shadow-green/10 max-w-2xl"
-                            style={{
-                                backgroundImage: `repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 8px), linear-gradient(135deg, #1e7a46 0%, #0f4428 100%)`
-                            }}
-                        >
-                            <div className="relative z-10 flex items-center justify-between gap-3">
-                                <div className="flex items-center gap-2.5 min-w-0">
-                                    <UserPlus size={18} strokeWidth={1.8} className="text-white/90 shrink-0" />
-                                    <div className="min-w-0">
-                                        <p className="font-bold text-white text-sm leading-tight">Save your learning progress!</p>
-                                        <p className="text-white/70 text-xs leading-snug hidden sm:block">Sign in to track lessons and save favorites.</p>
+                        {!user && (
+                            <div className="flex-1 max-w-xl relative overflow-hidden bg-[#1e7a46] rounded-2xl px-4 py-3 shadow-lg shadow-green/10"
+                                style={{ backgroundImage: `repeating-linear-gradient(45deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 2px,transparent 2px,transparent 8px),linear-gradient(135deg,#1e7a46 0%,#0f4428 100%)` }}>
+                                <div className="relative z-10 flex items-center justify-between gap-3">
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                        <UserPlus size={18} strokeWidth={1.8} className="text-white/90 shrink-0" />
+                                        <div className="min-w-0">
+                                            <p className="font-bold text-white text-sm leading-tight">Save your learning progress!</p>
+                                            <p className="text-white/70 text-xs leading-snug hidden sm:block">Sign in to track lessons and save favorites.</p>
+                                        </div>
                                     </div>
+                                    <Link href="/login" className="btn-signin"><LogIn size={14} />Sign In</Link>
                                 </div>
-                                <Link href="/login" className="btn-signin">
-                                    <LogIn size={14} />
-                                    Sign In
-                                </Link>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </header>
 
+            {/* Mobile search */}
+            <div className="md:hidden px-4 pt-3">
+                <div className="relative">
+                    <Search size={15} className={`absolute top-1/2 -translate-y-1/2 text-green/40 pointer-events-none ${isAr ? 'right-3' : 'left-3'}`} />
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder={t('search_placeholder')}
+                        className={`w-full py-2.5 text-sm bg-white border border-green/20 rounded-xl text-dark placeholder:text-gray-400 focus:outline-none focus:border-green/40 ${isAr ? 'pr-9 pl-4 text-right' : 'pl-9 pr-4'}`}
+                        dir={isAr ? 'rtl' : undefined}
+                    />
+                </div>
+            </div>
+
             {/* Content */}
-            <main className="max-w-7xl mx-auto pt-16 px-6" style={{ paddingBottom: '8rem' }}>
+            <main className="max-w-7xl mx-auto pt-8 px-6" style={{ paddingBottom: '8rem' }}>
+                {!loading && filteredSubjects.length > 0 && (
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="flex-1 h-px bg-green/10" />
+                        <span className="px-3.5 py-1 bg-green text-white text-xs font-bold rounded-full whitespace-nowrap tracking-wide">
+                            {filteredSubjects.length} {filteredSubjects.length === 1 ? "subject" : "subjects"}
+                        </span>
+                        <div className="flex-1 h-px bg-green/10" />
+                    </div>
+                )}
                 {loading ? (
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                         {Array(6).fill(0).map((_, i) => (
@@ -375,7 +417,8 @@ export default function ExplorePage() {
                             const totalCompleted = subjectLessons.reduce(
                                 (sum: number, l: any) => sum + (l.completedResources?.length ?? 0), 0
                             );
-                            const totalResources = subjectLessons.reduce(
+                            // Use real total from subject aggregate (all lessons, not just visited ones)
+                            const totalResources = subject.totalResources ?? subjectLessons.reduce(
                                 (sum: number, l: any) => sum + (l.totalResourcesCount ?? 0), 0
                             );
                             const progressPct = totalResources > 0
@@ -390,7 +433,7 @@ export default function ExplorePage() {
 
                             return (
                                 <Link
-                                    href={`/explore/subject/${subject.id}`}
+                                    href={`/courses/subject/${subject.slug ?? subjectSlug(subject.title)}`}
                                     key={subject.id}
                                     className={`subject-card ${isComplete ? 'subject-card-done' : ''}`}
                                     style={{ animationDelay: `${index * 40}ms` }}

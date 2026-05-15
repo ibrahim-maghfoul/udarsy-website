@@ -38,9 +38,11 @@ import api from "@/lib/api";
 import { getLessonById, getSubjects, getSchools, getLevels, getGuidances } from "@/services/data";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import ImageCropper from "@/components/ImageCropper";
+import dynamic from "next/dynamic";
 import { useSnackbar } from "@/contexts/SnackbarContext";
 import ProgressCharts from "@/components/profile/ProgressCharts";
+
+const ImageCropper = dynamic(() => import("@/components/ImageCropper"), { ssr: false });
 
 export default function ProfilePage() {
     const t = useTranslations("Profile");
@@ -79,10 +81,12 @@ export default function ProfilePage() {
         if (!authLoading && !user) {
             router.push('/login');
         } else if (user) {
-            fetchLastVisitedLesson();
             setProfileDataLoading(true);
-            Promise.all([fetchApprovedApplication(), fetchTeacherVerification()])
-                .finally(() => setProfileDataLoading(false));
+            Promise.all([
+                fetchLastVisitedLesson(),
+                fetchApprovedApplication(),
+                fetchTeacherVerification(),
+            ]).finally(() => setProfileDataLoading(false));
             // Sync local settings state from user
             setLocalSettings({
                 notifications: user.settings?.notifications ?? true,
@@ -275,7 +279,6 @@ export default function ProfilePage() {
         if (!user) return 0;
         const fields = [
             user.displayName,
-            user.nickname,
             user.age,
             user.city,
             user.phone,
@@ -293,7 +296,6 @@ export default function ProfilePage() {
     const profileCompletion = calculateCompletion();
 
     const suggestions = [
-        { id: 'nickname', label: t("suggest_nickname"), done: !!user?.nickname },
         { id: 'age', label: t("suggest_age"), done: !!user?.age },
         { id: 'city', label: t("suggest_city"), done: !!user?.city },
         { id: 'path', label: t("suggest_path"), done: !!(user?.level?.school && user?.level?.level && user?.level?.guidance) },

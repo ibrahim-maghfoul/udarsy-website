@@ -294,7 +294,7 @@
         "google_signup_failed": "Google sign up failed"
     },
     "Subjects": {
-        "title": "Explore Subjects",
+        "title": "Courses",
         "desc": "Browse through our collection of premium educational content.",
         "student": "Student",
         "search_placeholder": "Search subjects...",
@@ -353,7 +353,9 @@
         "answer_success": "Answer posted successfully!",
         "answer_failed": "Failed to post answer.",
         "article_saved": "Article saved to favorites",
-        "article_removed": "Article removed from favorites"
+        "article_removed": "Article removed from favorites",
+        "no_articles": "No articles yet",
+        "no_articles_desc": "Check back soon for the latest news and updates."
     },
     "Pricing": {
         "title": "Choose your ",
@@ -1052,5 +1054,33 @@
         "student_accepted": "Student accepted!",
         "request_rejected": "Request rejected",
         "review_failed": "Failed to review request"
+    },
+    "FuturisticHero": {
+        "badge": "Your success, our mission",
+        "headline_1": "Learn.",
+        "headline_2": "Progress.",
+        "headline_3": "Succeed.",
+        "subtitle": "AI-powered learning platform for Moroccan students. Structured courses, personalised progress, BAC & Brevet prep.",
+        "cta_start": "Start for free",
+        "cta_demo": "Watch demo",
+        "stat_students": "Active students",
+        "stat_courses": "Available courses",
+        "stat_scholarships": "Grants & opportunities",
+        "stat_satisfaction": "Student satisfaction",
+        "dialog_title": "How Udarsy works",
+        "dialog_subtitle": "Your path to success in 4 steps",
+        "dialog_close": "Close",
+        "dialog_free": "100% free to start",
+        "dialog_start": "Get started →",
+        "step_1_title": "Explore courses",
+        "step_1_desc": "Over 1,200 courses organised by subject, level and track. From Brevet to BAC, it's all here.",
+        "step_2_title": "Track your progress",
+        "step_2_desc": "Personal stats, AI recommendations and daily goals to keep you motivated.",
+        "step_3_title": "Join the community",
+        "step_3_desc": "Thousands of Moroccan students in subject and level chat rooms.",
+        "step_4_title": "Ace your exams",
+        "step_4_desc": "Targeted exercises, corrected mock exams and intensive preparation for BAC & Brevet.",
+        "card_students": "students",
+        "card_progress": "Progress"
     }
 }

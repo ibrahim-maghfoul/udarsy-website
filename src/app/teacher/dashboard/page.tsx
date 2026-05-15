@@ -231,7 +231,7 @@ export default function TeacherDashboardPage() {
                             {profile && (profile.userId as any)?.photoURL ? (
                                 <Image
                                     src={getPhotoURL((profile.userId as any).photoURL) || ""}
-                                    alt="" fill className="object-cover" unoptimized
+                                    alt="" fill className="object-cover"
                                 />
                             ) : (
                                 <span className="absolute inset-0 flex items-center justify-center text-3xl font-bold text-white">
@@ -301,7 +301,7 @@ export default function TeacherDashboardPage() {
 
                 {/* ── Stats Row ── */}
                 {profile && (
-                    <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-5 mb-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-5 mb-6">
                         {[
                             { value: profile.totalStudents || 0, label: "Students", icon: Users },
                             { value: rooms.length, label: "Classrooms", icon: MessageCircle },
@@ -526,7 +526,7 @@ export default function TeacherDashboardPage() {
                             exit={{ y: 48, opacity: 0 }}
                             transition={{ type: "spring", damping: 28, stiffness: 320 }}
                             onClick={e => e.stopPropagation()}
-                            className="bg-white rounded-3xl sm:rounded-2xl p-6 w-full max-w-md max-h-[88vh] overflow-y-auto shadow-2xl"
+                            className="bg-white rounded-3xl sm:rounded-2xl p-6 w-full max-w-md max-h-[88vh] overflow-y-auto overscroll-touch shadow-2xl"
                         >
                             {/* Modal header */}
                             <div className="flex items-start justify-between mb-5">
