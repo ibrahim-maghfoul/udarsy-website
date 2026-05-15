@@ -515,7 +515,7 @@ export function HeroSection() {
     return (
         <div
             id="hero-scene-container"
-            className="relative flex flex-col items-stretch overflow-visible min-h-[600px] bg-green/[0.03]"
+            className="hidden md:flex relative flex-col items-stretch overflow-visible min-h-[600px] bg-green/[0.03]"
             style={{ opacity: 1 }}
         >
             {/* Shared goo filter — one definition for all BlobWave cards */}
@@ -580,9 +580,8 @@ export function HeroSection() {
                 </div>
             </div>
 
-            {/* Mobile cards + Diagram */}
+            {/* Mobile cards (Diagram hidden on mobile/tablet for performance) */}
             <div className="md:hidden relative z-[3] flex flex-col items-stretch pt-3 pb-6 gap-3 px-4 opacity-0 animate-[fadeSlideUp_0.7s_ease-out_0.55s_forwards]">
-                <div className="w-full flex justify-center mb-2"><Diagram /></div>
                 <MobileCardList cards={cardsData} />
             </div>
 
