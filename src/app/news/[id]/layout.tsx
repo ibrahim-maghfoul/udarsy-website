@@ -8,13 +8,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   try {
-    const article = await serverFetch(`/news/${id}`, { revalidate: 3600 });
+    const article = await serverFetch(`/news/${id}`, { revalidate: 3600 }) as Record<string, unknown>;
     if (!article) throw new Error("Not found");
-    const title = article.title || "خبر تعليمي";
-    const description = article.description
-      ? article.description.slice(0, 160)
+    const title = (article.title as string) || "خبر تعليمي";
+    const description = (article.description as string)
+      ? (article.description as string).slice(0, 160)
       : "اقرأ آخر أخبار التعليم المغربي على منصة درسي.";
-    const image = article.image?.startsWith("http") ? article.image : "/og-image.png";
+    const image = typeof article.image === "string" && article.image.startsWith("http") ? article.image : "/og-image.png";
     return {
       title,
       description,
@@ -24,7 +24,7 @@ export async function generateMetadata({
         type: "article",
         url: `/news/${id}`,
         images: [{ url: image, width: 1200, height: 630, alt: title }],
-        ...(article.createdAt && { publishedTime: article.createdAt }),
+        ...(article.createdAt ? { publishedTime: article.createdAt as string } : {}),
       },
       twitter: {
         card: "summary_large_image",

@@ -8,11 +8,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   try {
-    const data = await serverFetch(`/teacher/profiles/${id}`, { revalidate: 3600 });
+    const data = await serverFetch(`/teacher/profiles/${id}`, { revalidate: 3600 }) as Record<string, unknown>;
     if (!data) throw new Error("Not found");
-    const teacher = data.teacher || data;
-    const name = teacher.displayName || teacher.fullName || "الأستاذ";
-    const specialization = teacher.specialization || "";
+    const teacher = (data.teacher || data) as Record<string, unknown>;
+    const name = (teacher.displayName || teacher.fullName || "الأستاذ") as string;
+    const specialization = (teacher.specialization || "") as string;
     return {
       title: `${name} — أستاذ درسي`,
       description: `${name}${specialization ? ` — ${specialization}` : ""} على منصة درسي. درسي أستاذ معتمد للباكالوريا والبريفي في المغرب.`,

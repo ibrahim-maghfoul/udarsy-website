@@ -8,9 +8,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   try {
-    const data = await serverFetch(`/instructor/${id}`, { revalidate: 3600 });
+    const data = await serverFetch(`/instructor/${id}`, { revalidate: 3600 }) as Record<string, unknown>;
     if (!data) throw new Error("Not found");
-    const instructor = data.instructor || data;
+    const instructor = (data.instructor || data) as Record<string, unknown>;
     const name = instructor.displayName || instructor.name || "المدرّس";
     return {
       title: `${name} — مدرّس درسي`,
