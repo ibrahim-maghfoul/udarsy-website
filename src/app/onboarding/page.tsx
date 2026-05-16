@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
     ChevronRight, ChevronLeft, GraduationCap, School, BookOpen,
-    User, ChevronDown, MapPin, Phone, Check, Camera,
+    User, ChevronDown, MapPin, Phone, Check, Camera, Upload,
 } from "lucide-react";
+import Image from "next/image";
 import DatePicker from "@/components/ui/DatePicker";
 import { getSchools, getLevels, getGuidances } from "@/services/data";
 import api from "@/lib/api";
@@ -33,9 +34,11 @@ function calculateAge(birthdayStr: string): number {
     return age;
 }
 
+type PhotoMode = "avatar" | "upload";
+
 export default function OnboardingPage() {
     const t = useTranslations("Onboarding");
-    const { user, checkAuth } = useAuth();
+    const { user, forceRefreshUser } = useAuth();
     const { showSnackbar } = useSnackbar();
     const router = useRouter();
 
@@ -45,6 +48,7 @@ export default function OnboardingPage() {
     const genderRef = useRef<HTMLDivElement>(null);
 
     // Profile photo state
+    const [photoMode, setPhotoMode] = useState<PhotoMode>("avatar");
     const [isCropping, setIsCropping] = useState(false);
     const [cropImage, setCropImage] = useState<string | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -58,7 +62,7 @@ export default function OnboardingPage() {
     const [options, setOptions] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
 
-    // Pre-fill from existing user data (handles returning users with partial profiles)
+    // Pre-fill from existing user data
     useEffect(() => {
         if (!user) return;
         setSelections(prev => ({
@@ -74,10 +78,14 @@ export default function OnboardingPage() {
             levelId:    user.selectedPath?.levelId    || prev.levelId,
             guidanceId: user.selectedPath?.guidanceId || prev.guidanceId,
         }));
+        // If user already has a photo, reflect that on the upload preview
+        if (user.photoURL) {
+            setPhotoPreview(user.photoURL.startsWith('http') ? user.photoURL : null);
+        }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.id]);
 
-    // Pre-fill from Google profile if available
+    // Pre-fill from Google profile
     useEffect(() => {
         const stored = sessionStorage.getItem('googleOnboardingData');
         if (!stored) return;
@@ -102,31 +110,33 @@ export default function OnboardingPage() {
         return () => document.removeEventListener("mousedown", handler);
     }, []);
 
+    // Steps: 0=personal, 1=photo, 2=school, 3=level, 4=guidance
     const stepMeta = [
         { id: "personal",  title: t("personal_info_title"), desc: t("personal_info_desc"), icon: User },
-        { id: "school",    title: t("school_title"),        desc: t("school_desc"),         icon: School },
-        { id: "level",     title: t("level_title"),         desc: t("level_desc"),          icon: GraduationCap },
-        { id: "guidance",  title: t("guidance_title"),      desc: t("guidance_desc"),       icon: BookOpen },
+        { id: "photo",     title: "Profile Picture",         desc: "Choose your look",       icon: Camera },
+        { id: "school",    title: t("school_title"),         desc: t("school_desc"),          icon: School },
+        { id: "level",     title: t("level_title"),          desc: t("level_desc"),           icon: GraduationCap },
+        { id: "guidance",  title: t("guidance_title"),       desc: t("guidance_desc"),        icon: BookOpen },
     ];
 
-    // wizard step label for steps 1-3
-    const wizardStep = currentStep; // 1, 2, or 3
-    const wizardStepLabels = [stepMeta[1].title, stepMeta[2].title, stepMeta[3].title];
-    const wizardStepIcons = [<School size={26} />, <GraduationCap size={26} />, <BookOpen size={26} />];
+    // wizard covers steps 2-4 (school/level/guidance), shown as 1-3
+    const wizardStep = currentStep - 1; // 1, 2, 3
+    const wizardStepLabels = [stepMeta[2].title, stepMeta[3].title, stepMeta[4].title];
+    const wizardStepIcons = [<School size={26} key="s" />, <GraduationCap size={26} key="g" />, <BookOpen size={26} key="b" />];
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [currentStep]);
 
     useEffect(() => {
-        if (currentStep > 0) fetchOptions();
+        if (currentStep > 1) fetchOptions();
     }, [currentStep, selections.schoolId, selections.levelId]);
 
     const fetchOptions = async () => {
         setLoading(true);
         try {
             let res: any[] = [];
-            if (currentStep === 1) {
+            if (currentStep === 2) {
                 res = await getSchools();
                 res.sort((a, b) => {
                     const priority = (title: string) => {
@@ -138,10 +148,9 @@ export default function OnboardingPage() {
                     };
                     return priority(a.title) - priority(b.title);
                 });
-            } else if (currentStep === 2) {
+            } else if (currentStep === 3) {
                 res = await getLevels(selections.schoolId);
                 res.sort((a, b) => {
-                    // Priority Sort: Tronc Commun -> 1ère Bac -> 2ème Bac
                     const priority = (t: string) => {
                         const l = t.toLowerCase();
                         if (l.includes("tronc") || l.includes("جذع")) return 0;
@@ -151,7 +160,7 @@ export default function OnboardingPage() {
                     };
                     return priority(a.title) - priority(b.title);
                 });
-            } else if (currentStep === 3) {
+            } else if (currentStep === 4) {
                 res = await getGuidances(selections.levelId);
                 res.sort((a, b) => a.title.localeCompare(b.title));
             }
@@ -166,21 +175,18 @@ export default function OnboardingPage() {
     const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = (ev) => {
             setCropImage(ev.target?.result as string);
             setIsCropping(true);
         };
         reader.readAsDataURL(file);
-
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
     const handleCropSave = async (croppedBlob: Blob) => {
         setIsCropping(false);
         setPhotoPreview(URL.createObjectURL(croppedBlob));
-
         setPhotoUploadStatus("uploading");
         try {
             const formData = new FormData();
@@ -188,7 +194,6 @@ export default function OnboardingPage() {
             await api.post("/user/profile/photo", formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
-            await checkAuth(); // Refresh user
             setPhotoUploadStatus("success");
             showSnackbar(t("photo_updated"), "success");
             setTimeout(() => setPhotoUploadStatus("idle"), 3000);
@@ -201,20 +206,31 @@ export default function OnboardingPage() {
     };
 
     const handleStep0Next = async () => {
-        if (user) {
-            try {
-                await api.patch("/user/profile", {
-                    ...(selections.birthday  && { birthday:   selections.birthday }),
-                    ...(selections.gender    && { gender:     selections.gender }),
-                    ...(selections.city      && { city:       selections.city }),
-                    ...(selections.school    && { schoolName: selections.school }),
-                    ...(selections.phone     && { phone:      selections.phone }),
-                });
-            } catch (e) {
-                console.error("Failed to save personal info:", e);
-            }
+        try {
+            await api.patch("/user/profile", {
+                ...(selections.birthday  && { birthday:   selections.birthday }),
+                ...(selections.gender    && { gender:     selections.gender }),
+                ...(selections.city      && { city:       selections.city }),
+                ...(selections.school    && { schoolName: selections.school }),
+                ...(selections.phone     && { phone:      selections.phone }),
+            });
+        } catch (e) {
+            console.error("Failed to save personal info:", e);
         }
         setCurrentStep(1);
+    };
+
+    const handlePhotoStepNext = async () => {
+        if (photoMode === "avatar" && selections.gender) {
+            try {
+                await api.patch("/user/profile", {
+                    photoURL: `/avatars/${selections.gender}.png`,
+                });
+            } catch (e) {
+                console.error("Failed to save avatar:", e);
+            }
+        }
+        setCurrentStep(2);
     };
 
     const handleSelect = (id: string) => {
@@ -232,22 +248,21 @@ export default function OnboardingPage() {
             const selectedSchool   = (await getSchools()).find(s => s.id === final.schoolId);
             const selectedLevel    = (await getLevels(final.schoolId)).find(l => l.id === final.levelId);
             const selectedGuidance = (await getGuidances(final.levelId)).find(g => g.id === final.guidanceId);
-            if (user) {
-                await api.patch("/user/profile", {
-                    birthday: final.birthday,
-                    gender:   final.gender,
-                    city:       final.city   || undefined,
-                    schoolName: final.school || undefined,
-                    phone:      final.phone  || undefined,
-                    selectedPath: { schoolId: final.schoolId, levelId: final.levelId, guidanceId: final.guidanceId },
-                    level: {
-                        school:   selectedSchool?.title   || "",
-                        level:    selectedLevel?.title    || "",
-                        guidance: selectedGuidance?.title || "",
-                    },
-                });
-                await checkAuth();
-            }
+            await api.patch("/user/profile", {
+                birthday: final.birthday,
+                gender:   final.gender,
+                city:       final.city   || undefined,
+                schoolName: final.school || undefined,
+                phone:      final.phone  || undefined,
+                selectedPath: { schoolId: final.schoolId, levelId: final.levelId, guidanceId: final.guidanceId },
+                level: {
+                    school:   selectedSchool?.title   || "",
+                    level:    selectedLevel?.title    || "",
+                    guidance: selectedGuidance?.title || "",
+                },
+            });
+            // Load the user into global state for the first time now that onboarding is done
+            await forceRefreshUser();
             router.push("/courses");
         } catch (e) {
             console.error("Failed to save profile:", e);
@@ -264,6 +279,10 @@ export default function OnboardingPage() {
         </span>
     );
 
+    const cardStyle = { boxShadow: "0 4px 28px rgba(58,170,106,0.08), 0 1px 4px rgba(0,0,0,0.04)" };
+    const headerStyle = { background: "linear-gradient(135deg, #f0faf5 0%, #e8f5ee 100%)" };
+    const dotPattern = { backgroundImage: "radial-gradient(circle, rgba(58,170,106,0.15) 1px, transparent 1px)", backgroundSize: "14px 14px" };
+
     return (
         <div
             className="min-h-screen flex flex-col items-center justify-start md:justify-center px-4 pt-20 md:pt-28 pb-16"
@@ -271,7 +290,7 @@ export default function OnboardingPage() {
         >
             <div className="w-full max-w-md space-y-4">
 
-                {/* ── Global progress bar ── */}
+                {/* Global progress bar */}
                 <div className="flex gap-1.5 mb-2">
                     {stepMeta.map((_, i) => (
                         <div
@@ -294,81 +313,26 @@ export default function OnboardingPage() {
                             STEP 0 — Personal Information
                         ════════════════════════════════ */}
                         {currentStep === 0 && (
-                            <div
-                                className="bg-white rounded-[28px] border border-green/8"
-                                style={{ boxShadow: "0 4px 28px rgba(58,170,106,0.08), 0 1px 4px rgba(0,0,0,0.04)" }}
-                            >
-                                {/* Header */}
-                                <div
-                                    className="relative px-6 pt-7 pb-6 border-b border-green/6 overflow-hidden rounded-t-[28px]"
-                                    style={{ background: "linear-gradient(135deg, #f0faf5 0%, #e8f5ee 100%)" }}
-                                >
-                                    <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle, rgba(58,170,106,0.15) 1px, transparent 1px)", backgroundSize: "14px 14px" }} />
+                            <div className="bg-white rounded-[28px] border border-green/8" style={cardStyle}>
+                                <div className="relative px-6 pt-7 pb-6 border-b border-green/6 overflow-hidden rounded-t-[28px]" style={headerStyle}>
+                                    <div className="absolute inset-0 pointer-events-none" style={dotPattern} />
                                     <div className="relative z-10 flex items-center gap-4">
-                                        <div className="step-icon-box">
-                                            <User size={26} />
-                                        </div>
+                                        <div className="step-icon-box"><User size={26} /></div>
                                         <div>
-                                            <p className="text-[10px] font-bold text-green/50 uppercase tracking-widest mb-0.5">
-                                                {t("personal_info_title")}
-                                            </p>
-                                            <h2 className="text-xl font-black text-dark tracking-tight leading-tight">
-                                                {stepMeta[0].desc}
-                                            </h2>
+                                            <p className="text-[10px] font-bold text-green/50 uppercase tracking-widest mb-0.5">{t("personal_info_title")}</p>
+                                            <h2 className="text-xl font-black text-dark tracking-tight leading-tight">{stepMeta[0].desc}</h2>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Form body */}
                                 <div className="p-6 space-y-4">
-
-                                    {/* Profile Photo */}
-                                    <div className="flex flex-col items-center gap-2 mb-4">
-                                        <div
-                                            className="relative group cursor-pointer w-24 h-24 flex-shrink-0 mx-auto"
-                                            onClick={() => fileInputRef.current?.click()}
-                                        >
-                                            <div className="absolute inset-x-1 -inset-y-2 bg-gradient-to-tr from-green/20 to-emerald-400/20 rounded-[2rem] -z-10 blur-xl group-hover:blur-2xl transition-all duration-500" />
-                                            {(photoPreview || (user?.photoURL?.startsWith('http') ? user.photoURL : null)) ? (
-                                                <img
-                                                    src={photoPreview || user!.photoURL!}
-                                                    alt="Profile"
-                                                    className="w-full h-full object-cover rounded-[2rem] border-[3px] border-green shadow-lg bg-white relative z-10"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full bg-white border-[3px] border-green rounded-[2rem] flex items-center justify-center shadow-lg relative z-10">
-                                                    <User size={36} className="text-green" />
-                                                </div>
-                                            )}
-                                            <div className="absolute inset-0 bg-dark/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-[2rem] z-20">
-                                                <Camera size={24} className="text-white" />
-                                            </div>
-                                            {/* Static Camera Icon on Edge */}
-                                            <div className="absolute -bottom-1 -right-1 bg-green text-white p-1.5 rounded-full border-2 border-white shadow-md z-30 group-hover:scale-110 transition-transform">
-                                                <Camera size={14} />
-                                            </div>
-                                        </div>
-                                        <input
-                                            ref={fileInputRef}
-                                            type="file"
-                                            accept="image/jpeg,image/jpg,image/png,image/gif"
-                                            className="hidden"
-                                            onChange={handlePhotoChange}
-                                        />
-                                        <p className="text-xs font-bold text-green/60 uppercase tracking-widest">{photoUploadStatus === "uploading" ? "Uploading..." : "Profile Photo"}</p>
-                                    </div>
-
                                     {/* Row 1: Birthday | City */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {/* Birthday */}
                                         <div className="space-y-1.5">
                                             <label className={labelClass}>
                                                 {t("birthday")}
                                                 {age !== null && (
-                                                    <span
-                                                        className="ml-auto text-[10px] font-bold normal-case tracking-normal rounded-full px-2 py-0.5"
-                                                        style={{ background: "rgba(58,170,106,0.10)", color: "#3aaa6a" }}
-                                                    >
+                                                    <span className="ml-auto text-[10px] font-bold normal-case tracking-normal rounded-full px-2 py-0.5" style={{ background: "rgba(58,170,106,0.10)", color: "#3aaa6a" }}>
                                                         {age}y
                                                     </span>
                                                 )}
@@ -380,12 +344,8 @@ export default function OnboardingPage() {
                                             />
                                         </div>
 
-                                        {/* City autocomplete */}
                                         <div className="space-y-1.5">
-                                            <label className={labelClass}>
-                                                {t("city")}
-                                                {optionalBadge}
-                                            </label>
+                                            <label className={labelClass}>{t("city")}{optionalBadge}</label>
                                             <div className="relative">
                                                 <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-green/60 pointer-events-none" />
                                                 <input
@@ -398,12 +358,8 @@ export default function OnboardingPage() {
                                                     autoComplete="off"
                                                     className="w-full pl-10 pr-4 py-[15px] rounded-2xl border border-transparent bg-green/5 focus:border-green focus:bg-white focus:ring-4 focus:ring-green/5 outline-none transition-all text-sm font-medium text-dark placeholder:text-dark/30"
                                                 />
-
                                                 {showCitySuggestions && selections.city && moroccanCities.filter(c => c.toLowerCase().includes(selections.city.toLowerCase())).length > 0 && (
-                                                    <div
-                                                        className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-white border border-green/10 rounded-[20px] max-h-44 overflow-y-auto p-1.5"
-                                                        style={{ boxShadow: "0 16px 40px rgba(58,170,106,0.12), 0 4px 12px rgba(0,0,0,0.06)" }}
-                                                    >
+                                                    <div className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-white border border-green/10 rounded-[20px] max-h-44 overflow-y-auto p-1.5" style={{ boxShadow: "0 16px 40px rgba(58,170,106,0.12), 0 4px 12px rgba(0,0,0,0.06)" }}>
                                                         {moroccanCities
                                                             .filter(c => c.toLowerCase().includes(selections.city.toLowerCase()))
                                                             .map(city => (
@@ -430,7 +386,6 @@ export default function OnboardingPage() {
 
                                     {/* Row 2: Gender | Phone */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {/* Gender */}
                                         <div className="space-y-1.5" ref={genderRef}>
                                             <label className={labelClass}>{t("gender")}</label>
                                             <div className="relative">
@@ -487,12 +442,8 @@ export default function OnboardingPage() {
                                             </div>
                                         </div>
 
-                                        {/* Phone */}
                                         <div className="space-y-1.5">
-                                            <label className={labelClass}>
-                                                {t("phone")}
-                                                {optionalBadge}
-                                            </label>
+                                            <label className={labelClass}>{t("phone")}{optionalBadge}</label>
                                             <div className="relative">
                                                 <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-green/50" />
                                                 <input
@@ -506,21 +457,14 @@ export default function OnboardingPage() {
                                         </div>
                                     </div>
 
-                                    {/* Optional divider */}
                                     <div className="flex items-center gap-3 py-0.5">
                                         <div className="flex-1 border-t border-dashed border-green/15" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: "rgba(26,58,42,0.25)" }}>
-                                            {t("optional")}
-                                        </span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: "rgba(26,58,42,0.25)" }}>{t("optional")}</span>
                                         <div className="flex-1 border-t border-dashed border-green/15" />
                                     </div>
 
-                                    {/* School name */}
                                     <div className="space-y-1.5">
-                                        <label className={`${labelClass} text-dark/40`}>
-                                            {t("school_name")}
-                                            {optionalBadge}
-                                        </label>
+                                        <label className={`${labelClass} text-dark/40`}>{t("school_name")}{optionalBadge}</label>
                                         <div className="relative">
                                             <School size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-green/50" />
                                             <input
@@ -533,7 +477,6 @@ export default function OnboardingPage() {
                                         </div>
                                     </div>
 
-                                    {/* Next button */}
                                     <button
                                         onClick={handleStep0Next}
                                         disabled={!selections.birthday || !selections.gender}
@@ -547,38 +490,175 @@ export default function OnboardingPage() {
                         )}
 
                         {/* ════════════════════════════════
-                            STEPS 1-3 — School / Level / Guidance
-                            Exact GuestLevelSelector style
+                            STEP 1 — Profile Picture
                         ════════════════════════════════ */}
-                        {currentStep > 0 && (
+                        {currentStep === 1 && (
+                            <div className="bg-white rounded-[28px] border border-green/8" style={cardStyle}>
+                                <div className="relative px-6 pt-7 pb-6 border-b border-green/6 overflow-hidden rounded-t-[28px]" style={headerStyle}>
+                                    <div className="absolute inset-0 pointer-events-none" style={dotPattern} />
+                                    <div className="relative z-10 flex items-center gap-4">
+                                        <div className="step-icon-box"><Camera size={26} /></div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-green/50 uppercase tracking-widest mb-0.5">Profile Picture</p>
+                                            <h2 className="text-xl font-black text-dark tracking-tight leading-tight">Choose your look</h2>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-6 space-y-5">
+                                    {/* Mode tabs */}
+                                    <div className="flex gap-2 p-1 bg-green/5 rounded-2xl">
+                                        {(["avatar", "upload"] as const).map((mode) => (
+                                            <button
+                                                key={mode}
+                                                type="button"
+                                                onClick={() => setPhotoMode(mode)}
+                                                className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                                                    photoMode === mode
+                                                        ? "bg-white text-green shadow-sm shadow-green/10"
+                                                        : "text-dark/40 hover:text-dark/60"
+                                                }`}
+                                            >
+                                                {mode === "avatar" ? "Avatar" : "Upload Photo"}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <AnimatePresence mode="wait">
+                                        {photoMode === "avatar" ? (
+                                            <motion.div
+                                                key="avatar"
+                                                initial={{ opacity: 0, y: 6 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -6 }}
+                                                transition={{ duration: 0.22 }}
+                                                className="flex flex-col items-center gap-4 py-2"
+                                            >
+                                                {selections.gender ? (
+                                                    <>
+                                                        <div className="relative">
+                                                            <div className="absolute inset-x-1 -inset-y-2 bg-gradient-to-tr from-green/20 to-emerald-400/20 rounded-[2.5rem] -z-10 blur-2xl" />
+                                                            <div className="w-36 h-36 rounded-[2rem] overflow-hidden border-[3px] border-green shadow-xl relative">
+                                                                <Image
+                                                                    src={`/avatars/${selections.gender}.png`}
+                                                                    alt={`${selections.gender} avatar`}
+                                                                    fill
+                                                                    className="object-cover"
+                                                                    unoptimized
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-sm font-bold text-dark/50">
+                                                            {selections.gender === "male" ? "Male" : "Female"} avatar selected
+                                                        </p>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <div className="w-36 h-36 rounded-[2rem] border-2 border-dashed border-green/20 bg-green/[0.02] flex items-center justify-center">
+                                                            <User size={48} className="text-green/20" />
+                                                        </div>
+                                                        <p className="text-sm text-dark/40 font-medium text-center">
+                                                            Go back to select your gender first
+                                                        </p>
+                                                    </>
+                                                )}
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div
+                                                key="upload"
+                                                initial={{ opacity: 0, y: 6 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -6 }}
+                                                transition={{ duration: 0.22 }}
+                                                className="flex flex-col items-center gap-4 py-2"
+                                            >
+                                                <input
+                                                    ref={fileInputRef}
+                                                    type="file"
+                                                    accept="image/jpeg,image/jpg,image/png,image/gif"
+                                                    className="hidden"
+                                                    onChange={handlePhotoChange}
+                                                />
+                                                <div
+                                                    className="relative group cursor-pointer"
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                >
+                                                    <div className="absolute inset-x-1 -inset-y-2 bg-gradient-to-tr from-green/20 to-emerald-400/20 rounded-[2.5rem] -z-10 blur-2xl group-hover:blur-3xl transition-all duration-500" />
+                                                    {photoPreview ? (
+                                                        <div className="w-36 h-36 rounded-[2rem] overflow-hidden border-[3px] border-green shadow-xl relative">
+                                                            <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                                                            <div className="absolute inset-0 bg-dark/0 group-hover:bg-dark/30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                                <Camera size={28} className="text-white" />
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="w-36 h-36 rounded-[2rem] border-2 border-dashed border-green/30 bg-green/[0.03] group-hover:border-green group-hover:bg-green/5 transition-all flex flex-col items-center justify-center gap-2">
+                                                            <Upload size={32} className="text-green/40 group-hover:text-green transition-colors" />
+                                                            <span className="text-xs font-bold text-green/40 group-hover:text-green transition-colors">Choose photo</span>
+                                                        </div>
+                                                    )}
+                                                    {photoPreview && (
+                                                        <div className="absolute -bottom-1 -right-1 bg-green text-white p-1.5 rounded-full border-2 border-white shadow-md group-hover:scale-110 transition-transform">
+                                                            <Camera size={14} />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <p className="text-xs font-bold text-green/50 uppercase tracking-widest">
+                                                    {photoUploadStatus === "uploading" ? "Uploading..." :
+                                                     photoUploadStatus === "success" ? "✓ Uploaded" :
+                                                     photoPreview ? "Tap to change" : "Profile Photo"}
+                                                </p>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {/* Next */}
+                                    <button
+                                        onClick={handlePhotoStepNext}
+                                        disabled={photoMode === "avatar" && !selections.gender}
+                                        className="w-full py-4 bg-green text-white font-black rounded-2xl flex items-center justify-center gap-2 transition-all disabled:opacity-40 text-sm"
+                                        style={{ boxShadow: "0 8px 24px rgba(58,170,106,0.28)" }}
+                                    >
+                                        {t("next")} <ChevronRight size={18} />
+                                    </button>
+
+                                    <button
+                                        onClick={() => setCurrentStep(0)}
+                                        className="btn-back w-full"
+                                    >
+                                        <ChevronLeft size={14} className="btn-back-arrow" />
+                                        {t("back")}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ════════════════════════════════
+                            STEPS 2-4 — School / Level / Guidance
+                        ════════════════════════════════ */}
+                        {currentStep > 1 && (
                             <div className="space-y-3">
-                                {/* Wizard panel */}
                                 <div
                                     className="bg-white rounded-[28px] border border-green/8 overflow-hidden animate-slide-up"
                                     style={{ boxShadow: "0 8px 28px rgba(58,170,106,0.08), 0 2px 8px rgba(0,0,0,0.04)" }}
                                 >
-                                    {/* Header */}
-                                    <div
-                                        className="relative px-6 pt-7 pb-6 border-b border-green/6"
-                                        style={{ background: "linear-gradient(135deg, #f0faf5 0%, #e8f5ee 100%)" }}
-                                    >
-                                        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle, rgba(58,170,106,0.15) 1px, transparent 1px)", backgroundSize: "14px 14px" }} />
+                                    <div className="relative px-6 pt-7 pb-6 border-b border-green/6" style={headerStyle}>
+                                        <div className="absolute inset-0 pointer-events-none" style={dotPattern} />
 
-                                        {/* Step dots */}
+                                        {/* Step dots (1-3 for school/level/guidance) */}
                                         <div className="relative z-10 flex items-center justify-center gap-2 mb-5">
                                             {[1, 2, 3].map(s => (
                                                 <div key={s} className="flex items-center gap-2">
-                                                    <div className={`step-dot ${s < currentStep ? "step-dot-past" : s === currentStep ? "step-dot-active" : "step-dot-future"}`}>
-                                                        {s < currentStep ? "✓" : s}
+                                                    <div className={`step-dot ${s < wizardStep ? "step-dot-past" : s === wizardStep ? "step-dot-active" : "step-dot-future"}`}>
+                                                        {s < wizardStep ? "✓" : s}
                                                     </div>
                                                     {s < 3 && (
-                                                        <div className={`step-line ${s < currentStep ? "step-line-done" : "step-line-pending"}`} />
+                                                        <div className={`step-line ${s < wizardStep ? "step-line-done" : "step-line-pending"}`} />
                                                     )}
                                                 </div>
                                             ))}
                                         </div>
 
-                                        {/* Icon + title */}
                                         <div className="relative z-10 flex items-center gap-4">
                                             <div className="step-icon-box">
                                                 {wizardStepIcons[wizardStep - 1]}
@@ -594,7 +674,6 @@ export default function OnboardingPage() {
                                         </div>
                                     </div>
 
-                                    {/* Options */}
                                     <div className="p-4 space-y-2">
                                         {loading ? (
                                             Array(3).fill(0).map((_, i) => (
@@ -607,8 +686,8 @@ export default function OnboardingPage() {
                                         ) : (
                                             options.map((item, index) => {
                                                 const currentSelectionId =
-                                                    currentStep === 1 ? selections.schoolId :
-                                                    currentStep === 2 ? selections.levelId :
+                                                    currentStep === 2 ? selections.schoolId :
+                                                    currentStep === 3 ? selections.levelId :
                                                     selections.guidanceId;
                                                 const isSelected = item.id === currentSelectionId;
                                                 return (
@@ -638,7 +717,6 @@ export default function OnboardingPage() {
                                         )}
                                     </div>
 
-                                    {/* Back button inside panel */}
                                     <div className="px-4 pb-4">
                                         <button onClick={() => setCurrentStep(currentStep - 1)} className="btn-back">
                                             <ChevronLeft size={14} className="btn-back-arrow" />

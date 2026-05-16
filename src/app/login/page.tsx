@@ -101,6 +101,15 @@ export default function LoginPage() {
                         </div>
                     </div>
 
+                    <div className="flex items-center justify-between px-1">
+                        <Link
+                            href="/forgot-password"
+                            className="text-sm font-medium text-green hover:underline"
+                        >
+                            Forgot password?
+                        </Link>
+                    </div>
+
                     <div className="flex items-center gap-3 px-1">
                         <div className="relative flex items-center justify-center">
                             <input

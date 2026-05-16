@@ -158,7 +158,6 @@ export interface User {
         guidance: string;
     };
     phone?: string;
-    nickname?: string;
     city?: string;
     age?: number;
     birthday?: string;
@@ -185,4 +184,5 @@ export interface User {
         notifications: boolean;
         theme: 'light' | 'dark' | 'system';
     };
+    isVerified?: boolean;
 }

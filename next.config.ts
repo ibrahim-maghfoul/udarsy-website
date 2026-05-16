@@ -11,30 +11,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "lh3.googleusercontent.com",
-      },
-      {
-        protocol: "https",
-        hostname: "**.googleapis.com",
-      },
-      {
-        protocol: "https",
-        hostname: "i.ytimg.com",
-      },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "**",
-      },
-      {
-        protocol: "http",
-        hostname: "**",
-      },
+      // News articles can come from any external source (scraped Moroccan edu/news sites)
+      { protocol: "https", hostname: "**" },
+      // Backend (local dev)
+      ...(isDev ? [{ protocol: "http" as const, hostname: "localhost" }] : []),
     ],
     localPatterns: [
       { pathname: "/**" },

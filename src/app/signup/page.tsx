@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { User, Mail, Lock, UserPlus, Chrome, Gift, Eye, EyeOff } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";

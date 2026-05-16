@@ -467,8 +467,8 @@ export function SubjectCardsSection() {
 
       {/* Cards */}
       {isMobile ? (
-        hasEntered && <div
-          style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" as const, marginTop: 24 }}
+        <div
+          style={{ overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" as const, marginTop: 24, minHeight: 240 }}
           className="udarsy-scroll-hide"
         >
           <div style={{ display: "flex", gap: 12, padding: "8px 20px 20px", width: "max-content" }}>

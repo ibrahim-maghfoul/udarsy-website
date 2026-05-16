@@ -15,6 +15,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     checkAuth: () => Promise<void>;
     refreshUser: () => void;
+    forceRefreshUser: () => Promise<void>;
     updateUser: (userData: User) => void;
     getPhotoURL: (url: string | undefined | null) => string | null;
     getResourceURL: (url: string | undefined | null) => string | null;
@@ -87,9 +88,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const refreshUser = useCallback(() => {
         if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
         refreshTimerRef.current = setTimeout(() => {
-            lastCheckRef.current = 0; // reset throttle so the check goes through
+            lastCheckRef.current = 0;
             checkAuth();
         }, 2000);
+    }, [checkAuth]);
+
+    /**
+     * Immediate forced refresh — bypasses throttle.
+     * Use after critical mutations (e.g. completing onboarding).
+     */
+    const forceRefreshUser = useCallback(async () => {
+        lastCheckRef.current = 0;
+        await checkAuth();
     }, [checkAuth]);
 
     useEffect(() => {
@@ -120,13 +130,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const register = useCallback(async (email: string, password: string, name: string, referralCode?: string) => {
         try {
             const res = await api.post('/auth/register', { displayName: name, email, password, ...(referralCode ? { referralCode } : {}) });
-            const { token, user: userData } = res.data;
+            const { token } = res.data;
 
             if (typeof window !== 'undefined') {
                 localStorage.setItem('token', token);
             }
 
-            setUser(userData);
+            // Don't set user state yet — keep the user "not logged in" until onboarding completes
             router.push('/onboarding');
         } catch (error: any) {
             const data = error.response?.data;
@@ -180,7 +190,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [router]);
 
     const getPhotoURL = useCallback((url: string | undefined | null) => {
-        if (!url || !url.startsWith('http')) return null;
+        if (!url) return null;
+        if (url.startsWith('/avatars/')) return url;
+        if (!url.startsWith('http')) return null;
         return url;
     }, []);
 
@@ -203,12 +215,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         checkAuth,
         refreshUser,
+        forceRefreshUser,
         updateUser,
         getPhotoURL,
         getResourceURL,
         sessionError,
         clearSessionError,
-    }), [user, loading, login, register, googleLogin, logout, checkAuth, refreshUser, updateUser, getPhotoURL, getResourceURL, sessionError, clearSessionError]);
+    }), [user, loading, login, register, googleLogin, logout, checkAuth, refreshUser, forceRefreshUser, updateUser, getPhotoURL, getResourceURL, sessionError, clearSessionError]);
 
     return (
         <AuthContext.Provider value={contextValue}>

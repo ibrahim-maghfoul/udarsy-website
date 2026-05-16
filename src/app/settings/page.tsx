@@ -57,7 +57,6 @@ export default function SettingsPage() {
         phone: user?.phone || "",
         age: user?.age || "",
         gender: user?.gender || "",
-        nickname: user?.nickname || "",
         city: user?.city || "",
         schoolName: user?.schoolName || "",
     });
@@ -70,7 +69,6 @@ export default function SettingsPage() {
                 phone: user.phone || "",
                 age: user.age || "",
                 gender: user.gender || "",
-                nickname: user.nickname || "",
                 city: user.city || "",
                 schoolName: user.schoolName || "",
             });
@@ -229,18 +227,6 @@ export default function SettingsPage() {
                                                     value={formData.displayName}
                                                     onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
                                                     className={`w-full px-5 py-3 rounded-2xl border outline-none font-medium transition-all focus:bg-white focus:border-green ${!formData.displayName ? "bg-red-50 border-red-100" : "bg-green/5 border-transparent"}`}
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-bold text-dark/40 flex items-center gap-2">
-                                                    <Users size={16} /> Nickname
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={formData.nickname}
-                                                    onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
-                                                    className={`w-full px-5 py-3 rounded-2xl border outline-none font-medium transition-all focus:bg-white focus:border-green ${!formData.nickname ? "bg-red-50 border-red-100" : "bg-green/5 border-transparent"}`}
-                                                    placeholder="Your nickname"
                                                 />
                                             </div>
                                             <div className="space-y-2">

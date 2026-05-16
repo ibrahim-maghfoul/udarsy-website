@@ -155,7 +155,6 @@ export default function ChatPage() {
 
     const isProfileComplete = !!(
         user?.displayName &&
-        user?.nickname &&
         user?.city &&
         user?.age &&
         user?.level?.guidance &&

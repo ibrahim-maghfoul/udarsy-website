@@ -134,7 +134,7 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
             </div>
 
             {/* ── Grid ─────────────────────────────────────────────────────── */}
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                     key={`${activeCategory}-${currentPage}`}
                     variants={simplifyMotion ? containerVariantsReduced : containerVariants}
