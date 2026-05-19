@@ -306,7 +306,6 @@ export const Navbar = () => {
     { href: "/", label: t('home'), icon: House },
     { href: "/courses", label: t('explore'), icon: LayoutGrid },
     { href: "/news", label: t('news'), icon: BookOpen },
-    { href: "/profile/chat", label: t('chat_room'), icon: MessageCircle },
   ];
 
   const isTabActive = (href: string) => {

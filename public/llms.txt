@@ -1,0 +1,62 @@
+# Udarsy — منصة التعلم المغربية
+
+> Udarsy is Morocco's educational platform for secondary school students
+> preparing for the BAC (Baccalauréat) and Brevet examinations.
+> Founded in 2021 in Rabat, Morocco. Serves 50,000+ active students.
+> Languages: Arabic (Darija + MSA), French, English.
+
+## What Udarsy offers
+- Free curriculum-aligned lesson resources: PDFs, videos, exercises, and model exams
+- BAC and Brevet exam preparation aligned with the Moroccan national curriculum (MENFPRS)
+- Personalized progress tracking and AI-powered explanations
+- Real-time community chat rooms organized by subject and grade level
+- Teacher marketplace: verified teacher profiles, classroom rooms with invite codes
+- Instructor platform: video courses and PDF resources from certified instructors
+- Educational news: scholarships, exam dates, orientation guides for Moroccan students
+- Contributions hub: students can submit and share study resources
+
+## Subjects covered
+Mathematics (Maths), Physics-Chemistry (Physique-Chimie),
+Life & Earth Sciences (SVT — Sciences de la Vie et de la Terre),
+Arabic Language (اللغة العربية), French Language (Français),
+History-Geography (Histoire-Géographie), Islamic Education,
+Philosophy (Philosophie — Terminal year only),
+Engineering Sciences (Sciences de l'Ingénieur)
+
+## Curriculum structure
+School → Level (Tronc Commun / 1ère Bac / 2ème Bac) → Track (Guidance: Sciences, Lettres, etc.) → Subject → Lesson
+
+## Pricing (MAD — Moroccan Dirham)
+- Free: Basic access, community features, limited AI explanations (1/day)
+- Pro: 199 MAD/month or 1,790 MAD/year — unlimited access, 30 AI explanations/day, no ads
+- Premium: 299 MAD/month or 2,690 MAD/year — all Pro features + 1-on-1 instructor sessions, 70 AI explanations/day, priority support
+
+## Platform statistics
+- 50,000+ active students registered
+- 1,200+ interactive lessons
+- 50+ partner schools
+- 120+ verified educators
+- 4.9/5 average rating
+- 42-minute average study session
+
+## Key pages
+/explore — Browse full curriculum by school, level, guidance, and subject
+/pricing — Subscription plans and comparison in MAD
+/about — Company story, team, and platform history
+/teacher — Browse and rate verified teacher profiles
+/instructors — Browse instructor profiles and courses
+/news — Educational news, scholarships, exam schedules for Moroccan students
+/contributions — Community resource submissions and leaderboard
+/calendar — Moroccan school calendar with global events and personal todos
+/contact — Contact form, phone, and email
+
+## Do not index
+/profile, /settings, /onboarding, /report, /teacher/dashboard,
+/instructor-dashboard, /favorites/, /design-test, /design-lab, /teacher/join/
+
+## Contact
+Email: contact@udarsy.com
+Phone: +212 642 094 671
+Location: Rabat, Morocco
+Founded: 2021
+Social: twitter.com/UdarsyMa

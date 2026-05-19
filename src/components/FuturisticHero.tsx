@@ -377,7 +377,7 @@ export function FuturisticHero() {
             width: '42%', flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center',
             paddingTop: 'clamp(120px,13vh,180px)',
             paddingBottom: 'clamp(60px,7vh,110px)',
-            paddingInlineStart: 'clamp(72px,8vw,140px)',
+            paddingInlineStart: isAr ? 'clamp(96px,10vw,160px)' : 'clamp(72px,8vw,140px)',
             paddingInlineEnd: 'clamp(48px,5vw,80px)',
           }}>
 

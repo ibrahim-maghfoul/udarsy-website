@@ -10,8 +10,13 @@
  *   const data = await serverFetch('/news/123', { cache: 'no-store' });
  */
 
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
-const APP_KEY  = process.env.NEXT_PUBLIC_APP_API_KEY  || '';
+// BACKEND_URL is server-only (no NEXT_PUBLIC_ prefix) so it's read at runtime,
+// not baked in at build time. Set it in production to the internal backend URL
+// (e.g. http://localhost:5000 or internal IP) to bypass Cloudflare for SSR calls.
+const BACKEND = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+// Prefer the server-only var (not inlined at build time) so next start always
+// reads the live value from .env.local, falling back to the NEXT_PUBLIC_ version.
+const APP_KEY  = process.env.APP_API_KEY || process.env.NEXT_PUBLIC_APP_API_KEY || '';
 
 const BASE_HEADERS: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -41,21 +46,22 @@ export async function serverFetch<T = unknown>(
     const nextOpts: Record<string, unknown> = {};
     if (revalidate !== undefined) nextOpts.revalidate = revalidate;
 
+    const url = `${BACKEND}/api${path}`;
     try {
-        const res = await fetch(`${BACKEND}/api${path}`, {
+        const res = await fetch(url, {
             headers,
             ...(cache !== undefined ? { cache } : {}),
             ...(Object.keys(nextOpts).length > 0 ? { next: nextOpts } : {}),
         });
 
         if (!res.ok) {
-            console.warn(`[serverFetch] ${res.status} ${res.statusText} — GET /api${path}`);
+            console.error(`[serverFetch] ${res.status} ${res.statusText} — GET ${url}`);
             return null;
         }
 
         return (await res.json()) as T;
     } catch (err) {
-        console.warn(`[serverFetch] Network error — GET /api${path}:`, err);
+        console.error(`[serverFetch] Network error — GET ${url}:`, err);
         return null;
     }
 }

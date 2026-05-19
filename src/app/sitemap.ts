@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { serverFetch } from "@/lib/serverFetch";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://udarsy.ma";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.udarsy.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -37,8 +37,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const newsIds = newsList.map((n) => String(n._id));
   const lessonIds = lessonList.map((l) => String(l._id));
 
-  const newsRoutes: MetadataRoute.Sitemap = newsIds.map((id) => ({
-    url: `${SITE_URL}/news/${id}`,
+  const newsRoutes: MetadataRoute.Sitemap = newsList.map((n) => ({
+    url: `${SITE_URL}/news/${n._id}`,
+    lastModified: (n as any).updatedAt || (n as any).createdAt || now,
     changeFrequency: "monthly",
     priority: 0.6,
   }));

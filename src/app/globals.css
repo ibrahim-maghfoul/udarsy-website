@@ -691,6 +691,7 @@ body {
   .dlh-content{min-height:auto!important;flex-direction:column}
   .dlh-right{display:none!important}
   .dlh-left{width:100%!important;align-items:center!important;padding:120px 32px 56px!important}
+  [dir="rtl"] .dlh-left{padding-right:56px!important}
   .dlh-left p{text-align:center!important;max-width:92vw!important}
   /* Title width */
   .dlh-headline{width:70vw!important;max-width:70vw!important}

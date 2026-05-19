@@ -38,7 +38,7 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://udarsy.ma"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.udarsy.com"),
   title: {
     default: "Udarsy — منصة التعلم المغربية",
     template: "%s | Udarsy",
@@ -78,6 +78,9 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
     creator: "@UdarsyMa",
   },
+  alternates: {
+    canonical: "/",
+  },
   robots: {
     index: true,
     follow: true,
@@ -107,6 +110,74 @@ export default async function RootLayout({
         {process.env.NEXT_PUBLIC_BACKEND_URL && (
           <link rel="preconnect" href={process.env.NEXT_PUBLIC_BACKEND_URL} crossOrigin="anonymous" />
         )}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "EducationalOrganization",
+                  "@id": "https://www.udarsy.com/#organization",
+                  "name": "Udarsy",
+                  "alternateName": ["يودرسي", "Udarsy Maroc"],
+                  "url": "https://www.udarsy.com",
+                  "logo": {
+                    "@type": "ImageObject",
+                    "@id": "https://www.udarsy.com/#logo",
+                    "url": "https://www.udarsy.com/og-image.png",
+                    "caption": "Udarsy — منصة التعلم المغربية",
+                  },
+                  "image": { "@id": "https://www.udarsy.com/#logo" },
+                  "description": "Morocco's free educational platform for BAC and Brevet preparation. Provides lessons, interactive exercises, and model exams aligned with the Moroccan national curriculum.",
+                  "foundingDate": "2021",
+                  "areaServed": { "@type": "Country", "name": "Morocco" },
+                  "addressCountry": "MA",
+                  "inLanguage": ["ar", "fr", "en"],
+                  "audience": {
+                    "@type": "EducationalAudience",
+                    "educationalRole": "student",
+                  },
+                  "knowsAbout": [
+                    "BAC preparation Morocco",
+                    "Brevet preparation Morocco",
+                    "Moroccan national curriculum",
+                    "Mathematics BAC Maroc",
+                    "Physics Chemistry Morocco",
+                    "Arabic language education Morocco",
+                    "lycée marocain",
+                    "préparation baccalauréat Maroc",
+                  ],
+                  "contactPoint": {
+                    "@type": "ContactPoint",
+                    "telephone": "+212642094671",
+                    "email": "contact@udarsy.com",
+                    "contactType": "customer support",
+                    "areaServed": "MA",
+                  },
+                  "sameAs": ["https://twitter.com/UdarsyMa"],
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://www.udarsy.com/#website",
+                  "url": "https://www.udarsy.com",
+                  "name": "Udarsy",
+                  "description": "Morocco's educational platform for BAC and Brevet preparation",
+                  "publisher": { "@id": "https://www.udarsy.com/#organization" },
+                  "inLanguage": ["ar", "fr", "en"],
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": {
+                      "@type": "EntryPoint",
+                      "urlTemplate": "https://www.udarsy.com/explore?q={search_term_string}",
+                    },
+                    "query-input": "required name=search_term_string",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
       </head>
       <body className={`${cairo.variable} ${barlowCondensed.variable} ${instrumentSans.variable} font-cairo antialiased`} suppressHydrationWarning>
         {/* Google Analytics 4 — script injected after interactive, won't block render */}

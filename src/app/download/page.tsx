@@ -4,20 +4,18 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import FizzyButton from '@/components/FizzyButton';
+import ParticlesBackground from '@/components/ParticlesBackground';
 
 export default function DownloadPage() {
     const t = useTranslations('Download');
 
     return (
-        <main className="min-h-screen bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,#d8f5e8_0%,#f2fbf5_40%,#ffffff_100%)] flex flex-col items-center justify-center px-6 py-16 md:py-32">
+        <main className="relative min-h-screen flex flex-col items-center justify-center px-6 py-16 md:py-32 overflow-hidden">
             {/* Material Symbols loaded only on this page (used by iOS card icon) — Next.js hoists <link> to <head> */}
             <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=ios" />
 
-            {/* Decorative floating blobs */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                <div className="absolute top-[10%] left-[8%] w-72 h-72 bg-green/10 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-[10%] right-[8%] w-96 h-96 bg-green/8 rounded-full blur-3xl animate-pulse delay-1000" />
-            </div>
+            {/* Particles canvas — behind everything */}
+            <ParticlesBackground color="#3aaa6a" count={100} speed={1.2} opacity={0.35} />
 
             <motion.div
                 initial={{ opacity: 0, y: 32 }}
