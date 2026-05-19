@@ -150,7 +150,7 @@ function ChatWindow({ msgs, roomTitle, roomStatus, showCta, active }: {
               background: "rgba(58,170,106,0.04)", border: "1px solid rgba(58,170,106,0.14)",
               borderRadius: 12, padding: "8px 12px",
             }}>
-              <span style={{ flex: 1, fontSize: 12, color: "rgba(26,58,42,0.30)", fontWeight: 500,
+              <span style={{ flex: 1, fontSize: 12, color: "rgba(26,58,42,0.55)", fontWeight: 500,
                 fontStyle: "italic" }}>
                 {t("chat_input_placeholder") || "Reply to the room…"}
               </span>

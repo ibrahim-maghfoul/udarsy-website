@@ -88,6 +88,7 @@ export default function CookieBanner() {
 
                             <button
                                 onClick={decline}
+                                aria-label={t('decline')}
                                 className="p-1.5 rounded-xl hover:bg-green/10 text-dark/30 hover:text-dark/60 transition-all flex-shrink-0"
                             >
                                 <X size={16} />

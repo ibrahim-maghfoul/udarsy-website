@@ -105,8 +105,6 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {process.env.NEXT_PUBLIC_BACKEND_URL && (
           <link rel="preconnect" href={process.env.NEXT_PUBLIC_BACKEND_URL} crossOrigin="anonymous" />
         )}
@@ -172,6 +170,22 @@ export default async function RootLayout({
                       "urlTemplate": "https://www.udarsy.com/explore?q={search_term_string}",
                     },
                     "query-input": "required name=search_term_string",
+                  },
+                },
+                {
+                  "@type": "WebPage",
+                  "@id": "https://www.udarsy.com/#webpage",
+                  "url": "https://www.udarsy.com",
+                  "name": "Udarsy — منصة التعلم المغربية",
+                  "description": "يودرسي — دروس مجانية، تمارين تفاعلية وامتحانات نموذجية وفق المنهج المغربي. للتلاميذ من الابتدائي إلى الباكالوريا في المغرب.",
+                  "isPartOf": { "@id": "https://www.udarsy.com/#website" },
+                  "about": { "@id": "https://www.udarsy.com/#organization" },
+                  "inLanguage": ["ar", "fr", "en"],
+                  "breadcrumb": {
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [
+                      { "@type": "ListItem", "position": 1, "name": "Udarsy", "item": "https://www.udarsy.com" },
+                    ],
                   },
                 },
               ],

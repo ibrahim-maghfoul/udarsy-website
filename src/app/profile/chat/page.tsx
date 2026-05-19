@@ -507,22 +507,22 @@ export default function ChatPage() {
                     transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 >
                     <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        {/* Face circle */}
-                        <circle cx="60" cy="60" r="56" fill="#f0faf5" stroke="#3aaa6a" strokeWidth="2.5" strokeOpacity="0.3" />
-                        {/* Left eye */}
-                        <ellipse cx="42" cy="48" rx="5" ry="6" fill="#1a3a2a" fillOpacity="0.55" />
-                        {/* Right eye */}
-                        <ellipse cx="78" cy="48" rx="5" ry="6" fill="#1a3a2a" fillOpacity="0.55" />
-                        {/* Tear left */}
-                        <path d="M41 57 Q39.5 63 41 67 Q42.5 63 41 57Z" fill="#3aaa6a" fillOpacity="0.45" />
-                        {/* Tear right */}
-                        <path d="M79 57 Q77.5 63 79 67 Q80.5 63 79 57Z" fill="#3aaa6a" fillOpacity="0.45" />
-                        {/* Sad mouth */}
-                        <path d="M40 80 Q60 68 80 80" stroke="#1a3a2a" strokeWidth="3" strokeLinecap="round" fill="none" strokeOpacity="0.45" />
-                        {/* Lock icon in center-bottom of face */}
-                        <rect x="51" y="86" width="18" height="13" rx="3" fill="#3aaa6a" fillOpacity="0.18" stroke="#3aaa6a" strokeWidth="1.5" strokeOpacity="0.4" />
-                        <path d="M54 86 V83 a6 6 0 0 1 12 0 V86" stroke="#3aaa6a" strokeWidth="1.5" strokeLinecap="round" fill="none" strokeOpacity="0.4" />
-                        <circle cx="60" cy="92.5" r="2" fill="#3aaa6a" fillOpacity="0.5" />
+                        {/* Background bubble — large, back-left */}
+                        <rect x="8" y="28" width="68" height="44" rx="16" fill="#3aaa6a" fillOpacity="0.12" />
+                        <path d="M22 72 L16 84 L34 72Z" fill="#3aaa6a" fillOpacity="0.12" />
+                        {/* Foreground bubble — smaller, front-right */}
+                        <rect x="44" y="48" width="68" height="38" rx="14" fill="#3aaa6a" fillOpacity="0.22" />
+                        <path d="M98 86 L106 96 L88 86Z" fill="#3aaa6a" fillOpacity="0.22" />
+                        {/* Dots inside back bubble */}
+                        <circle cx="28" cy="50" r="4" fill="#3aaa6a" fillOpacity="0.5" />
+                        <circle cx="42" cy="50" r="4" fill="#3aaa6a" fillOpacity="0.5" />
+                        <circle cx="56" cy="50" r="4" fill="#3aaa6a" fillOpacity="0.5" />
+                        {/* Person silhouette inside front bubble — simple head+body */}
+                        <circle cx="78" cy="63" r="5" fill="#3aaa6a" fillOpacity="0.6" />
+                        <path d="M69 78 Q69 71 78 71 Q87 71 87 78" stroke="#3aaa6a" strokeWidth="2.2" strokeLinecap="round" fill="none" strokeOpacity="0.6" />
+                        {/* Small "+" badge hinting join */}
+                        <circle cx="98" cy="34" r="11" fill="#3aaa6a" />
+                        <path d="M98 28 V40 M92 34 H104" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
                     </svg>
                 </motion.div>
 

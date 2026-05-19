@@ -51,20 +51,20 @@ export function Footer() {
                             {t.rich('desc', { br: () => <br /> })}
                         </p>
                         <div className="flex gap-2">
-                            <a href={SOCIALS.twitter} target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Twitter size={12} /></a>
-                            <a href={SOCIALS.instagram} target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Instagram size={12} /></a>
-                            <a href={SOCIALS.facebook} target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Facebook size={12} /></a>
-                            <a href={SOCIALS.youtube} target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Youtube size={12} /></a>
-                            <a href={SOCIALS.tiktok} target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all">
+                            <a href={SOCIALS.twitter} aria-label="Twitter" target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Twitter size={12} /></a>
+                            <a href={SOCIALS.instagram} aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Instagram size={12} /></a>
+                            <a href={SOCIALS.facebook} aria-label="Facebook" target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Facebook size={12} /></a>
+                            <a href={SOCIALS.youtube} aria-label="YouTube" target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Youtube size={12} /></a>
+                            <a href={SOCIALS.tiktok} aria-label="TikTok" target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/></svg>
                             </a>
-                            <a href={SOCIALS.website} target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Globe size={12} /></a>
+                            <a href={SOCIALS.website} aria-label="Udarsy" target="_blank" rel="noopener noreferrer" className="w-[32px] h-[32px] rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-green hover:text-white hover:border-green transition-all"><Globe size={12} /></a>
                         </div>
                     </div>
 
                     {/* Product Column */}
                     <div className="flex flex-col gap-3">
-                        <h4 className="text-[11px] font-black tracking-widest uppercase text-white mb-1">{t('product')}</h4>
+                        <h3 className="text-[11px] font-black tracking-widest uppercase text-white mb-1">{t('product')}</h3>
                         <Link href="/courses" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('explore')}</Link>
                         <Link href="/pricing" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('pricing')}</Link>
                         <Link href="/services" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('services')}</Link>
@@ -75,7 +75,7 @@ export function Footer() {
 
                     {/* Company Column */}
                     <div className="flex flex-col gap-3">
-                        <h4 className="text-[11px] font-black tracking-widest uppercase text-white mb-1">{t('company')}</h4>
+                        <h3 className="text-[11px] font-black tracking-widest uppercase text-white mb-1">{t('company')}</h3>
                         <Link href="/about" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('about')}</Link>
                         <Link href="/contact" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('contact')}</Link>
                         <Link href="/report" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('report')}</Link>
@@ -83,7 +83,7 @@ export function Footer() {
 
                     {/* Newsletter */}
                     <div className="col-span-2 md:col-span-1 flex flex-col gap-3">
-                        <h4 className="text-[11px] font-black tracking-widest uppercase text-white mb-1">{t('loop')}</h4>
+                        <h3 className="text-[11px] font-black tracking-widest uppercase text-white mb-1">{t('loop')}</h3>
                         <p className="text-[12px] leading-relaxed text-white/40">
                             {t('loop_desc')}
                         </p>

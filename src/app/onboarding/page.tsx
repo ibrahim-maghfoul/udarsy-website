@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import DatePicker from "@/components/ui/DatePicker";
-import { getSchools, getLevels, getGuidances } from "@/services/data";
+import { getSchools, getLevels, getGuidances, guidanceSlug } from "@/services/data";
 import api from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSnackbar } from "@/contexts/SnackbarContext";
@@ -263,7 +263,7 @@ export default function OnboardingPage() {
             });
             // Load the user into global state for the first time now that onboarding is done
             await forceRefreshUser();
-            router.push("/courses");
+            router.push(selectedGuidance ? `/courses/${guidanceSlug(selectedGuidance.title)}` : "/courses");
         } catch (e) {
             console.error("Failed to save profile:", e);
             showSnackbar(t("save_error"), "error");

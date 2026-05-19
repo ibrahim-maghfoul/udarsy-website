@@ -333,7 +333,7 @@ export const Navbar = () => {
           <div className="flex items-center gap-2 relative z-10">
             <LanguageSwitcher mode="compact" />
             <NotificationBell />
-            <Link href={isAuthenticated ? "/profile" : "/login"} className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-green overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.06)] border border-green/10 hover:scale-105 active:scale-95 transition-all">
+            <Link href={isAuthenticated ? "/profile" : "/login"} aria-label={isAuthenticated ? t('profile') : t('signin')} className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-green overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.06)] border border-green/10 hover:scale-105 active:scale-95 transition-all">
               {isAuthenticated && user?.photoURL ? (
                 <Image src={getPhotoURL(user.photoURL) || ''} alt="Profile" width={36} height={36} className="w-full h-full object-cover" unoptimized={!getPhotoURL(user.photoURL)?.startsWith('http')} />
               ) : (

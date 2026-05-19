@@ -52,9 +52,19 @@ export default function ParticlesBackground({
         const rgb = `${r},${g},${b}`;
         const dotFill = `rgba(${rgb},${opacity})`;
 
+        // Canvas page offset — recomputed on resize
+        let canvasOriginX = 0;
+        let canvasOriginY = 0;
+        const updateOrigin = () => {
+            const rect = canvas.getBoundingClientRect();
+            canvasOriginX = rect.left + window.scrollX;
+            canvasOriginY = rect.top + window.scrollY;
+        };
+
         const resize = () => {
             canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvas.height = document.documentElement.scrollHeight;
+            updateOrigin();
         };
 
         const mkParticle = (x?: number, y?: number): Particle => ({
@@ -135,10 +145,13 @@ export default function ParticlesBackground({
             rafId = requestAnimationFrame(draw);
         };
 
-        const onMove = (e: MouseEvent) => { mouseRef.current = { x: e.clientX, y: e.clientY }; };
+        const onMove = (e: MouseEvent) => {
+            mouseRef.current = { x: e.pageX - canvasOriginX, y: e.pageY - canvasOriginY };
+        };
         const onLeave = () => { mouseRef.current = { x: -9999, y: -9999 }; };
         const onClick = (e: MouseEvent) => {
-            for (let i = 0; i < 4; i++) particles.push(mkParticle(e.clientX, e.clientY));
+            const cx = e.pageX - canvasOriginX, cy = e.pageY - canvasOriginY;
+            for (let i = 0; i < 4; i++) particles.push(mkParticle(cx, cy));
             if (particles.length > count + 80) particles.splice(0, particles.length - count - 80);
         };
 
@@ -160,7 +173,7 @@ export default function ParticlesBackground({
     return (
         <canvas
             ref={canvasRef}
-            style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none', display: 'block' }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none', display: 'block' }}
         />
     );
 }

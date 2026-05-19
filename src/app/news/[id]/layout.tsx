@@ -15,6 +15,7 @@ export async function generateMetadata({
       ? (article.description as string).slice(0, 160)
       : "اقرأ آخر أخبار التعليم المغربي على منصة درسي.";
     const image = typeof article.image === "string" && article.image.startsWith("http") ? article.image : "/og-image.png";
+    const canonicalId = (article.slug as string) ?? rawId;
     return {
       title,
       description,
@@ -22,7 +23,7 @@ export async function generateMetadata({
         title: `${title} | Udarsy`,
         description,
         type: "article",
-        url: `/news/${rawId}`,
+        url: `/news/${canonicalId}`,
         images: [{ url: image, width: 1200, height: 630, alt: title }],
         ...(article.createdAt ? { publishedTime: article.createdAt as string } : {}),
       },
@@ -32,7 +33,7 @@ export async function generateMetadata({
         description,
         images: [image],
       },
-      alternates: { canonical: `/news/${rawId}` },
+      alternates: { canonical: `/news/${canonicalId}` },
     };
   } catch {
     return {

@@ -154,15 +154,16 @@ export default function Home() {
         <LazySection minHeight={500}><PricingSection /></LazySection>
         <div ref={setTeamsEl}><LazySection minHeight={400}><TeamSection /></LazySection></div>
 
-        <Link href="/courses" aria-hidden={!(showButton && !(isMobile && teamsVisible))} tabIndex={showButton && !(isMobile && teamsVisible) ? 0 : -1}>
-          <button
-            onClick={() => trackEvent({ event: 'cta_click', category: 'Conversion', label: 'floating_start_learning' })}
-            className={`fixed bottom-24 right-4 md:bottom-8 md:right-8 bg-dark text-white font-semibold text-sm p-[14px_26px] rounded-full shadow-[0_6px_28px_rgba(0,0,0,0.28)] z-[100] transition-[opacity,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_36px_rgba(0,0,0,0.35)] ${
-              showButton && !(isMobile && teamsVisible) ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-[0.8] translate-y-5 pointer-events-none'
-            }`}
-          >
-            {commonT('start_learning')} →
-          </button>
+        <Link
+          href="/courses"
+          aria-hidden={!(showButton && !(isMobile && teamsVisible))}
+          tabIndex={showButton && !(isMobile && teamsVisible) ? 0 : -1}
+          onClick={() => trackEvent({ event: 'cta_click', category: 'Conversion', label: 'floating_start_learning' })}
+          className={`fixed bottom-24 right-4 md:bottom-8 md:right-8 bg-dark text-white font-semibold text-sm p-[14px_26px] rounded-full shadow-[0_6px_28px_rgba(0,0,0,0.28)] z-[100] transition-[opacity,transform] duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_36px_rgba(0,0,0,0.35)] ${
+            showButton && !(isMobile && teamsVisible) ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-[0.8] translate-y-5 pointer-events-none'
+          }`}
+        >
+          {commonT('start_learning')} →
         </Link>
       </main>
 

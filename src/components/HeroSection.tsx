@@ -122,7 +122,7 @@ const DesktopCard = memo(function DesktopCard({ card, phase, isActive, badgeVal 
                 <div className={`text-[12px] font-black leading-[1.2] truncate transition-colors duration-300 tracking-tight ${isLight ? 'text-white' : 'text-[#1a5c38]'}`}>
                     {card.title}
                 </div>
-                <div className={`text-[10px] font-medium leading-[1.4] truncate transition-colors duration-300 ${isLight ? 'text-white/70' : 'text-[#3aaa6a]/70'}`}>
+                <div className={`text-[10px] font-medium leading-[1.4] truncate transition-colors duration-300 ${isLight ? 'text-white/80' : 'text-[#155028]'}`}>
                     {card.msg}
                 </div>
             </div>

@@ -677,7 +677,7 @@ body {
 @keyframes hCardIn   { from{opacity:0} to{opacity:1} }
 @keyframes hProgBar  { from{transform:scaleX(0)} to{transform:scaleX(1)} }
 @keyframes hSparkle  { 0%,100%{opacity:.5;transform:scale(.85) rotate(0deg)} 50%{opacity:1;transform:scale(1.2) rotate(25deg)} }
-@keyframes hBadge    { 0%,100%{box-shadow:0 0 0 0 rgba(58,170,106,0)} 50%{box-shadow:0 0 18px 2px rgba(58,170,106,.18)} }
+@keyframes hBadge    { 0%,100%{opacity:.88} 50%{opacity:1} }
 @keyframes hDialogBg { from{opacity:0} to{opacity:1} }
 @keyframes hDialogIn { from{opacity:0;transform:scale(0.93) translate3d(0,10px,0)} to{opacity:1;transform:scale(1) translate3d(0,0,0)} }
 @keyframes hStatIn   { from{opacity:0;transform:translate3d(0,12px,0) scale(0.92)} to{opacity:1;transform:translate3d(0,0,0) scale(1)} }

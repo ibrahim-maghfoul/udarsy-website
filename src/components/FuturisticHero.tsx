@@ -94,7 +94,8 @@ const STEPS = [
 
 // ── Single RAF drives all four stat counters ──────────────────────────────────
 function useAllCountUps(active: boolean): number[] {
-  const [vals, setVals] = useState(() => STAT_TARGETS.map(() => 0));
+  // Initialize to final values so SSR/crawlers see correct stats, not "0K+"
+  const [vals, setVals] = useState(STAT_TARGETS);
   useEffect(() => {
     if (!active) return;
     const t0 = performance.now();
@@ -270,7 +271,7 @@ function OnboardingDialog({ onClose }: { onClose: () => void }) {
               <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.30)', fontFamily: fBody }}>{t('dialog_free')}</span>
             </div>
             <button
-              onClick={() => { onClose(); router.push('/explore'); }}
+              onClick={() => { onClose(); router.push('/courses'); }}
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
                 padding: '8px 16px', borderRadius: 999,
@@ -476,6 +477,7 @@ export function FuturisticHero() {
               }}>
                 <button
                   onClick={() => setDemoOpen(true)}
+                  aria-label={t('cta_demo')}
                   style={{
                     width: 42, height: 42, borderRadius: '50%',
                     background: isMobile ? 'transparent' : 'rgba(255,255,255,0.055)',

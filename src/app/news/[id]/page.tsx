@@ -51,17 +51,29 @@ export default async function NewsDetailPage({ params }: Props) {
   const { id } = await params;
   const article = await serverFetch<any>(`/news/${id}`, { revalidate: 3600 });
 
-  const jsonLd = article
+  const articleUrl = `${SITE_URL}/news/${id}`;
+  const articleImage = article?.imageUrl || article?.images?.[0]?.src || `${SITE_URL}/og-image.png`;
+
+  const avgRating =
+    article?.ratings?.length > 0
+      ? article.ratings.reduce((sum: number, r: { value: number }) => sum + r.value, 0) /
+        article.ratings.length
+      : null;
+
+  const articleSchema = article
     ? {
         "@context": "https://schema.org",
         "@type": "NewsArticle",
+        "@id": `${articleUrl}#article`,
         headline: article.title,
         description: article.description?.slice(0, 160) || article.title,
-        image: article.imageUrl || article.images?.[0]?.src || `${SITE_URL}/og-image.png`,
+        image: articleImage,
         datePublished: article.createdAt,
         dateModified: article.updatedAt || article.createdAt,
-        url: `${SITE_URL}/news/${id}`,
-        inLanguage: "ar",
+        url: articleUrl,
+        inLanguage: article.language === "fr" ? "fr" : "ar",
+        articleSection: article.category || "Education",
+        keywords: Array.isArray(article.tags) ? article.tags.join(", ") : undefined,
         isPartOf: { "@type": "WebSite", "@id": `${SITE_URL}/#website` },
         publisher: {
           "@type": "EducationalOrganization",
@@ -74,6 +86,15 @@ export default async function NewsDetailPage({ params }: Props) {
           "@id": `${SITE_URL}/#organization`,
           name: "Udarsy",
         },
+        ...(avgRating !== null && {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: avgRating.toFixed(1),
+            ratingCount: article.ratings.length,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }),
         speakable: {
           "@type": "SpeakableSpecification",
           cssSelector: [".article-description", "article p:first-of-type"],
@@ -81,12 +102,37 @@ export default async function NewsDetailPage({ params }: Props) {
       }
     : null;
 
+  const qaItems: { question: string; answer: string }[] = Array.isArray(article?.qaList)
+    ? article.qaList.filter(
+        (q: { question?: string; answer?: string }) => q.question && q.answer
+      )
+    : [];
+
+  const faqSchema =
+    qaItems.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: qaItems.map(({ question, answer }) => ({
+            "@type": "Question",
+            name: question,
+            acceptedAnswer: { "@type": "Answer", text: answer },
+          })),
+        }
+      : null;
+
   return (
     <>
-      {jsonLd && (
+      {articleSchema && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        />
+      )}
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
       )}
       <NewsDetailClient initialArticle={article} />

@@ -7,9 +7,9 @@ import {
     Search, BookOpen, ChevronRight, ChevronLeft, LogIn,
     Calculator, Atom, Globe, Microscope, Cpu, Music, Palette,
     Scale, Database, Dumbbell, Stethoscope, Lightbulb, Map,
-    FlaskConical, Languages, ArrowLeft, UserPlus,
+    FlaskConical, Languages, ArrowLeft, UserPlus, School, GraduationCap,
 } from "lucide-react";
-import { getGuidanceBySlug, getSubjects, subjectSlug, prefetchLessons } from "@/services/data";
+import { getGuidanceBySlug, getSubjects, getSchools, getLevels, subjectSlug, prefetchLessons } from "@/services/data";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslations, useLocale } from "next-intl";
 import "../../explore/subject-cards.css";
@@ -43,8 +43,11 @@ export default function GuidanceSubjectsPage() {
     const locale = useLocale();
     const isAr = locale === 'ar';
 
+    const [mode, setMode] = useState<'guidance' | 'school'>('guidance');
     const [guidanceName, setGuidanceName] = useState('');
     const [subjects, setSubjects] = useState<any[]>([]);
+    const [schoolName, setSchoolName] = useState('');
+    const [levels, setLevels] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -55,17 +58,82 @@ export default function GuidanceSubjectsPage() {
         setError(false);
         getGuidanceBySlug(slug)
             .then(guidance => {
+                if (!guidance?._id) throw new Error('not a guidance');
+                setMode('guidance');
                 setGuidanceName(guidance.title);
                 return getSubjects(guidance._id);
             })
             .then(res => { setSubjects(res); setLoading(false); })
-            .catch(() => { setError(true); setLoading(false); });
+            .catch(() => {
+                // Not a guidance slug — try school
+                getSchools()
+                    .then(schools => {
+                        const school = schools.find(s => subjectSlug(s.title) === slug);
+                        if (!school) { setError(true); setLoading(false); return; }
+                        setMode('school');
+                        setSchoolName(school.title);
+                        return getLevels(school.id);
+                    })
+                    .then(lvls => { if (lvls) { setLevels(lvls); setLoading(false); } })
+                    .catch(() => { setError(true); setLoading(false); });
+            });
     }, [slug]);
 
     const filteredSubjects = useMemo(() =>
         subjects.filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase())),
         [subjects, searchQuery]
     );
+
+    if (mode === 'school' && !loading) {
+        return (
+            <div className="min-h-screen bg-[#fafbfc] animate-slide-up">
+                <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-green/8 flex items-center gap-3 px-4 py-3 shadow-sm">
+                    <button onClick={() => router.push('/courses')} className="w-8 h-8 rounded-full bg-green/8 border border-green/15 flex items-center justify-center text-green shrink-0">
+                        <ArrowLeft size={16} />
+                    </button>
+                    <span className="font-bold text-dark/70 text-sm truncate">{schoolName}</span>
+                </div>
+                <header className="hidden md:block relative overflow-hidden bg-gradient-to-b from-[#f0f7f3] to-transparent border-b border-green/8 pt-32 pb-10 px-6">
+                    <div className="absolute top-0 right-0 w-[420px] h-[420px] rounded-full bg-green/5 blur-3xl pointer-events-none" style={{ transform: 'translate3d(30%,-30%,0)' }} />
+                    <div className="max-w-7xl mx-auto relative">
+                        <div className={`flex items-center gap-2 text-sm text-dark/40 mb-3 ${isAr ? 'flex-row-reverse' : ''}`}>
+                            <button onClick={() => router.push('/courses')} className="hover:text-green transition-colors">Courses</button>
+                            <span>/</span>
+                            <span className="text-dark/70">{schoolName}</span>
+                        </div>
+                        <h1 className="text-2xl md:text-4xl font-bold text-dark">{schoolName}</h1>
+                        <p className="text-dark/50 mt-2 text-sm">Choose a level to explore its pathways</p>
+                    </div>
+                </header>
+                <main className="max-w-7xl mx-auto pt-8 px-6 pb-32">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="flex-1 h-px bg-green/10" />
+                        <span className="px-3.5 py-1 bg-green text-white text-xs font-bold rounded-full">{levels.length} {levels.length === 1 ? 'level' : 'levels'}</span>
+                        <div className="flex-1 h-px bg-green/10" />
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {levels.map((level: any, index: number) => {
+                            const icon = schoolName.toLowerCase().includes('lyc') ? <GraduationCap size={28} /> : schoolName.toLowerCase().includes('coll') ? <BookOpen size={28} /> : <School size={28} />;
+                            return (
+                                <button
+                                    key={level.id || level._id}
+                                    onClick={() => router.push(`/courses/${slug}/${subjectSlug(level.title)}`)}
+                                    className="group relative flex flex-col items-center justify-center gap-3 p-6 bg-white border border-green/12 rounded-2xl text-center hover:border-green/30 hover:shadow-md hover:shadow-green/8 transition-all duration-200"
+                                    style={{ animationDelay: `${index * 40}ms` }}
+                                >
+                                    <div className="w-12 h-12 rounded-xl bg-green/8 text-green flex items-center justify-center group-hover:bg-green/15 transition-colors">{icon}</div>
+                                    <h3 className="font-bold text-dark text-sm leading-tight">{level.title}</h3>
+                                    <div className={`absolute ${isAr ? 'left-3' : 'right-3'} top-3 text-green/30 group-hover:text-green/60 transition-colors`}>
+                                        {isAr ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </main>
+            </div>
+        );
+    }
 
     if (error) {
         return (
