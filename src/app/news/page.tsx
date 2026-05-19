@@ -29,6 +29,7 @@ async function getNewsItems() {
 
             return {
                 id: art._id?.toString(),
+                slug: art.slug || '',
                 title: art.title || 'Untitled',
                 subtitle: art.type || art.category || '',
                 category: art.category || 'General',

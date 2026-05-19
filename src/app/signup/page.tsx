@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { User, Mail, Lock, UserPlus, Chrome, Gift, Eye, EyeOff } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -11,6 +11,8 @@ import { useSnackbar } from "@/contexts/SnackbarContext";
 import { trackEvent } from "@/lib/analytics";
 import { useTranslations } from "next-intl";
 import { fetchAndStoreGoogleProfile } from "@/lib/googleProfile";
+import TurnstileWidget, { verifyTurnstileToken } from "@/components/TurnstileWidget";
+import { TurnstileInstance } from "@marsidev/react-turnstile";
 
 export default function SignupPage() {
     const { register, googleLogin } = useAuth();
@@ -25,6 +27,8 @@ export default function SignupPage() {
     const [referralCode, setReferralCode] = useState<string | null>(null);
     const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+    const turnstileRef = useRef<TurnstileInstance>(null);
 
     useEffect(() => {
         const ref = searchParams.get('ref');
@@ -35,12 +39,23 @@ export default function SignupPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!turnstileToken) return;
         setLoading(true);
         try {
+            const verified = await verifyTurnstileToken(turnstileToken);
+            if (!verified) {
+                showSnackbar('Security check failed. Please try again.', 'error');
+                turnstileRef.current?.reset();
+                setTurnstileToken(null);
+                setLoading(false);
+                return;
+            }
             await register(email, password, name, referralCode || undefined);
             trackEvent({ event: 'sign_up', category: 'Auth', label: 'email', referred: !!referralCode });
         } catch (err: any) {
             showSnackbar(err.message || t('signup_failed'), 'error');
+            turnstileRef.current?.reset();
+            setTurnstileToken(null);
         } finally {
             setLoading(false);
         }
@@ -171,9 +186,16 @@ export default function SignupPage() {
                         </label>
                     </div>
 
+                    <TurnstileWidget
+                        ref={turnstileRef}
+                        onSuccess={setTurnstileToken}
+                        onExpire={() => setTurnstileToken(null)}
+                        onError={() => setTurnstileToken(null)}
+                    />
+
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || !turnstileToken}
                         className="w-full py-4 bg-green text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-green/20 transition-all flex items-center justify-center gap-2 group active:scale-95 disabled:opacity-70"
                     >
                         {loading ? (

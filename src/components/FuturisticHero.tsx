@@ -140,22 +140,48 @@ function OnboardingDialog({ onClose }: { onClose: () => void }) {
   const isAr = useLocale() === 'ar';
   const fHead = isAr ? "var(--font-cairo),'Cairo',sans-serif" : "var(--font-barlow-condensed),'Barlow Condensed',sans-serif";
   const fBody = isAr ? "var(--font-cairo),'Cairo',sans-serif" : "var(--font-instrument-sans),'Instrument Sans',sans-serif";
-  const STEP_ICONS = [
-    // Books
-    <svg key="s1" viewBox="0 0 24 24" fill="#3AAA6A" width="20" height="20"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .65.73.45.75.45C2.2 20.85 3.7 20.5 5.5 20.5c1.55 0 3.15.35 4.5 1 1.35-.65 2.95-1 4.5-1 1.55 0 3.15.35 4.5 1 .65.35 1.25.35 1.75 0 .3-.2.25-.45.25-.65V6c-.6-.45-1.25-.75-2-1zM21 18.5c-1.35-.35-2.8-.5-4.5-.5-1.55 0-3.15.35-4.5 1V8c1.35-.65 2.95-1 4.5-1 1.7 0 3.15.15 4.5.5v11z" /></svg>,
-    // Trending up
-    <svg key="s2" viewBox="0 0 24 24" fill="none" stroke="#3AAA6A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>,
-    // Chat bubble
-    <svg key="s3" viewBox="0 0 24 24" fill="#3AAA6A" width="20" height="20"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" /></svg>,
-    // Trophy
-    <svg key="s4" viewBox="0 0 24 24" fill="#3AAA6A" width="20" height="20"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V18H9v2h6v-2h-2v-2.1a5.01 5.01 0 003.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zm-2 3c0 1.65-1.35 3-3 3s-3-1.35-3-3V5h6v3zm-8 0c0 1.65-1.35 3-3 3s-3-1.35-3-3V7h3v1zM5 8V7h2v1c0 .34.03.67.08 1H5.08A3.003 3.003 0 015 8zm14 0c0 .34-.03.67-.08 1h-2.08c.05-.33.08-.66.08-1V7h2v1z" /></svg>,
-  ];
+
   const steps = [
-    { icon: STEP_ICONS[0], title: t('step_1_title'), desc: t('step_1_desc') },
-    { icon: STEP_ICONS[1], title: t('step_2_title'), desc: t('step_2_desc') },
-    { icon: STEP_ICONS[2], title: t('step_3_title'), desc: t('step_3_desc') },
-    { icon: STEP_ICONS[3], title: t('step_4_title'), desc: t('step_4_desc') },
+    {
+      icon: (
+        <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+          <path d="M10 2C6.5 2 4 4 4 4v13s2.5-1.5 6-1.5S16 17 16 17V4s-2.5-2-6-2z" stroke="#68E39B" strokeWidth="1.4" strokeLinejoin="round" />
+          <line x1="10" y1="2" x2="10" y2="15.5" stroke="#68E39B" strokeWidth="1.4" />
+        </svg>
+      ),
+      title: t('step_1_title'),
+      desc: t('step_1_desc'),
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+          <circle cx="10" cy="10" r="7.5" stroke="#68E39B" strokeWidth="1.4" />
+          <path d="M10 6v4.5l3 1.5" stroke="#68E39B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ),
+      title: t('step_2_title'),
+      desc: t('step_2_desc'),
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+          <path d="M3 4h14a1 1 0 011 1v8a1 1 0 01-1 1H6l-4 3V5a1 1 0 011-1z" stroke="#68E39B" strokeWidth="1.4" strokeLinejoin="round" />
+        </svg>
+      ),
+      title: t('step_3_title'),
+      desc: t('step_3_desc'),
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+          <path d="M10 2l2.1 5.6H18l-4.6 3.3 1.8 5.6L10 13.4l-5.2 3.1 1.8-5.6L2 7.6h5.9L10 2z" stroke="#68E39B" strokeWidth="1.4" strokeLinejoin="round" />
+        </svg>
+      ),
+      title: t('step_4_title'),
+      desc: t('step_4_desc'),
+    },
   ];
+
   return (
     <div
       role="dialog" aria-modal="true"
@@ -163,53 +189,104 @@ function OnboardingDialog({ onClose }: { onClose: () => void }) {
       style={{
         position: 'fixed', inset: 0, zIndex: 9999,
         display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px',
-        background: 'rgba(3,9,5,0.82)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+        background: 'rgba(3,9,5,0.85)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
         animation: 'hDialogBg 0.22s ease-out both',
       }}
     >
       <div style={{
-        width: '100%', maxWidth: 500,
-        background: 'rgba(255,255,255,0.057)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)',
-        border: '1px solid rgba(255,255,255,0.09)', borderTop: '1px solid rgba(255,255,255,0.16)',
-        borderRadius: 24, padding: '26px 26px 22px',
-        boxShadow: '0 32px 80px rgba(0,0,0,0.58)',
+        width: '100%', maxWidth: 440,
+        background: 'rgba(7,22,14,0.98)',
+        border: '1px solid rgba(58,170,106,0.20)',
+        borderTop: '1px solid rgba(58,170,106,0.36)',
+        borderRadius: 20,
+        boxShadow: '0 0 0 1px rgba(0,0,0,0.5), 0 32px 80px rgba(0,0,0,0.72)',
         animation: 'hDialogIn 0.3s cubic-bezier(0.22,1,0.36,1) both',
+        overflow: 'hidden',
       }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
-          <div>
-            <div style={{ fontSize: 19, fontWeight: 800, color: '#fff', fontFamily: fHead, marginBottom: 2 }}>
-              {t('dialog_title')}
+        {/* Top accent bar */}
+        <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #3AAA6A 40%, #68E39B 60%, transparent)' }} />
+
+        <div style={{ padding: '22px 24px 20px' }}>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 22 }}>
+            <div>
+              <div style={{ fontSize: 17, fontWeight: 900, color: '#fff', fontFamily: fHead, letterSpacing: '-0.02em', marginBottom: 3 }}>
+                {t('dialog_title')}
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.32)', fontFamily: fBody }}>
+                {t('dialog_subtitle')}
+              </div>
             </div>
-            <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.36)', fontFamily: fBody }}>
-              {t('dialog_subtitle')}
-            </div>
+            <button
+              onClick={onClose} aria-label={t('dialog_close')}
+              style={{ width: 26, height: 26, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, lineHeight: 1, flexShrink: 0 }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.10)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+            >×</button>
           </div>
-          <button
-            onClick={onClose} aria-label={t('dialog_close')}
-            style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 17, lineHeight: 1, flexShrink: 0 }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.12)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
-          >×</button>
-        </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 9 }}>
-          {steps.map((step, i) => (
-            <div key={i} style={{ padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.036)', border: '1px solid rgba(58,170,106,0.13)' }}>
-              <div style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(58,170,106,0.12)', border: '1px solid rgba(58,170,106,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>{step.icon}</div>
-              <div style={{ fontSize: 12.5, fontWeight: 700, color: 'rgba(255,255,255,0.88)', fontFamily: fBody, marginBottom: 5, lineHeight: 1.3 }}>{step.title}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.40)', fontFamily: fBody, lineHeight: 1.55 }}>{step.desc}</div>
+          {/* Vertical step list */}
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {steps.map((step, i) => (
+              <div key={i} style={{ display: 'flex', gap: 14, position: 'relative' }}>
+                {/* Icon column with connector line */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 34, flexShrink: 0 }}>
+                  <div style={{
+                    width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+                    background: 'rgba(58,170,106,0.10)',
+                    border: '1px solid rgba(58,170,106,0.24)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {step.icon}
+                  </div>
+                  {i < steps.length - 1 && (
+                    <div style={{
+                      width: 1, flexGrow: 1, minHeight: 14,
+                      background: 'linear-gradient(to bottom, rgba(58,170,106,0.22), rgba(58,170,106,0.04))',
+                      margin: '5px 0',
+                    }} />
+                  )}
+                </div>
+                {/* Text */}
+                <div style={{ paddingBottom: i < steps.length - 1 ? 18 : 0, paddingTop: 6 }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 700, color: 'rgba(255,255,255,0.88)', fontFamily: fBody, marginBottom: 4, lineHeight: 1.3 }}>
+                    {step.title}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)', fontFamily: fBody, lineHeight: 1.65 }}>
+                    {step.desc}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Footer */}
+          <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <svg viewBox="0 0 14 14" width="12" height="12" fill="none">
+                <circle cx="7" cy="7" r="6" stroke="#3AAA6A" strokeWidth="1.2" />
+                <path d="M4.5 7l1.8 1.8L9.5 5.5" stroke="#3AAA6A" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.30)', fontFamily: fBody }}>{t('dialog_free')}</span>
             </div>
-          ))}
-        </div>
-
-        <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', fontFamily: fBody }}>{t('dialog_free')}</span>
-          <button
-            onClick={() => { onClose(); router.push('/courses'); }}
-            style={{ padding: '8px 18px', borderRadius: 999, background: 'linear-gradient(135deg,rgba(58,170,106,0.35),rgba(58,170,106,0.18))', border: '1px solid rgba(58,170,106,0.50)', color: '#fff', fontSize: 12.5, fontWeight: 700, fontFamily: fBody, cursor: 'pointer' }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.82')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-          >{t('dialog_start')}</button>
+            <button
+              onClick={() => { onClose(); router.push('/explore'); }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '8px 16px', borderRadius: 999,
+                background: 'rgba(58,170,106,0.18)', border: '1px solid rgba(58,170,106,0.40)',
+                color: '#68E39B', fontSize: 12, fontWeight: 700, fontFamily: fBody, cursor: 'pointer',
+                transition: 'background 0.18s ease, border-color 0.18s ease',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(58,170,106,0.28)'; e.currentTarget.style.borderColor = 'rgba(58,170,106,0.60)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(58,170,106,0.18)'; e.currentTarget.style.borderColor = 'rgba(58,170,106,0.40)'; }}
+            >
+              {t('dialog_start')}
+              <svg viewBox="0 0 14 14" width="11" height="11" fill="none">
+                <path d="M3 7h8M8 4.5L10.5 7 8 9.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -298,7 +375,10 @@ export function FuturisticHero() {
           {/* Left zone */}
           <div className="dlh-left" style={{
             width: '42%', flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center',
-            padding: 'clamp(120px,13vh,180px) clamp(48px,5vw,80px) clamp(60px,7vh,110px) clamp(72px,8vw,140px)',
+            paddingTop: 'clamp(120px,13vh,180px)',
+            paddingBottom: 'clamp(60px,7vh,110px)',
+            paddingInlineStart: 'clamp(72px,8vw,140px)',
+            paddingInlineEnd: 'clamp(48px,5vw,80px)',
           }}>
 
             {/* Badge — solid bg avoids a backdrop-filter compositing layer */}

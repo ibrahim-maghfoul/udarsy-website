@@ -542,6 +542,125 @@ body {
   }
 }
 
+/* ─── AI-rewritten article HTML content ──────────────────────────────────── */
+/* Used with .not-prose to fully escape Tailwind Typography's prose scope.    */
+/* Mirrors the admin panel's .ap-content preview so published articles match. */
+.article-html-content {
+  font-size: 1rem;
+  color: rgba(26, 31, 46, 0.82);
+  line-height: 1.75;
+}
+.article-html-content * { box-sizing: border-box; }
+
+.article-html-content h1,
+.article-html-content h2 {
+  color: #3aaa6a;
+  font-size: 1.3rem;
+  font-weight: 900;
+  margin: 2.2rem 0 0.8rem;
+  line-height: 1.45;
+}
+.article-html-content h3 {
+  color: #3aaa6a;
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 1.8rem 0 0.6rem;
+  line-height: 1.4;
+}
+.article-html-content h4,
+.article-html-content h5,
+.article-html-content h6 {
+  color: rgba(26, 31, 46, 0.9);
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 1.4rem 0 0.5rem;
+}
+.article-html-content p {
+  font-size: 1rem;
+  margin: 0 0 1.3rem;
+  line-height: 1.9;
+  color: rgba(26, 31, 46, 0.82);
+}
+.article-html-content ul {
+  list-style: disc;
+  padding-right: 1.6rem;
+  padding-left: 0;
+  margin: 0 0 1.3rem;
+}
+.article-html-content ol {
+  list-style: decimal;
+  padding-right: 1.6rem;
+  padding-left: 0;
+  margin: 0 0 1.3rem;
+}
+.article-html-content li {
+  margin-bottom: 0.45rem;
+  line-height: 1.8;
+  color: rgba(26, 31, 46, 0.82);
+}
+.article-html-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.5rem;
+  font-size: 0.88rem;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.article-html-content table td,
+.article-html-content table th {
+  border: 1px solid #e5e7eb;
+  padding: 8px 12px;
+  vertical-align: top;
+}
+.article-html-content table th {
+  background: #f0fdf4;
+  color: #3aaa6a;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.article-html-content table tr:nth-child(even) td {
+  background: #f9fafb;
+}
+.article-html-content a {
+  color: #3aaa6a;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.article-html-content a:hover {
+  opacity: 0.8;
+}
+.article-html-content strong,
+.article-html-content b {
+  font-weight: 700;
+  color: rgba(26, 31, 46, 0.95);
+}
+.article-html-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 1.5rem auto;
+  display: block;
+}
+.article-html-content blockquote {
+  border-right: 4px solid #3aaa6a;
+  border-left: none;
+  padding: 0.75rem 1.25rem;
+  margin: 1.5rem 0;
+  background: #f0fdf4;
+  color: rgba(26, 31, 46, 0.75);
+  font-style: italic;
+  border-radius: 0 8px 8px 0;
+}
+
+@media (min-width: 768px) {
+  .article-html-content h1,
+  .article-html-content h2 { font-size: 1.75rem; }
+  .article-html-content h3 { font-size: 1.4rem; }
+  .article-html-content p,
+  .article-html-content li { font-size: 1.15rem; }
+}
+
 /* Pause diagram animations when off-screen */
 .diagram-paused .anim-flow,
 .diagram-paused .anim-shape-pop,

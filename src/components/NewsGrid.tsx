@@ -9,6 +9,7 @@ import { useIsLowEndDevice } from '@/lib/performance';
 
 interface NewsItem {
     id: string;
+    slug?: string;
     title: string;
     subtitle: string;
     category: string;
@@ -150,7 +151,7 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
                                 subtitle={item.subtitle}
                                 category={item.category}
                                 image={item.image}
-                                href={`/news/${item.id}`}
+                                href={item.slug ? `/news/${item.slug}` : `/news/${item.id}`}
                                 date={item.date}
                                 readTime={item.readTime}
                                 rating={item.rating}

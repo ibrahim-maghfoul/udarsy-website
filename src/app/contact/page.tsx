@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Mail, MessageSquare, User, Send, CheckCircle, MapPin, Phone, ChevronDown } from "lucide-react";
 import api from "@/lib/api";
 import { CONTACT } from "@/lib/constants";
+import TurnstileWidget, { verifyTurnstileToken } from "@/components/TurnstileWidget";
+import { TurnstileInstance } from "@marsidev/react-turnstile";
 
 const subjects = [
     "General Inquiry",
@@ -23,6 +25,8 @@ export default function ContactPage() {
     const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
     const [subjectOpen, setSubjectOpen] = useState(false);
     const subjectRef = useRef<HTMLDivElement>(null);
+    const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+    const turnstileRef = useRef<TurnstileInstance>(null);
 
     useEffect(() => {
         const handler = (e: MouseEvent) => {
@@ -41,13 +45,23 @@ export default function ContactPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!form.name || !form.email || !form.message) return;
+        if (!turnstileToken) return;
         setStatus("sending");
         try {
+            const verified = await verifyTurnstileToken(turnstileToken);
+            if (!verified) {
+                setStatus("error");
+                turnstileRef.current?.reset();
+                setTurnstileToken(null);
+                return;
+            }
             await api.post('/contact', form);
             setStatus("sent");
         } catch (error) {
             console.error('Contact submit error:', error);
             setStatus("error");
+            turnstileRef.current?.reset();
+            setTurnstileToken(null);
         }
     };
 
@@ -221,6 +235,13 @@ export default function ContactPage() {
                             />
                         </div>
 
+                        <TurnstileWidget
+                            ref={turnstileRef}
+                            onSuccess={setTurnstileToken}
+                            onExpire={() => setTurnstileToken(null)}
+                            onError={() => setTurnstileToken(null)}
+                        />
+
                         {status === "error" && (
                             <p className="text-red-500 text-sm font-bold text-center">
                                 Failed to send message. Please try again.
@@ -229,7 +250,7 @@ export default function ContactPage() {
 
                         <button
                             type="submit"
-                            disabled={status === "sending"}
+                            disabled={status === "sending" || !turnstileToken}
                             className="w-full py-4 bg-green text-white font-bold rounded-2xl hover:scale-[1.02] hover:shadow-xl hover:shadow-green/20 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                         >
                             {status === "sending" ? (

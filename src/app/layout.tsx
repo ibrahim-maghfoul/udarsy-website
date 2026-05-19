@@ -13,6 +13,7 @@ import CookieBanner from "@/components/CookieBanner";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { PageTransition } from "@/components/PageTransition";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { MicrosoftClarity } from "@/components/MicrosoftClarity";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 
 const cairo = Cairo({
@@ -110,6 +111,7 @@ export default async function RootLayout({
       <body className={`${cairo.variable} ${barlowCondensed.variable} ${instrumentSans.variable} font-cairo antialiased`} suppressHydrationWarning>
         {/* Google Analytics 4 — script injected after interactive, won't block render */}
         <GoogleAnalytics />
+        <MicrosoftClarity />
         <NextIntlClientProvider messages={messages}>
           <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'placeholder-client-id'}>
             <AuthProvider>

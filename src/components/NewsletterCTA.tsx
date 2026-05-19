@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Mail, Loader2, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
+import TurnstileWidget, { verifyTurnstileToken } from '@/components/TurnstileWidget';
+import { TurnstileInstance } from '@marsidev/react-turnstile';
 
 interface NewsletterCTAProps {
     ft: {
@@ -17,17 +19,28 @@ interface NewsletterCTAProps {
 export default function NewsletterCTA({ ft }: NewsletterCTAProps) {
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+    const turnstileRef = useRef<TurnstileInstance>(null);
 
     const handleSubscribe = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email) return;
+        if (!email || !turnstileToken) return;
         setStatus('loading');
         try {
+            const verified = await verifyTurnstileToken(turnstileToken);
+            if (!verified) {
+                setStatus('error');
+                turnstileRef.current?.reset();
+                setTurnstileToken(null);
+                return;
+            }
             await api.post('/newsletter/subscribe', { email });
             setStatus('success');
             setEmail('');
         } catch (err) {
             setStatus('error');
+            turnstileRef.current?.reset();
+            setTurnstileToken(null);
         }
     };
 
@@ -50,28 +63,38 @@ export default function NewsletterCTA({ ft }: NewsletterCTAProps) {
                 <p className="text-white/80 text-base max-w-md mx-auto">{ft.loop_desc}</p>
             </div>
 
-            <form onSubmit={handleSubscribe} className="relative z-10 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                <div className="flex-1 relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder={ft.subscribe_placeholder}
-                        disabled={status === 'success'}
-                        className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:outline-none focus:bg-white focus:text-dark transition-all text-sm"
-                        required
+            <form onSubmit={handleSubscribe} className="relative z-10 flex flex-col gap-3 max-w-md mx-auto">
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1 relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder={ft.subscribe_placeholder}
+                            disabled={status === 'success'}
+                            className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:outline-none focus:bg-white focus:text-dark transition-all text-sm"
+                            required
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        disabled={status === 'loading' || status === 'success' || !turnstileToken}
+                        className="px-8 py-3.5 rounded-2xl bg-white text-green font-bold hover:scale-105 transition-all shadow-lg active:scale-95 disabled:scale-100 disabled:opacity-70 flex items-center justify-center gap-2 min-w-[140px]"
+                    >
+                        {status === 'loading' ? <Loader2 className="animate-spin" size={20} /> :
+                            status === 'success' ? <CheckCircle2 size={20} /> :
+                                ft.newsletter}
+                    </button>
+                </div>
+                <div className="flex justify-center">
+                    <TurnstileWidget
+                        ref={turnstileRef}
+                        onSuccess={setTurnstileToken}
+                        onExpire={() => setTurnstileToken(null)}
+                        onError={() => setTurnstileToken(null)}
                     />
                 </div>
-                <button
-                    type="submit"
-                    disabled={status === 'loading' || status === 'success'}
-                    className="px-8 py-3.5 rounded-2xl bg-white text-green font-bold hover:scale-105 transition-all shadow-lg active:scale-95 disabled:scale-100 disabled:opacity-70 flex items-center justify-center gap-2 min-w-[140px]"
-                >
-                    {status === 'loading' ? <Loader2 className="animate-spin" size={20} /> :
-                        status === 'success' ? <CheckCircle2 size={20} /> :
-                            ft.newsletter}
-                </button>
             </form>
 
             <AnimatePresence>

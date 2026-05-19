@@ -17,6 +17,34 @@ import { useTranslations } from "next-intl";
 
 const viewedNewsIds = new Set<string>();
 
+// Route external images through our server-side proxy to bypass hotlink protection.
+const proxyUrl = (src: string): string => {
+    if (!src) return src;
+    if (src.startsWith('data:') || src.startsWith('/')) return src;
+    return `/api/news-image?url=${encodeURIComponent(src)}`;
+};
+
+const downloadImage = async (url: string, hint = "image") => {
+    const slug = hint.replace(/[^a-zA-Z0-9؀-ۿ]+/g, "_").slice(0, 60) || "image";
+    // Always download through proxy — bypasses CORS and hotlink restrictions
+    const fetchUrl = proxyUrl(url);
+    try {
+        const res = await fetch(fetchUrl);
+        const blob = await res.blob();
+        const ext = blob.type.split("/")[1]?.replace("jpeg", "jpg") || "jpg";
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = `${slug}.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+    } catch {
+        window.open(fetchUrl, "_blank");
+    }
+};
+
 const isArabic = (text: string) => /[\u0600-\u06FF]/.test(text || "");
 
 const renderText = (text: string, style: any, forceBlack = false, forceWhite = false) => {
@@ -60,14 +88,24 @@ const renderBlock = (block: any, index: number) => {
         case "image":
             return (
                 <motion.div key={index} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="my-10 relative group">
-                    <a href={block.src} target="_blank" rel="noopener noreferrer" className="block relative overflow-hidden rounded-[32px] border border-gray-100 cursor-zoom-in">
-                        <img src={block.src} alt={block.alt || "Article Image"} className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-700" />
+                    <div className="relative overflow-hidden rounded-[32px] border border-gray-100">
+                        <a href={block.src} target="_blank" rel="noopener noreferrer" className="block cursor-zoom-in">
+                            <img src={proxyUrl(block.src)} alt={block.alt || "Article Image"} className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-700" />
+                        </a>
                         {block.alt && (
-                            <div className="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent">
+                            <div className="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent pointer-events-none">
                                 <p className="text-white/90 text-sm font-bold tracking-wide italic">{block.alt}</p>
                             </div>
                         )}
-                    </a>
+                        <button
+                            onClick={() => downloadImage(block.src, block.alt || `image_${index}`)}
+                            title="Download image"
+                            className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 backdrop-blur-md"
+                            style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}
+                        >
+                            <Download size={12} /> Download
+                        </button>
+                    </div>
                 </motion.div>
             );
         case "list": {
@@ -169,7 +207,7 @@ export default function NewsDetailPage() {
     const params = useParams();
     const router = useRouter();
     const t = useTranslations("News");
-    const id = params.id as string;
+    const rawParam = params.id as string; // slug or numeric _id
 
     const [article, setArticle] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -179,6 +217,7 @@ export default function NewsDetailPage() {
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [userRating, setUserRating] = useState(0);
+    const [articleId, setArticleId] = useState('');
 
     // Q&A State
     const [questions, setQuestions] = useState<any[]>([]);
@@ -190,32 +229,35 @@ export default function NewsDetailPage() {
 
     useEffect(() => {
         let cancelled = false;
-        Promise.all([
-            api.get(`/news/${id}`).then(r => r.data),
-            api.get(`/news/${id}/questions`).then(r => r.data).catch(() => [])
-        ])
-            .then(([articleData, qData]) => {
+        api.get(`/news/${rawParam}`).then(r => r.data)
+            .then(async (articleData) => {
                 if (cancelled) return;
+                const aid = String(articleData._id);
                 setArticle(articleData);
-                setQuestions(qData || []);
+                setArticleId(aid);
                 setUserRating(articleData.userRating || 0);
-                setLoading(false);
+                const qData = await api.get(`/news/${aid}/questions`)
+                    .then(r => r.data).catch(() => []);
+                if (!cancelled) {
+                    setQuestions(qData || []);
+                    setLoading(false);
+                }
             })
             .catch(() => { if (!cancelled) { setError(true); setLoading(false); } });
         return () => { cancelled = true; };
-    }, [id]);
+    }, [rawParam]);
 
     useEffect(() => {
-        if (!id || viewedNewsIds.has(id)) return;
-        viewedNewsIds.add(id);
-        api.post(`/news/${id}/view`).catch(err => console.error('Failed to track view:', err));
-    }, [id]);
+        if (!articleId || viewedNewsIds.has(articleId)) return;
+        viewedNewsIds.add(articleId);
+        api.post(`/news/${articleId}/view`).catch(err => console.error('Failed to track view:', err));
+    }, [articleId]);
 
     useEffect(() => {
-        if (user?.progress?.savedNews && id) {
-            setIsSaved(user.progress.savedNews.includes(id));
+        if (user?.progress?.savedNews && articleId) {
+            setIsSaved(user.progress.savedNews.includes(articleId));
         }
-    }, [user, id]);
+    }, [user, articleId]);
 
     const handleRate = async (rating: number) => {
         if (!user) {
@@ -225,7 +267,7 @@ export default function NewsDetailPage() {
         if (userRating > 0) return; // Already rated
 
         try {
-            const res = await api.post(`/news/${id}/rate`, { rating });
+            const res = await api.post(`/news/${articleId}/rate`, { rating });
             setUserRating(rating);
             if (res.data.rating) {
                 setArticle({ ...article, rating: res.data.rating });
@@ -246,8 +288,8 @@ export default function NewsDetailPage() {
 
         setIsSaving(true);
         try {
-            const res = await api.post('/user/saved-news', { newsId: id });
-            setIsSaved(res.data.savedNews.includes(id));
+            const res = await api.post('/user/saved-news', { newsId: articleId });
+            setIsSaved(res.data.savedNews.includes(articleId));
             await checkAuth();
         } catch (error: any) {
             console.error('Failed to toggle save', error);
@@ -268,7 +310,7 @@ export default function NewsDetailPage() {
 
         setIsSubmittingQ(true);
         try {
-            const res = await api.post(`/news/${id}/questions`, { question: newQuestion });
+            const res = await api.post(`/news/${articleId}/questions`, { question: newQuestion });
             setQuestions([res.data, ...questions]);
             setNewQuestion("");
         } catch (err) {
@@ -351,7 +393,7 @@ export default function NewsDetailPage() {
                 {/* Background: hero image or gradient */}
                 {heroImage ? (
                     <>
-                        <img src={heroImage} alt={article.title || "Article cover"} className="absolute inset-0 w-full h-full object-cover" />
+                        <img src={proxyUrl(heroImage)} alt={article.title || "Article cover"} className="absolute inset-0 w-full h-full object-cover" />
                         <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(26,58,42,0.45) 0%, rgba(26,58,42,0.92) 70%, #1a3a2a 100%)' }} />
                     </>
                 ) : (
@@ -364,8 +406,8 @@ export default function NewsDetailPage() {
                 <div className="absolute -bottom-28 -left-28 w-80 h-80 rounded-full pointer-events-none" style={{ border: '36px solid rgba(58,170,106,0.08)' }} />
 
                 <div className="relative z-10 max-w-4xl mx-auto px-[clamp(20px,5vw,48px)] pt-14 md:pt-36 pb-5 md:pb-10 flex flex-col justify-between md:justify-end h-full">
-                    {/* Top bar: back button — all screens */}
-                    <div className="flex items-center mb-auto pb-6">
+                    {/* Top bar: back + hero download */}
+                    <div className="flex items-center justify-between mb-auto pb-6">
                         <button
                             onClick={() => router.push("/news")}
                             className="flex items-center gap-2 font-bold text-sm rounded-full px-4 py-2 transition-all duration-200 backdrop-blur-md"
@@ -532,9 +574,17 @@ export default function NewsDetailPage() {
                                                     const src = pipeIdx > 0 ? inner.slice(0, pipeIdx) : inner;
                                                     const alt = pipeIdx > 0 ? inner.slice(pipeIdx + 1) : '';
                                                     return (
-                                                        <div key={li} className="my-8 relative overflow-hidden rounded-[24px] border border-gray-100">
-                                                            <img src={src} alt={alt} className="w-full h-auto object-cover" loading="lazy" />
+                                                        <div key={li} className="my-8 relative group overflow-hidden rounded-[24px] border border-gray-100">
+                                                            <img src={proxyUrl(src)} alt={alt} className="w-full h-auto object-cover" loading="lazy" />
                                                             {alt && <p className="text-xs text-dark/40 italic text-center px-4 py-2">{alt}</p>}
+                                                            <button
+                                                                onClick={() => downloadImage(src, alt || `image_${li}`)}
+                                                                title="Download image"
+                                                                className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 backdrop-blur-md"
+                                                                style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}
+                                                            >
+                                                                <Download size={12} /> Download
+                                                            </button>
                                                         </div>
                                                     );
                                                 }
@@ -574,9 +624,37 @@ export default function NewsDetailPage() {
                                         </div>
                                     );
                                 })
-                                : (article.paragraphs || []).map((p: string, idx: number) => (
-                                    <p key={idx} className="mb-8 text-lg leading-[1.9]">{p}</p>
-                                ))
+                                : (article.paragraphs || []).length > 0
+                                    ? (article.paragraphs || []).map((p: string, idx: number) => (
+                                        <p key={idx} className="mb-8 text-lg leading-[1.9]">{p}</p>
+                                    ))
+                                    : article.content
+                                        ? <>
+                                            <style>{`
+                                                .ahc{direction:${article.language==='fr'?'ltr':'rtl'};text-align:${article.language==='fr'?'left':'right'};font-size:1rem;color:rgba(26,31,46,0.85);line-height:1.75;}
+                                                .ahc h1,.ahc h2{color:#3aaa6a;font-size:1.3rem;font-weight:900;margin:2.2rem 0 0.8rem;line-height:1.45;}
+                                                .ahc h3{color:#3aaa6a;font-size:1.1rem;font-weight:800;margin:1.8rem 0 0.6rem;line-height:1.4;}
+                                                .ahc h4,.ahc h5,.ahc h6{color:rgba(26,31,46,0.9);font-size:1rem;font-weight:700;margin:1.4rem 0 0.5rem;}
+                                                .ahc p{margin:0 0 1.3rem;line-height:1.9;color:rgba(26,31,46,0.82);}
+                                                .ahc ul{list-style:disc;padding-right:1.6rem;padding-left:0;margin:0 0 1.3rem;}
+                                                .ahc ol{list-style:decimal;padding-right:1.6rem;padding-left:0;margin:0 0 1.3rem;}
+                                                .ahc li{margin-bottom:0.45rem;line-height:1.8;color:rgba(26,31,46,0.82);}
+                                                .ahc table{width:100%;border-collapse:collapse;margin:0 0 1.5rem;font-size:0.88rem;display:block;overflow-x:auto;}
+                                                .ahc table td,.ahc table th{border:1px solid #e5e7eb;padding:8px 12px;vertical-align:top;}
+                                                .ahc table th{background:#f0fdf4;color:#3aaa6a;font-weight:700;white-space:nowrap;}
+                                                .ahc table tr:nth-child(even) td{background:#f9fafb;}
+                                                .ahc a{color:#3aaa6a;text-decoration:underline;text-underline-offset:3px;}
+                                                .ahc strong,.ahc b{font-weight:700;color:rgba(26,31,46,0.95);}
+                                                .ahc img{max-width:100%;height:auto;border-radius:12px;margin:1.5rem auto;display:block;}
+                                                .ahc blockquote{border-right:4px solid #3aaa6a;border-left:none;padding:0.75rem 1.25rem;margin:1.5rem 0;background:#f0fdf4;color:rgba(26,31,46,0.75);font-style:italic;border-radius:0 8px 8px 0;}
+                                                @media(min-width:768px){.ahc h1,.ahc h2{font-size:1.75rem;}.ahc h3{font-size:1.4rem;}.ahc p,.ahc li{font-size:1.15rem;}}
+                                            `}</style>
+                                            <div
+                                                className="ahc"
+                                                dangerouslySetInnerHTML={{ __html: article.content }}
+                                            />
+                                          </>
+                                        : null
                         }
                     </article>
                 </div>

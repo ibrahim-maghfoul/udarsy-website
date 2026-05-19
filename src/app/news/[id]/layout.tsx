@@ -6,9 +6,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { id: rawId } = await params;
   try {
-    const article = await serverFetch(`/news/${id}`, { revalidate: 3600 }) as Record<string, unknown>;
+    const article = await serverFetch(`/news/${rawId}`, { revalidate: 3600 }) as Record<string, unknown>;
     if (!article) throw new Error("Not found");
     const title = (article.title as string) || "خبر تعليمي";
     const description = (article.description as string)
@@ -22,7 +22,7 @@ export async function generateMetadata({
         title: `${title} | Udarsy`,
         description,
         type: "article",
-        url: `/news/${id}`,
+        url: `/news/${rawId}`,
         images: [{ url: image, width: 1200, height: 630, alt: title }],
         ...(article.createdAt ? { publishedTime: article.createdAt as string } : {}),
       },
@@ -32,7 +32,7 @@ export async function generateMetadata({
         description,
         images: [image],
       },
-      alternates: { canonical: `/news/${id}` },
+      alternates: { canonical: `/news/${rawId}` },
     };
   } catch {
     return {
