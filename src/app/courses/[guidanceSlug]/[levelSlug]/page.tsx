@@ -54,7 +54,7 @@ export default function LevelPage() {
                 const level = levels.find((l: any) => subjectSlug(l.title) === lSlug);
                 if (!level) throw new Error('Level not found');
                 setLevelName(level.title);
-                return getGuidances(level.id || level._id);
+                return getGuidances(level.id);
             })
             .then(gs => { setGuidances(gs); setLoading(false); })
             .catch(() => { setError(true); setLoading(false); });
