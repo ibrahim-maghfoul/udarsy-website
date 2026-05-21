@@ -49,95 +49,6 @@ body {
   overscroll-behavior: contain;
 }
 
-/* ─── GPU-accelerated animations (only transform + opacity) ─── */
-
-@keyframes fanDraw {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes fanPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.38; }
-}
-
-.fan-line {
-  stroke-dasharray: 450;
-  stroke-dashoffset: 450;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  will-change: opacity;
-}
-
-.fan-line.visible {
-  opacity: 1;
-  animation:
-    fanDraw 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards,
-    fanPulse 2.5s ease-in-out infinite alternate 2.6s;
-}
-
-@media (max-width: 767px) {
-  .fan-line.visible {
-    stroke-dashoffset: 0 !important;
-    animation: fanPulse 2.5s ease-in-out infinite alternate;
-  }
-}
-
-/* Diagram SVG animations */
-@keyframes conn-fill {
-  0%    { stroke-dashoffset: 100; opacity: 0; }
-  2.5%  { opacity: 1; }
-  22.5% { opacity: 1; }
-  25%   { stroke-dashoffset: -100; opacity: 0; }
-  100%  { stroke-dashoffset: -100; opacity: 0; }
-}
-.anim-flow { animation: conn-fill 4.8s ease-in-out infinite both; }
-
-@keyframes conn-pop {
-  0%, 10%   { opacity: 0; transform: scale(0.5); }
-  12.5%     { opacity: 0.35; transform: scale(1.1); }
-  25%, 100% { opacity: 0; transform: scale(1.4); }
-}
-.anim-shape-pop { animation: conn-pop 4.8s ease-out infinite both; }
-
-/* Diagram connector lines */
-.diagram-line {
-  opacity: 1 !important;
-  transition: opacity 0.2s;
-}
-
-@media (min-width: 768px) {
-  .diagram-line {
-    opacity: 0 !important;
-  }
-  .group:hover .diagram-line {
-    opacity: 1 !important;
-  }
-}
-
-/* Float animations — GPU-accelerated with translate3d */
-@keyframes chipFloat {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); }
-  50% { transform: translate3d(0, var(--dy, -10px), 0) rotate(var(--r, 0deg)); }
-}
-
-@keyframes wFloat {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--wr, 0deg)); }
-  50% { transform: translate3d(0, var(--wdy, -16px), 0) rotate(var(--wr, 0deg)); }
-}
-
-@keyframes cardPump {
-  0% { transform: scale(1); }
-  35% { transform: scale(1.08); }
-  65% { transform: scale(0.95); }
-  100% { transform: scale(1); }
-}
-
-.clip-hex {
-  clip-path: path('M 50 4 C 54 4 86 21 90 25 C 94 29 94 71 90 75 C 86 79 54 96 50 96 C 46 96 14 79 10 75 C 6 71 6 29 10 25 C 14 21 46 4 50 4 Z');
-}
-
 /* ─── Back button (shared across pages) ─── */
 .btn-back {
   display: inline-flex;
@@ -214,10 +125,10 @@ body {
   background: rgba(58, 170, 106, 0.4);
 }
 
-/* GPU-accelerated float */
+/* GPU-accelerated float — used sitewide */
 @keyframes float {
-  0% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(0, -10px, 0); }
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(0, -10px, 0); }
   100% { transform: translate3d(0, 0, 0); }
 }
 
@@ -228,7 +139,7 @@ body {
 
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  to   { transform: rotate(360deg); }
 }
 
 .animate-spin-slow {
@@ -236,7 +147,7 @@ body {
   will-change: transform;
 }
 
-/* Slide-up entry — GPU composited */
+/* Slide-up entry — GPU composited, used sitewide */
 @keyframes slide-up {
   from { opacity: 0; transform: translate3d(0, 24px, 0); }
   to   { opacity: 1; transform: translate3d(0, 0, 0); }
@@ -270,14 +181,14 @@ body {
   to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-/* Opacity-only fade — no translate. Used for hero Diagram/sphere so it
+/* Opacity-only fade — used for hero Diagram/sphere so it
    appears immediately without sliding up from below the navbar. */
 @keyframes heroFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-/* Course cards — responsive heights via CSS (no JS media query needed) */
+/* Course cards — responsive heights via CSS */
 .course-card-1 { min-height: 480px; }
 .course-card-2 { min-height: 240px; }
 .course-card-3 { min-height: 120px; }
@@ -286,82 +197,6 @@ body {
   .course-card-1 { min-height: 280px; }
   .course-card-2 { min-height: 200px; }
   .course-card-3 { min-height: 90px; }
-}
-
-/* Team section card entrance */
-@keyframes teamCardIn {
-  from { opacity: 0; translate: 0 40px; scale: 0.9; }
-  to   { opacity: 1; translate: 0 0; scale: 1; }
-}
-
-/* ─── Hero card blob animations (HeroSection) ─── */
-@keyframes card-blob-enter {
-  from { transform: translate3d(0,150%,0) scale(1.4); }
-  to   { transform: translateZ(0) scale(1.4); }
-}
-@keyframes card-blob-enter-top {
-  from { transform: translate3d(0,-150%,0) scale(1.4); }
-  to   { transform: translateZ(0) scale(1.4); }
-}
-@keyframes card-blob-leave {
-  from { transform: translateZ(0) scale(1.4); }
-  to   { transform: translate3d(0,150%,0) scale(1.4); }
-}
-@keyframes card-blob-leave-top {
-  from { transform: translateZ(0) scale(1.4); }
-  to   { transform: translate3d(0,-150%,0) scale(1.4); }
-}
-.hcard-blob { position:relative; display:block; height:100%; }
-.hcard-blob span {
-  position:absolute; top:2px; width:25%; height:100%;
-  background:#3aaa6a; border-radius:100%;
-}
-.hcard-blob span:nth-child(1){left:0%}
-.hcard-blob span:nth-child(2){left:30%}
-.hcard-blob span:nth-child(3){left:60%}
-.hcard-blob span:nth-child(4){left:90%}
-.hcard-blob.entering     span { transform:translate3d(0,150%,0)  scale(1.4); animation:card-blob-enter     0.45s forwards ease-in-out; }
-.hcard-blob.entering-top span { transform:translate3d(0,-150%,0) scale(1.4); animation:card-blob-enter-top 0.45s forwards ease-in-out; }
-.hcard-blob.active       span { transform:translateZ(0) scale(1.4); }
-.hcard-blob.leaving      span { transform:translateZ(0) scale(1.4); animation:card-blob-leave     0.45s forwards ease-in-out; }
-.hcard-blob.leaving-top  span { transform:translateZ(0) scale(1.4); animation:card-blob-leave-top 0.45s forwards ease-in-out; }
-.hcard-blob.entering     span:nth-child(1),.hcard-blob.entering-top span:nth-child(1){animation-delay:0s}
-.hcard-blob.entering     span:nth-child(2),.hcard-blob.entering-top span:nth-child(2){animation-delay:0.08s}
-.hcard-blob.entering     span:nth-child(3),.hcard-blob.entering-top span:nth-child(3){animation-delay:0.16s}
-.hcard-blob.entering     span:nth-child(4),.hcard-blob.entering-top span:nth-child(4){animation-delay:0.24s}
-.hcard-blob.leaving span:nth-child(4),.hcard-blob.leaving-top span:nth-child(4){animation-delay:0s}
-.hcard-blob.leaving span:nth-child(3),.hcard-blob.leaving-top span:nth-child(3){animation-delay:0.08s}
-.hcard-blob.leaving span:nth-child(2),.hcard-blob.leaving-top span:nth-child(2){animation-delay:0.16s}
-.hcard-blob.leaving span:nth-child(1),.hcard-blob.leaving-top span:nth-child(1){animation-delay:0.24s}
-
-@keyframes hero-cell-pulse {
-  0%, 100% { opacity: 0.55; }
-  50%       { opacity: 1; }
-}
-.hero-cell-lit { animation: hero-cell-pulse 2.4s ease-in-out infinite; }
-
-/* ─── Chat message entrance (ChatFeatureSection) ─── */
-@keyframes msg-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ─── Subject cards float + responsive scaling (SubjectCardsSection) ─── */
-@keyframes subjectFloat {
-  0%,100% { transform:translateY(0); }
-  50%      { transform:translateY(-15px); }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .udarsy-cards-area {
-    transform: scale(0.88);
-    transform-origin: top center;
-    margin-bottom: -64px;
-  }
-}
-
-.udarsy-scroll-hide::-webkit-scrollbar {
-  display: none;
 }
 
 /* ─── Apply-teacher info cards (dual contour border) ─── */
@@ -403,7 +238,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* ─── Service Cards (Profile page) ─── */
+/* ─── Service Cards (services page) ─── */
 .svc-card {
   position: relative;
   display: flex;
@@ -502,31 +337,16 @@ body {
 .continue-card:hover::before { clip-path: inset(0 50% 0% 0); }
 .continue-card:hover::after  { clip-path: inset(0 0 0% 50%); }
 
-/* ─── Reduce motion for users who prefer it ─── */
+/* ─── Reduce motion — sitewide components ─── */
 @media (prefers-reduced-motion: reduce) {
-  /* Stop infinite / decorative animations — keep functional transitions */
-  .fan-line,
-  .anim-flow,
-  .anim-shape-pop,
   .floating,
   .animate-spin-slow,
-  .hero-cell-lit,
   .animate-slide-up,
   .animate-drawer-up,
-  .animate-drawer-down,
-  [class*="animate-[chipFloat"],
-  [class*="animate-[wFloat"],
-  [class*="animate-[subjectFloat"] {
+  .animate-drawer-down {
     animation: none !important;
   }
 
-  /* Disable blob enter/leave animations on hero cards */
-  .hcard-blob span {
-    animation: none !important;
-    transform: none !important;
-  }
-
-  /* Suppress hover lift transitions on cards for reduced-motion */
   .continue-card,
   .svc-card,
   .at-card {
@@ -534,179 +354,8 @@ body {
     transform: none !important;
   }
 
-  /* Reset will-change on now-static elements */
-  .fan-line,
   .floating,
   .animate-spin-slow {
     will-change: auto;
   }
-}
-
-/* ─── AI-rewritten article HTML content ──────────────────────────────────── */
-/* Used with .not-prose to fully escape Tailwind Typography's prose scope.    */
-/* Mirrors the admin panel's .ap-content preview so published articles match. */
-.article-html-content {
-  font-size: 1rem;
-  color: rgba(26, 31, 46, 0.82);
-  line-height: 1.75;
-}
-.article-html-content * { box-sizing: border-box; }
-
-.article-html-content h1,
-.article-html-content h2 {
-  color: #3aaa6a;
-  font-size: 1.3rem;
-  font-weight: 900;
-  margin: 2.2rem 0 0.8rem;
-  line-height: 1.45;
-}
-.article-html-content h3 {
-  color: #3aaa6a;
-  font-size: 1.1rem;
-  font-weight: 800;
-  margin: 1.8rem 0 0.6rem;
-  line-height: 1.4;
-}
-.article-html-content h4,
-.article-html-content h5,
-.article-html-content h6 {
-  color: rgba(26, 31, 46, 0.9);
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 1.4rem 0 0.5rem;
-}
-.article-html-content p {
-  font-size: 1rem;
-  margin: 0 0 1.3rem;
-  line-height: 1.9;
-  color: rgba(26, 31, 46, 0.82);
-}
-.article-html-content ul {
-  list-style: disc;
-  padding-right: 1.6rem;
-  padding-left: 0;
-  margin: 0 0 1.3rem;
-}
-.article-html-content ol {
-  list-style: decimal;
-  padding-right: 1.6rem;
-  padding-left: 0;
-  margin: 0 0 1.3rem;
-}
-.article-html-content li {
-  margin-bottom: 0.45rem;
-  line-height: 1.8;
-  color: rgba(26, 31, 46, 0.82);
-}
-.article-html-content table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 0 0 1.5rem;
-  font-size: 0.88rem;
-  display: block;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.article-html-content table td,
-.article-html-content table th {
-  border: 1px solid #e5e7eb;
-  padding: 8px 12px;
-  vertical-align: top;
-}
-.article-html-content table th {
-  background: #f0fdf4;
-  color: #3aaa6a;
-  font-weight: 700;
-  white-space: nowrap;
-}
-.article-html-content table tr:nth-child(even) td {
-  background: #f9fafb;
-}
-.article-html-content a {
-  color: #3aaa6a;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.article-html-content a:hover {
-  opacity: 0.8;
-}
-.article-html-content strong,
-.article-html-content b {
-  font-weight: 700;
-  color: rgba(26, 31, 46, 0.95);
-}
-.article-html-content img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 12px;
-  margin: 1.5rem auto;
-  display: block;
-}
-.article-html-content blockquote {
-  border-right: 4px solid #3aaa6a;
-  border-left: none;
-  padding: 0.75rem 1.25rem;
-  margin: 1.5rem 0;
-  background: #f0fdf4;
-  color: rgba(26, 31, 46, 0.75);
-  font-style: italic;
-  border-radius: 0 8px 8px 0;
-}
-
-@media (min-width: 768px) {
-  .article-html-content h1,
-  .article-html-content h2 { font-size: 1.75rem; }
-  .article-html-content h3 { font-size: 1.4rem; }
-  .article-html-content p,
-  .article-html-content li { font-size: 1.15rem; }
-}
-
-/* Pause diagram animations when off-screen */
-.diagram-paused .anim-flow,
-.diagram-paused .anim-shape-pop,
-.diagram-paused .fan-line.visible {
-  animation-play-state: paused;
-}
-
-/* ─── FuturisticHero animations (GPU-composited: transform + opacity only) ─── */
-@keyframes hFloat    { 0%,100%{transform:translate3d(0,0,0)} 50%{transform:translate3d(0,-13px,0)} }
-@keyframes hFloatSm  { 0%,100%{transform:translate3d(0,0,0)} 50%{transform:translate3d(0,-7px,0)} }
-@keyframes hParticle { 0%,100%{transform:translate3d(0,0,0) scale(1)} 50%{transform:translate3d(0,-9px,0) scale(1.15)} }
-@keyframes hGlow     { 0%,100%{opacity:.72} 50%{opacity:1} }
-@keyframes hFadeUp   { from{opacity:0;transform:translate3d(0,18px,0)} to{opacity:1;transform:translate3d(0,0,0)} }
-@keyframes hCardIn   { from{opacity:0} to{opacity:1} }
-@keyframes hProgBar  { from{transform:scaleX(0)} to{transform:scaleX(1)} }
-@keyframes hSparkle  { 0%,100%{opacity:.5;transform:scale(.85) rotate(0deg)} 50%{opacity:1;transform:scale(1.2) rotate(25deg)} }
-@keyframes hBadge    { 0%,100%{opacity:.88} 50%{opacity:1} }
-@keyframes hDialogBg { from{opacity:0} to{opacity:1} }
-@keyframes hDialogIn { from{opacity:0;transform:scale(0.93) translate3d(0,10px,0)} to{opacity:1;transform:scale(1) translate3d(0,0,0)} }
-@keyframes hStatIn   { from{opacity:0;transform:translate3d(0,12px,0) scale(0.92)} to{opacity:1;transform:translate3d(0,0,0) scale(1)} }
-
-.dlh-stat-val { display:inline-block; transition:none; }
-.dlh-stats-live .dlh-stat-val { animation:hStatIn 0.45s cubic-bezier(0.22,1,0.36,1) both; }
-
-@media (max-width:768px) {
-  .dlh *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-  .dlh{min-height:auto!important}
-  .dlh-content{min-height:auto!important;flex-direction:column}
-  .dlh-right{display:none!important}
-  .dlh-left{width:100%!important;align-items:center!important;padding:120px 32px 56px!important}
-  [dir="rtl"] .dlh-left{padding-right:56px!important}
-  .dlh-left p{text-align:center!important;max-width:92vw!important}
-  /* Title width */
-  .dlh-headline{width:70vw!important;max-width:70vw!important}
-  /* CTAs — stack vertically, equal height */
-  .dlh-ctas{flex-direction:column!important;align-items:stretch!important;width:70vw!important}
-  .dlh-cta-primary,.dlh-cta-demo{width:100%!important;height:44px!important;justify-content:center!important;box-sizing:border-box!important}
-  .dlh-cta-demo{display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;border-radius:999px!important;background:rgba(255,255,255,0.055)!important;border:1px solid rgba(255,255,255,0.18)!important;padding:0 16px!important}
-  /* Stats grid */
-  .dlh-stats{display:grid!important;grid-template-columns:1fr 1fr;width:75vw!important;max-width:75vw!important;margin:0 auto!important;border-radius:16px!important}
-  .dlh-stats>div{padding:12px 8px!important;border-right:1px solid rgba(255,255,255,0.055)!important;border-bottom:1px solid rgba(255,255,255,0.055)}
-  .dlh-stats>div:nth-child(2n){border-right:none!important}
-  .dlh-stats>div:nth-child(n+3){border-bottom:none}
-  .dlh-stat-val{font-size:20px!important}
-}
-
-@media (prefers-reduced-motion:reduce) {
-  .dlh .dl-anim { animation-duration:.01ms!important;animation-iteration-count:1!important;will-change:auto!important }
 }

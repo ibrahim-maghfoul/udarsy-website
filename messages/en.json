@@ -1081,5 +1081,29 @@
         "step_4_desc": "Targeted exercises, corrected mock exams and intensive preparation for BAC & Brevet.",
         "card_students": "students",
         "card_progress": "Progress"
+    },
+    "Blog": {
+        "pill": "Blog Udarsy",
+        "headline_1": "Guides, tips &",
+        "headline_highlight": "educational resources",
+        "subtitle": "Everything you need to succeed in school — study methods, Udarsy features, and Moroccan education news.",
+        "featured_label": "Featured article",
+        "read_article": "Read article",
+        "all_articles": "All articles",
+        "read": "Read",
+        "cta_ready": "Ready to start?",
+        "cta_headline": "Access thousands of courses",
+        "cta_headline_highlight": "for free on Udarsy",
+        "cta_btn": "Create my free account",
+        "breadcrumb_home": "Home",
+        "reading_time_suffix": "read",
+        "keywords_label": "Keywords:",
+        "start_learning": "Start learning",
+        "join_cta": "Join thousands of students on",
+        "join_cta_highlight": "Udarsy",
+        "join_cta_suffix": "— for free",
+        "create_account": "Create my account",
+        "related_articles": "Related articles",
+        "back_to_blog": "Back to blog"
     }
 }

@@ -1080,5 +1080,29 @@
         "step_4_desc": "Exercices ciblés, examens blancs corrigés et préparation intensive pour le BAC & Brevet.",
         "card_students": "étudiants",
         "card_progress": "Progression"
+    },
+    "Blog": {
+        "pill": "Blog Udarsy",
+        "headline_1": "Guides, conseils et",
+        "headline_highlight": "ressources éducatives",
+        "subtitle": "Tout ce qu'il faut savoir pour réussir son année scolaire au Maroc — méthodes de révision, fonctionnalités Udarsy et actualités éducatives.",
+        "featured_label": "Article à la une",
+        "read_article": "Lire l'article",
+        "all_articles": "Tous les articles",
+        "read": "Lire",
+        "cta_ready": "Prêt à commencer ?",
+        "cta_headline": "Accédez à des milliers de cours",
+        "cta_headline_highlight": "gratuitement sur Udarsy",
+        "cta_btn": "Créer mon compte gratuit",
+        "breadcrumb_home": "Accueil",
+        "reading_time_suffix": "de lecture",
+        "keywords_label": "Mots-clés :",
+        "start_learning": "Commencer à apprendre",
+        "join_cta": "Rejoignez des milliers d’élèves sur",
+        "join_cta_highlight": "Udarsy",
+        "join_cta_suffix": "— gratuitement",
+        "create_account": "Créer mon compte",
+        "related_articles": "Articles similaires",
+        "back_to_blog": "Retour au blog"
     }
 }

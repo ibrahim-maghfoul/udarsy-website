@@ -1080,5 +1080,29 @@
         "step_4_desc": "تمارين مستهدفة، امتحانات بيضاء مصحّحة وتحضير مكثّف للباك والبريفيه.",
         "card_students": "طالب",
         "card_progress": "التقدّم"
+    },
+    "Blog": {
+        "pill": "مدونة أدارسي",
+        "headline_1": "أدلة، نصائح و",
+        "headline_highlight": "موارد تعليمية",
+        "subtitle": "كل ما تحتاجه للنجاح في سنتك الدراسية — طرق المراجعة، ميزات أدارسي وأخبار التعليم المغربي.",
+        "featured_label": "المقال المميز",
+        "read_article": "اقرأ المقال",
+        "all_articles": "جميع المقالات",
+        "read": "اقرأ",
+        "cta_ready": "مستعد للبدء؟",
+        "cta_headline": "استفد من آلاف الدروس",
+        "cta_headline_highlight": "مجاناً على أدارسي",
+        "cta_btn": "إنشاء حسابي المجاني",
+        "breadcrumb_home": "الرئيسية",
+        "reading_time_suffix": "دقيقة قراءة",
+        "keywords_label": "الكلمات المفتاحية:",
+        "start_learning": "ابدأ التعلم",
+        "join_cta": "انضم لآلاف الطلاب على",
+        "join_cta_highlight": "أدارسي",
+        "join_cta_suffix": "— مجاناً",
+        "create_account": "إنشاء حسابي",
+        "related_articles": "مقالات مشابهة",
+        "back_to_blog": "العودة للمدونة"
     }
 }

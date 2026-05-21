@@ -1,5 +1,6 @@
 "use client";
 
+import "../app/animations.css";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
@@ -101,7 +102,7 @@ function useAllCountUps(active: boolean): number[] {
     const t0 = performance.now();
     let raf: number;
     const tick = (now: number) => {
-      const p = Math.min((now - t0) / 1800, 1);
+      const p = Math.min((now - t0) / 1200, 1);
       const ease = 1 - Math.pow(1 - p, 3);
       setVals(STAT_TARGETS.map(target => Math.round(ease * target)));
       if (p < 1) raf = requestAnimationFrame(tick);
@@ -388,8 +389,9 @@ export function FuturisticHero() {
               padding: '6px 15px 6px 10px', borderRadius: 999,
               background: 'rgba(8,22,14,0.72)', border: '1px solid rgba(58,170,106,0.32)',
               width: 'fit-content', marginBottom: 24,
-              willChange: 'transform, opacity',
-              animation: 'hFadeUp 0.7s ease-out 0.1s both, hBadge 4s ease-in-out 1s infinite',
+              isolation: 'isolate',
+              willChange: 'opacity',
+              animation: 'hFadeUp 0.7s ease-out 0.1s both, hBadge 4s ease-in-out 2s infinite',
             }}>
               <span aria-hidden style={{ display: 'flex', animation: 'hSparkle 2.8s ease-in-out infinite' }}>
                 <svg viewBox="0 0 20 20" width="14" height="14" fill="none">

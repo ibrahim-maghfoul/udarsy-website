@@ -1,0 +1,215 @@
+/* Landing-page animations — imported by FuturisticHero.tsx (eager).
+   Not in globals.css so non-landing pages skip this CSS chunk entirely. */
+
+/* ─── Fan diagram animations (FuturisticHero / Diagram) ─── */
+@keyframes fanDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes fanPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.38; }
+}
+
+.fan-line {
+  stroke-dasharray: 450;
+  stroke-dashoffset: 450;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  will-change: opacity;
+}
+
+.fan-line.visible {
+  opacity: 1;
+  animation:
+    fanDraw 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    fanPulse 2.5s ease-in-out infinite alternate 2.6s;
+}
+
+@media (max-width: 767px) {
+  .fan-line.visible {
+    stroke-dashoffset: 0 !important;
+    animation: fanPulse 2.5s ease-in-out infinite alternate;
+  }
+}
+
+/* ─── Connector animations (HeroSection Diagram) ─── */
+@keyframes conn-fill {
+  0%    { stroke-dashoffset: 100; opacity: 0; }
+  2.5%  { opacity: 1; }
+  22.5% { opacity: 1; }
+  25%   { stroke-dashoffset: -100; opacity: 0; }
+  100%  { stroke-dashoffset: -100; opacity: 0; }
+}
+.anim-flow { animation: conn-fill 4.8s ease-in-out infinite both; }
+
+@keyframes conn-pop {
+  0%, 10%   { opacity: 0; transform: scale(0.5); }
+  12.5%     { opacity: 0.35; transform: scale(1.1); }
+  25%, 100% { opacity: 0; transform: scale(1.4); }
+}
+.anim-shape-pop { animation: conn-pop 4.8s ease-out infinite both; }
+
+.diagram-line {
+  opacity: 1 !important;
+  transition: opacity 0.2s;
+}
+
+@media (min-width: 768px) {
+  .diagram-line { opacity: 0 !important; }
+  .group:hover .diagram-line { opacity: 1 !important; }
+}
+
+/* ─── Float animations (FuturisticHero cards/chips) ─── */
+@keyframes chipFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); }
+  50%       { transform: translate3d(0, var(--dy, -10px), 0) rotate(var(--r, 0deg)); }
+}
+
+@keyframes wFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--wr, 0deg)); }
+  50%       { transform: translate3d(0, var(--wdy, -16px), 0) rotate(var(--wr, 0deg)); }
+}
+
+@keyframes cardPump {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.08); }
+  65%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.clip-hex {
+  clip-path: path('M 50 4 C 54 4 86 21 90 25 C 94 29 94 71 90 75 C 86 79 54 96 50 96 C 46 96 14 79 10 75 C 6 71 6 29 10 25 C 14 21 46 4 50 4 Z');
+}
+
+/* ─── Team section card entrance ─── */
+@keyframes teamCardIn {
+  from { opacity: 0; translate: 0 40px; scale: 0.9; }
+  to   { opacity: 1; translate: 0 0;    scale: 1; }
+}
+
+/* ─── Hero card blob animations (HeroSection) ─── */
+@keyframes card-blob-enter     { from { transform: translate3d(0,150%,0)  scale(1.4); } to { transform: translateZ(0) scale(1.4); } }
+@keyframes card-blob-enter-top { from { transform: translate3d(0,-150%,0) scale(1.4); } to { transform: translateZ(0) scale(1.4); } }
+@keyframes card-blob-leave     { from { transform: translateZ(0) scale(1.4); } to { transform: translate3d(0,150%,0)  scale(1.4); } }
+@keyframes card-blob-leave-top { from { transform: translateZ(0) scale(1.4); } to { transform: translate3d(0,-150%,0) scale(1.4); } }
+
+.hcard-blob { position: relative; display: block; height: 100%; }
+.hcard-blob span {
+  position: absolute; top: 2px; width: 25%; height: 100%;
+  background: #3aaa6a; border-radius: 100%;
+}
+.hcard-blob span:nth-child(1) { left: 0%; }
+.hcard-blob span:nth-child(2) { left: 30%; }
+.hcard-blob span:nth-child(3) { left: 60%; }
+.hcard-blob span:nth-child(4) { left: 90%; }
+.hcard-blob.entering     span { transform: translate3d(0,150%,0)  scale(1.4); animation: card-blob-enter     0.45s forwards ease-in-out; }
+.hcard-blob.entering-top span { transform: translate3d(0,-150%,0) scale(1.4); animation: card-blob-enter-top 0.45s forwards ease-in-out; }
+.hcard-blob.active       span { transform: translateZ(0) scale(1.4); }
+.hcard-blob.leaving      span { transform: translateZ(0) scale(1.4); animation: card-blob-leave     0.45s forwards ease-in-out; }
+.hcard-blob.leaving-top  span { transform: translateZ(0) scale(1.4); animation: card-blob-leave-top 0.45s forwards ease-in-out; }
+.hcard-blob.entering     span:nth-child(1), .hcard-blob.entering-top span:nth-child(1) { animation-delay: 0s; }
+.hcard-blob.entering     span:nth-child(2), .hcard-blob.entering-top span:nth-child(2) { animation-delay: 0.08s; }
+.hcard-blob.entering     span:nth-child(3), .hcard-blob.entering-top span:nth-child(3) { animation-delay: 0.16s; }
+.hcard-blob.entering     span:nth-child(4), .hcard-blob.entering-top span:nth-child(4) { animation-delay: 0.24s; }
+.hcard-blob.leaving      span:nth-child(4), .hcard-blob.leaving-top  span:nth-child(4) { animation-delay: 0s; }
+.hcard-blob.leaving      span:nth-child(3), .hcard-blob.leaving-top  span:nth-child(3) { animation-delay: 0.08s; }
+.hcard-blob.leaving      span:nth-child(2), .hcard-blob.leaving-top  span:nth-child(2) { animation-delay: 0.16s; }
+.hcard-blob.leaving      span:nth-child(1), .hcard-blob.leaving-top  span:nth-child(1) { animation-delay: 0.24s; }
+
+@keyframes hero-cell-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 1; }
+}
+.hero-cell-lit { animation: hero-cell-pulse 2.4s ease-in-out infinite; }
+
+/* ─── Chat message entrance (ChatFeatureSection) ─── */
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Subject cards float + tablet scaling (SubjectCardsSection) ─── */
+@keyframes subjectFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-15px); }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .udarsy-cards-area {
+    transform: scale(0.88);
+    transform-origin: top center;
+    margin-bottom: -64px;
+  }
+}
+
+.udarsy-scroll-hide::-webkit-scrollbar { display: none; }
+
+/* ─── Pause diagram animations when section is off-screen ─── */
+.diagram-paused .anim-flow,
+.diagram-paused .anim-shape-pop,
+.diagram-paused .fan-line.visible {
+  animation-play-state: paused;
+}
+
+/* ─── FuturisticHero animations (GPU-composited: transform + opacity only) ─── */
+@keyframes hFloat    { 0%,100%{transform:translate3d(0,0,0)} 50%{transform:translate3d(0,-13px,0)} }
+@keyframes hFloatSm  { 0%,100%{transform:translate3d(0,0,0)} 50%{transform:translate3d(0,-7px,0)} }
+@keyframes hParticle { 0%,100%{transform:translate3d(0,0,0) scale(1)} 50%{transform:translate3d(0,-9px,0) scale(1.15)} }
+@keyframes hGlow     { 0%,100%{opacity:.72} 50%{opacity:1} }
+@keyframes hFadeUp   { from{opacity:0;transform:translate3d(0,18px,0)} to{opacity:1;transform:translate3d(0,0,0)} }
+@keyframes hCardIn   { from{opacity:0} to{opacity:1} }
+@keyframes hProgBar  { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+@keyframes hSparkle  { 0%,100%{opacity:.5;transform:scale(.85) rotate(0deg)} 50%{opacity:1;transform:scale(1.2) rotate(25deg)} }
+@keyframes hBadge    { 0%,100%{opacity:.88} 50%{opacity:1} }
+@keyframes hDialogBg { from{opacity:0} to{opacity:1} }
+@keyframes hDialogIn { from{opacity:0;transform:scale(0.93) translate3d(0,10px,0)} to{opacity:1;transform:scale(1) translate3d(0,0,0)} }
+@keyframes hStatIn   { from{opacity:0;transform:translate3d(0,12px,0) scale(0.92)} to{opacity:1;transform:translate3d(0,0,0) scale(1)} }
+
+.dlh-stat-val { display: inline-block; transition: none; }
+.dlh-stats-live .dlh-stat-val { animation: hStatIn 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+
+@media (max-width: 768px) {
+  .dlh *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .dlh{min-height:auto!important}
+  .dlh-content{min-height:auto!important;flex-direction:column}
+  .dlh-right{display:none!important}
+  .dlh-left{width:100%!important;align-items:center!important;padding:120px 32px 56px!important}
+  [dir="rtl"] .dlh-left{padding-right:56px!important}
+  .dlh-left p{text-align:center!important;max-width:92vw!important}
+  .dlh-headline{width:70vw!important;max-width:70vw!important}
+  .dlh-ctas{flex-direction:column!important;align-items:stretch!important;width:70vw!important}
+  .dlh-cta-primary,.dlh-cta-demo{width:100%!important;height:44px!important;justify-content:center!important;box-sizing:border-box!important}
+  .dlh-cta-demo{display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;border-radius:999px!important;background:rgba(255,255,255,0.055)!important;border:1px solid rgba(255,255,255,0.18)!important;padding:0 16px!important}
+  .dlh-stats{display:grid!important;grid-template-columns:1fr 1fr;width:75vw!important;max-width:75vw!important;margin:0 auto!important;border-radius:16px!important}
+  .dlh-stats>div{padding:12px 8px!important;border-right:1px solid rgba(255,255,255,0.055)!important;border-bottom:1px solid rgba(255,255,255,0.055)}
+  .dlh-stats>div:nth-child(2n){border-right:none!important}
+  .dlh-stats>div:nth-child(n+3){border-bottom:none}
+  .dlh-stat-val{font-size:20px!important}
+}
+
+/* ─── Reduce-motion overrides for landing animations ─── */
+@media (prefers-reduced-motion: reduce) {
+  .fan-line,
+  .anim-flow,
+  .anim-shape-pop,
+  .hero-cell-lit,
+  [class*="animate-[chipFloat"],
+  [class*="animate-[wFloat"],
+  [class*="animate-[subjectFloat"] {
+    animation: none !important;
+  }
+
+  .hcard-blob span {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .fan-line { will-change: auto; }
+
+  .dlh .dl-anim {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    will-change: auto !important;
+  }
+}

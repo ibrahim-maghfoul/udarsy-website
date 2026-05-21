@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   turbopack: {
     root: __dirname,
+    resolveAlias: {
+      'next/dist/build/polyfills/polyfill-module': './src/polyfills-modern.js',
+    },
   },
   images: {
     remotePatterns: [
@@ -63,7 +66,7 @@ const nextConfig: NextConfig = {
           // XSS protection via CSP — unsafe-inline required for Next.js hydration without nonces
           { key: 'Content-Security-Policy', value: [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline'",
+            "script-src 'self' 'unsafe-inline' https://www.clarity.ms https://www.googletagmanager.com https://www.google-analytics.com",
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: blob: https:",
             "font-src 'self' data:",
