@@ -75,8 +75,6 @@ const nextConfig: NextConfig = {
             "base-uri 'self'",
             "form-action 'self' https://accounts.google.com",
             "upgrade-insecure-requests",
-            "require-trusted-types-for 'script'",
-            "trusted-types 'allow-duplicates' nextjs",
           ].join('; ') },
           // Cross-origin opener isolation — allows OAuth popups (Google) to work
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
