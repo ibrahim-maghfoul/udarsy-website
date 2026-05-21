@@ -3,31 +3,33 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, ChevronRight, BookOpen, ArrowLeft, Tag, ExternalLink } from 'lucide-react';
-import { posts as staticPosts, getPost, CATEGORY_COLORS, type BlogPost, type Block } from '../_data';
+import { posts as staticPosts, getPostByLocale, CATEGORY_COLORS, type BlogPost, type Block } from '../_data';
 import { serverFetch } from '@/lib/serverFetch';
+import { getTranslations, getLocale } from 'next-intl/server';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function fetchPost(slug: string): Promise<BlogPost | null> {
+async function fetchPost(slug: string, locale: string): Promise<BlogPost | null> {
   try {
     const data = await serverFetch<BlogPost>(`/blog/${slug}`, { revalidate: 3600 });
     if (data && data.slug) return data;
   } catch {
     // fall through
   }
-  return getPost(slug) ?? null;
+  return getPostByLocale(locale, slug) ?? null;
 }
 
-async function fetchAllPosts(): Promise<BlogPost[]> {
+async function fetchAllPosts(locale: string): Promise<BlogPost[]> {
   try {
     const data = await serverFetch<BlogPost[]>('/blog', { revalidate: 3600 });
     if (Array.isArray(data) && data.length > 0) return data;
   } catch {
     // fall through
   }
-  return staticPosts;
+  const { getPostsByLocale } = await import('../_data');
+  return getPostsByLocale(locale);
 }
 
 export async function generateStaticParams() {
@@ -44,7 +46,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = await fetchPost(slug);
+  const post = await fetchPost(slug, 'fr');
   if (!post) return {};
 
   return {
@@ -155,7 +157,19 @@ function BlockRenderer({ block }: { block: Block }) {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const [post, allPosts] = await Promise.all([fetchPost(slug), fetchAllPosts()]);
+
+  const [t, locale] = await Promise.all([
+    getTranslations('Blog'),
+    getLocale(),
+  ]);
+
+  const isRtl = locale === 'ar';
+  const dateLocale = locale === 'ar' ? 'ar-MA' : locale === 'en' ? 'en-US' : 'fr-MA';
+
+  const [post, allPosts] = await Promise.all([
+    fetchPost(slug, locale),
+    fetchAllPosts(locale),
+  ]);
   if (!post) notFound();
 
   const related = allPosts
@@ -164,6 +178,10 @@ export default async function BlogPostPage({ params }: Props) {
   const relatedPosts = related.length >= 2
     ? related
     : allPosts.filter((p) => p.slug !== post.slug).slice(0, 2);
+
+  const formattedDate = new Date(post.date).toLocaleDateString(dateLocale, {
+    day: 'numeric', month: 'long', year: 'numeric',
+  });
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
@@ -184,37 +202,33 @@ export default async function BlogPostPage({ params }: Props) {
       '@id': `https://www.udarsy.com/blog/${post.slug}`,
     },
     keywords: post.keywords?.join(', '),
-    inLanguage: 'fr-MA',
+    inLanguage: locale === 'ar' ? 'ar-MA' : locale === 'en' ? 'en-US' : 'fr-MA',
   };
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://www.udarsy.com' },
+      { '@type': 'ListItem', position: 1, name: t('breadcrumb_home'), item: 'https://www.udarsy.com' },
       { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://www.udarsy.com/blog' },
       { '@type': 'ListItem', position: 3, name: post.title, item: `https://www.udarsy.com/blog/${post.slug}` },
     ],
   };
-
-  const formattedDate = new Date(post.date).toLocaleDateString('fr-MA', {
-    day: 'numeric', month: 'long', year: 'numeric',
-  });
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
-      <main className="min-h-screen pt-8 md:pt-24 lg:pt-32 pb-32 px-[clamp(16px,5vw,48px)]">
+      <main className="min-h-screen pt-8 md:pt-24 lg:pt-32 pb-32 px-[clamp(16px,5vw,48px)]" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="max-w-4xl mx-auto">
 
           {/* ── Breadcrumb ── */}
-          <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-sm text-dark/40 mb-8 flex-wrap">
-            <Link href="/" className="hover:text-green transition-colors">Accueil</Link>
-            <ChevronRight size={13} aria-hidden="true" />
+          <nav aria-label="breadcrumb" className="flex items-center gap-1.5 text-sm text-dark/40 mb-8 flex-wrap">
+            <Link href="/" className="hover:text-green transition-colors">{t('breadcrumb_home')}</Link>
+            <ChevronRight size={13} aria-hidden="true" className={isRtl ? 'rotate-180' : ''} />
             <Link href="/blog" className="hover:text-green transition-colors">Blog</Link>
-            <ChevronRight size={13} aria-hidden="true" />
+            <ChevronRight size={13} aria-hidden="true" className={isRtl ? 'rotate-180' : ''} />
             <span className="text-dark/60 truncate max-w-[200px]">{post.title}</span>
           </nav>
 
@@ -242,7 +256,7 @@ export default async function BlogPostPage({ params }: Props) {
               <span aria-hidden="true">·</span>
               <span className="inline-flex items-center gap-1">
                 <Clock size={13} aria-hidden="true" />
-                {post.readTime} de lecture
+                {post.readTime} {t('reading_time_suffix')}
               </span>
             </div>
           </header>
@@ -272,7 +286,7 @@ export default async function BlogPostPage({ params }: Props) {
           {post.tags && post.tags.length > 0 && (
             <footer className="mt-12 pt-8 border-t border-dark/10">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-bold text-dark/40 mr-1">Mots-clés :</span>
+                <span className="text-sm font-bold text-dark/40 mr-1">{t('keywords_label')}</span>
                 {post.tags.map((tag) => (
                   <span key={tag} className="px-3 py-1 rounded-full bg-dark/5 text-dark/60 text-xs font-medium">
                     #{tag.replace(/\s+/g, '-')}
@@ -284,27 +298,27 @@ export default async function BlogPostPage({ params }: Props) {
 
           {/* ── CTA ── */}
           <div className="mt-12 rounded-3xl bg-dark p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 text-center md:text-left">
+            <div className="space-y-2 text-center md:text-start">
               <div className="inline-flex items-center gap-2 text-green text-sm font-bold">
                 <BookOpen size={14} aria-hidden="true" />
-                Commencer à apprendre
+                {t('start_learning')}
               </div>
               <p className="text-white text-xl md:text-2xl font-extrabold leading-snug">
-                Rejoignez des milliers d&apos;élèves sur <span className="text-green">Udarsy</span> — gratuitement
+                {t('join_cta')} <span className="text-green">{t('join_cta_highlight')}</span> {t('join_cta_suffix')}
               </p>
             </div>
             <Link
               href="/signup"
               className="flex-shrink-0 px-7 py-3.5 rounded-2xl bg-green text-white font-bold text-sm hover:bg-green/90 transition-colors shadow-lg shadow-green/30"
             >
-              Créer mon compte
+              {t('create_account')}
             </Link>
           </div>
 
           {/* ── Related articles ── */}
           {relatedPosts.length > 0 && (
-            <section className="mt-16" aria-label="Articles similaires">
-              <h2 className="text-xl font-extrabold text-dark mb-6">Articles similaires</h2>
+            <section className="mt-16" aria-label={t('related_articles')}>
+              <h2 className="text-xl font-extrabold text-dark mb-6">{t('related_articles')}</h2>
               <ul className="grid sm:grid-cols-2 gap-5 list-none p-0" role="list">
                 {relatedPosts.map((related) => (
                   <li key={related.slug}>
@@ -332,7 +346,7 @@ export default async function BlogPostPage({ params }: Props) {
                             {related.title}
                           </h3>
                           <span className="inline-flex items-center gap-0.5 text-green font-bold text-xs mt-1">
-                            Lire <ChevronRight size={12} aria-hidden="true" />
+                            {t('read')} <ChevronRight size={12} aria-hidden="true" className={isRtl ? 'rotate-180' : ''} />
                           </span>
                         </div>
                       </Link>
@@ -346,8 +360,8 @@ export default async function BlogPostPage({ params }: Props) {
           {/* ── Back to blog ── */}
           <div className="mt-10">
             <Link href="/blog" className="inline-flex items-center gap-2 text-sm text-dark/50 hover:text-green transition-colors font-medium">
-              <ArrowLeft size={15} aria-hidden="true" />
-              Retour au blog
+              <ArrowLeft size={15} aria-hidden="true" className={isRtl ? 'rotate-180' : ''} />
+              {t('back_to_blog')}
             </Link>
           </div>
 

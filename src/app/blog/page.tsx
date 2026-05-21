@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BookOpen, Clock, ChevronRight, Rss } from 'lucide-react';
-import { posts as staticPosts, CATEGORY_COLORS, type BlogPost } from './_data';
+import { getPostsByLocale, CATEGORY_COLORS, type BlogPost } from './_data';
 import { serverFetch } from '@/lib/serverFetch';
+import { getTranslations, getLocale } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: 'Blog — Guides, Conseils et Ressources Éducatives',
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     title: 'Blog Udarsy — Guides et Conseils Éducatifs',
     description:
       "Tout ce qu'il faut savoir pour réussir au Maroc : BAC, méthodes de révision et fonctionnalités de la plateforme.",
-    images: [{ url: staticPosts[0].coverImage, width: 1200, height: 630, alt: 'Blog Udarsy' }],
+    images: [{ url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&auto=format&fit=crop&q=80', width: 1200, height: 630, alt: 'Blog Udarsy' }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -31,19 +32,28 @@ export const metadata: Metadata = {
   alternates: { canonical: '/blog' },
 };
 
-async function getPosts(): Promise<BlogPost[]> {
+async function getPosts(locale: string): Promise<BlogPost[]> {
   try {
     const data = await serverFetch<BlogPost[]>('/blog', { revalidate: 3600 });
     if (Array.isArray(data) && data.length > 0) return data;
   } catch {
     // fall through to static
   }
-  return staticPosts;
+  return getPostsByLocale(locale);
 }
 
 export default async function BlogPage() {
-  const allPosts = await getPosts();
+  const [t, locale] = await Promise.all([
+    getTranslations('Blog'),
+    getLocale(),
+  ]);
+
+  const allPosts = await getPosts(locale);
   const [featured, ...rest] = allPosts;
+
+  const isRtl = locale === 'ar';
+
+  const dateLocale = locale === 'ar' ? 'ar-MA' : locale === 'en' ? 'en-US' : 'fr-MA';
 
   const blogListJsonLd = {
     '@context': 'https://schema.org',
@@ -74,28 +84,27 @@ export default async function BlogPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogListJsonLd) }}
       />
 
-      <main className="min-h-screen pt-8 md:pt-24 lg:pt-36 pb-32 px-[clamp(16px,5vw,48px)]">
+      <main className="min-h-screen pt-8 md:pt-24 lg:pt-36 pb-32 px-[clamp(16px,5vw,48px)]" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="max-w-7xl mx-auto space-y-16">
 
           {/* ── Header ── */}
           <header className="text-center space-y-5 max-w-2xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green/10 text-green text-sm font-bold">
               <Rss size={14} aria-hidden="true" />
-              Blog Udarsy
+              {t('pill')}
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-dark leading-tight">
-              Guides, conseils et{' '}
-              <span className="text-green">ressources éducatives</span>
+              {t('headline_1')}{' '}
+              <span className="text-green">{t('headline_highlight')}</span>
             </h1>
             <p className="text-dark/60 text-lg leading-relaxed">
-              Tout ce qu&apos;il faut savoir pour réussir son année scolaire au Maroc —
-              méthodes de révision, fonctionnalités Udarsy et actualités éducatives.
+              {t('subtitle')}
             </p>
           </header>
 
           {/* ── Featured article ── */}
           {featured && (
-            <article aria-label="Article à la une">
+            <article aria-label={t('featured_label')}>
               <Link
                 href={`/blog/${featured.slug}`}
                 className="group grid md:grid-cols-2 gap-0 rounded-3xl overflow-hidden shadow-card hover:shadow-card-active transition-all duration-300 bg-white border border-dark/5"
@@ -120,7 +129,7 @@ export default async function BlogPage() {
                       {featured.readTime}
                     </span>
                     <time className="text-dark/40 text-xs" dateTime={featured.date}>
-                      {new Date(featured.date).toLocaleDateString('fr-MA', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {new Date(featured.date).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })}
                     </time>
                   </div>
                   <h2 className="text-2xl md:text-3xl font-extrabold text-dark leading-snug group-hover:text-green transition-colors">
@@ -130,8 +139,8 @@ export default async function BlogPage() {
                     {featured.excerpt}
                   </p>
                   <span className="inline-flex items-center gap-1 text-green font-bold text-sm mt-auto">
-                    Lire l&apos;article
-                    <ChevronRight size={16} aria-hidden="true" className="group-hover:translate-x-1 transition-transform" />
+                    {t('read_article')}
+                    <ChevronRight size={16} aria-hidden="true" className={`group-hover:translate-x-1 transition-transform ${isRtl ? 'rotate-180' : ''}`} />
                   </span>
                 </div>
               </Link>
@@ -140,8 +149,8 @@ export default async function BlogPage() {
 
           {/* ── Article grid ── */}
           {rest.length > 0 && (
-            <section aria-label="Tous les articles">
-              <h2 className="text-2xl font-extrabold text-dark mb-8">Tous les articles</h2>
+            <section aria-label={t('all_articles')}>
+              <h2 className="text-2xl font-extrabold text-dark mb-8">{t('all_articles')}</h2>
               <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 list-none p-0" role="list">
                 {rest.map((post) => (
                   <li key={post.slug}>
@@ -177,10 +186,10 @@ export default async function BlogPage() {
                           </p>
                           <div className="flex items-center justify-between pt-2 mt-auto border-t border-dark/5">
                             <time className="text-dark/35 text-xs" dateTime={post.date}>
-                              {new Date(post.date).toLocaleDateString('fr-MA', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              {new Date(post.date).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric' })}
                             </time>
                             <span className="inline-flex items-center gap-0.5 text-green font-bold text-xs group-hover:gap-1 transition-all">
-                              Lire <ChevronRight size={13} aria-hidden="true" />
+                              {t('read')} <ChevronRight size={13} aria-hidden="true" className={isRtl ? 'rotate-180' : ''} />
                             </span>
                           </div>
                         </div>
@@ -194,21 +203,21 @@ export default async function BlogPage() {
 
           {/* ── CTA strip ── */}
           <aside className="rounded-3xl bg-dark p-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 text-center md:text-left">
+            <div className="space-y-2 text-center md:text-start">
               <div className="inline-flex items-center gap-2 text-green text-sm font-bold mb-1">
                 <BookOpen size={15} aria-hidden="true" />
-                Prêt à commencer ?
+                {t('cta_ready')}
               </div>
               <p className="text-white text-2xl md:text-3xl font-extrabold leading-snug">
-                Accédez à des milliers de cours <br className="hidden md:block" />
-                <span className="text-green">gratuitement sur Udarsy</span>
+                {t('cta_headline')} <br className="hidden md:block" />
+                <span className="text-green">{t('cta_headline_highlight')}</span>
               </p>
             </div>
             <Link
               href="/signup"
               className="flex-shrink-0 px-8 py-4 rounded-2xl bg-green text-white font-bold text-sm hover:bg-green/90 transition-colors shadow-lg shadow-green/30"
             >
-              Créer mon compte gratuit
+              {t('cta_btn')}
             </Link>
           </aside>
 

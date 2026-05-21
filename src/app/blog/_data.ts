@@ -1197,7 +1197,24 @@ export function getPost(slug: string): BlogPost | undefined {
   return posts.find((p) => p.slug === slug);
 }
 
+export function getPostsByLocale(locale: string): BlogPost[] {
+  if (locale === 'en') {
+    const { enPosts } = require('./_data.en');
+    return enPosts as BlogPost[];
+  }
+  if (locale === 'ar') {
+    const { arPosts } = require('./_data.ar');
+    return arPosts as BlogPost[];
+  }
+  return posts;
+}
+
+export function getPostByLocale(locale: string, slug: string): BlogPost | undefined {
+  return getPostsByLocale(locale).find((p) => p.slug === slug);
+}
+
 export const CATEGORY_COLORS: Record<string, string> = {
+  // French
   Présentation: 'bg-green/10 text-green',
   Révisions: 'bg-amber-50 text-amber-600',
   Cours: 'bg-blue-50 text-blue-600',
@@ -1206,4 +1223,21 @@ export const CATEGORY_COLORS: Record<string, string> = {
   Enseignants: 'bg-cyan-50 text-cyan-600',
   Communauté: 'bg-orange-50 text-orange-600',
   Calendrier: 'bg-teal-50 text-teal-600',
+  // English
+  Introduction: 'bg-green/10 text-green',
+  'Study Tips': 'bg-amber-50 text-amber-600',
+  Courses: 'bg-blue-50 text-blue-600',
+  Features: 'bg-purple-50 text-purple-600',
+  Teachers: 'bg-cyan-50 text-cyan-600',
+  Community: 'bg-orange-50 text-orange-600',
+  Calendar: 'bg-teal-50 text-teal-600',
+  // Arabic
+  'مقدمة': 'bg-green/10 text-green',
+  'مراجعة': 'bg-amber-50 text-amber-600',
+  'دروس': 'bg-blue-50 text-blue-600',
+  'ميزات': 'bg-purple-50 text-purple-600',
+  'دليل': 'bg-rose-50 text-rose-600',
+  'أساتذة': 'bg-cyan-50 text-cyan-600',
+  'مجتمع': 'bg-orange-50 text-orange-600',
+  'تقويم': 'bg-teal-50 text-teal-600',
 };
