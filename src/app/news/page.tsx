@@ -1,10 +1,36 @@
 // ── Server Component — fetches from MongoDB via the backend API ──────────────
 
+import type { Metadata } from "next";
 import { getTranslations } from 'next-intl/server';
 import { Tag } from 'lucide-react';
 import NewsGrid from '@/components/NewsGrid';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import { serverFetch } from '@/lib/serverFetch';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.udarsy.com";
+
+export const metadata: Metadata = {
+    title: "أخبار التعليم في المغرب",
+    description: "آخر أخبار التعليم والتوجيه في المغرب — باكالوريا، بريفي، مستجدات وزارة التربية الوطنية وجداول الامتحانات.",
+    alternates: { canonical: `${SITE_URL}/news` },
+    openGraph: {
+        title: "أخبار التعليم في المغرب | Udarsy",
+        description: "آخر أخبار التعليم والتوجيه في المغرب — باكالوريا، بريفي، مستجدات وزارة التربية الوطنية وجداول الامتحانات.",
+        url: `${SITE_URL}/news`,
+        type: "website",
+        siteName: "Udarsy",
+        locale: "ar_MA",
+        alternateLocale: ["fr_MA", "en_US"],
+        images: [{ url: `${SITE_URL}/og-image.png`, width: 1200, height: 630, alt: "أخبار التعليم في المغرب — Udarsy" }],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "أخبار التعليم في المغرب | Udarsy",
+        description: "آخر أخبار التعليم والتوجيه في المغرب — باكالوريا، بريفي، مستجدات وزارة التربية الوطنية وجداول الامتحانات.",
+        images: [`${SITE_URL}/og-image.png`],
+        creator: "@UdarsyMa",
+    },
+};
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=60';
 

@@ -8,11 +8,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { User, LogIn, LayoutGrid, BookOpen, House, CalendarDays, Menu, X, Users, MessageCircle, Share2, Bell, Check, CheckCheck, UserCheck } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import api from "@/lib/api";
 import { useSnackbar } from "@/contexts/SnackbarContext";
-import { io as socketIO } from "socket.io-client";
 
 interface Notification {
   _id: string;
@@ -32,7 +30,7 @@ function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<ReturnType<typeof socketIO> | null>(null);
+  const socketRef = useRef<any>(null);
 
   const unread = notifications.filter(n => !n.read).length;
 
@@ -45,29 +43,30 @@ function NotificationBell() {
 
   useEffect(() => {
     if (!isAuthenticated || !user?.id) return;
+    if (socketRef.current) return;
 
     fetchNotifications();
 
-    // Guard against double-mount (React StrictMode) and dependency re-fires
-    if (socketRef.current) return;
-
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    const socket = socketIO(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
-      auth: { token },
-      transports: ['websocket'],
-    });
-    socketRef.current = socket;
+    const userId = user.id;
+    let cancelled = false;
 
-    socket.on('connect', () => {
-      socket.emit('join_user_room', user.id);
-    });
-
-    socket.on('new_notification', (notif: Notification) => {
-      setNotifications(prev => [notif, ...prev]);
+    import('socket.io-client').then(({ io }) => {
+      if (cancelled || socketRef.current) return;
+      const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
+        auth: { token },
+        transports: ['websocket'],
+      });
+      socketRef.current = socket;
+      socket.on('connect', () => { socket.emit('join_user_room', userId); });
+      socket.on('new_notification', (notif: Notification) => {
+        setNotifications(prev => [notif, ...prev]);
+      });
     });
 
     return () => {
-      socket.disconnect();
+      cancelled = true;
+      socketRef.current?.disconnect();
       socketRef.current = null;
     };
   }, [isAuthenticated, user?.id]);
@@ -110,16 +109,10 @@ function NotificationBell() {
         )}
       </button>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.96 }}
-            transition={{ duration: 0.15 }}
-            dir={isRTL ? 'rtl' : 'ltr'}
-            className={`absolute top-12 w-80 bg-white rounded-2xl shadow-2xl shadow-black/10 border border-gray-100 z-[999] overflow-hidden ${isRTL ? 'left-0' : 'right-0'}`}
-          >
+      <div
+          dir={isRTL ? 'rtl' : 'ltr'}
+          className={`absolute top-12 w-80 bg-white rounded-2xl shadow-2xl shadow-black/10 border border-gray-100 z-[999] overflow-hidden transition-[opacity,transform] duration-150 ${isRTL ? 'left-0 origin-top-left' : 'right-0 origin-top-right'} ${open ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-[0.96] -translate-y-1 pointer-events-none'}`}
+        >
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
               <h3 className="text-sm font-black text-dark">{t('notifications_title')}</h3>
               {notifications.some(n => !n.read) && (
@@ -166,9 +159,7 @@ function NotificationBell() {
                 ))
               )}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
     </div>
   );
 }
@@ -201,11 +192,7 @@ function BottomNavBar({ bottomTabs, isTabActive, isAuthenticated, user, getPhoto
             className="relative flex flex-col items-center justify-center min-w-0 flex-1 z-10 gap-0.5 pt-1"
           >
             {active && (
-              <motion.div
-                layoutId="bottom-tab-active"
-                className="absolute inset-x-1 inset-y-1 rounded-[18px] bg-green/10"
-                transition={{ type: 'spring', stiffness: 500, damping: 38 }}
-              />
+              <div className="absolute inset-x-1 inset-y-1 rounded-[18px] bg-green/10" />
             )}
             <tab.icon
               size={22}
@@ -225,11 +212,7 @@ function BottomNavBar({ bottomTabs, isTabActive, isAuthenticated, user, getPhoto
         className="relative flex flex-col items-center justify-center min-w-0 flex-1 z-10 gap-0.5 pt-1"
       >
         {isProfileActive && (
-          <motion.div
-            layoutId="bottom-tab-active"
-            className="absolute inset-x-1 inset-y-1 rounded-[18px] bg-green/10"
-            transition={{ type: 'spring', stiffness: 500, damping: 38 }}
-          />
+          <div className="absolute inset-x-1 inset-y-1 rounded-[18px] bg-green/10" />
         )}
         <div className={`relative z-10 transition-all duration-200 ${isProfileActive ? 'scale-110' : ''}`}>
           {isAuthenticated && user?.photoURL ? (

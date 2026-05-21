@@ -216,12 +216,12 @@ export const ChatFeatureSection = () => {
 
   // All messages in one flat array (base + live), shown sequentially
   const msgs = useMemo<Msg[]>(() => [
-    { id: 1,   name: t("msg1_name"),   img: "/students/student-8.png", text: t("msg1_text"),   time: "17:20" },
-    { id: 2,   name: t("msg2_name"),   img: "/students/student-4.png", text: t("msg2_text"),   time: "17:21" },
-    { id: 3,   name: t("msg3_name"),   img: "/students/student-2.png", text: t("msg3_text"),   time: "17:21" },
-    { id: 4,   name: t("msg4_name"),   img: "/students/student-7.png", text: t("msg4_text"),   time: "17:22" },
-    { id: 101, name: t("msg101_name"), img: "/students/student-1.png", text: t("msg101_text"), time: "17:23" },
-    { id: 102, name: t("msg102_name"), img: "/students/student-6.png", text: t("msg102_text"), time: "17:24" },
+    { id: 1,   name: t("msg1_name"),   img: "/students/student-8.webp", text: t("msg1_text"),   time: "17:20" },
+    { id: 2,   name: t("msg2_name"),   img: "/students/student-4.webp", text: t("msg2_text"),   time: "17:21" },
+    { id: 3,   name: t("msg3_name"),   img: "/students/student-2.webp", text: t("msg3_text"),   time: "17:21" },
+    { id: 4,   name: t("msg4_name"),   img: "/students/student-7.webp", text: t("msg4_text"),   time: "17:22" },
+    { id: 101, name: t("msg101_name"), img: "/students/student-1.webp", text: t("msg101_text"), time: "17:23" },
+    { id: 102, name: t("msg102_name"), img: "/students/student-6.webp", text: t("msg102_text"), time: "17:24" },
   ], [t]);
 
   return (

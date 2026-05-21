@@ -7,14 +7,14 @@ import { DownloadButton } from "@/components/DownloadButton";
 import Image from "next/image";
 
 const avatars = [
-    { id: 1, img: "/students/student-3.png", shape: "rounded-full", className: "w-20 h-20 top-[8%] left-[4%] [--dy:-12px] [--r:0deg]" },
-    { id: 2, img: "/students/student-7.png", shape: "rounded-[32%]", className: "w-24 h-24 top-[22%] left-[10%] [--dy:-8px] [--r:-3deg]" },
-    { id: 3, img: "/students/student-1.png", shape: "hex", className: "w-[110px] h-[110px] top-[42%] left-[7%] [--dy:-14px] [--r:0deg]" },
-    { id: 4, img: "/students/student-5.png", shape: "blob", className: "w-[76px] h-[76px] top-[70%] left-[3%] [--dy:-10px] [--r:2deg]" },
-    { id: 5, img: "/students/student-9.png", shape: "rounded-full", className: "w-[88px] h-[88px] top-[6%] right-[12%] [--dy:-9px] [--r:0deg]" },
-    { id: 6, img: "/students/student-2.png", shape: "rounded-[32%]", className: "w-20 h-20 top-[20%] right-[5%] [--dy:-13px] [--r:1deg]" },
-    { id: 7, img: "/students/student-6.png", shape: "hex", className: "w-[100px] h-[100px] top-[40%] right-[4%] [--dy:-11px] [--r:-2deg]" },
-    { id: 8, img: "/students/student-4.png", shape: "blob", className: "w-[84px] h-[84px] top-[62%] right-[10%] [--dy:-8px] [--r:0deg]" },
+    { id: 1, img: "/students/student-3.webp", shape: "rounded-full", className: "w-20 h-20 top-[8%] left-[4%] [--dy:-12px] [--r:0deg]" },
+    { id: 2, img: "/students/student-7.webp", shape: "rounded-[32%]", className: "w-24 h-24 top-[22%] left-[10%] [--dy:-8px] [--r:-3deg]" },
+    { id: 3, img: "/students/student-1.webp", shape: "hex", className: "w-[110px] h-[110px] top-[42%] left-[7%] [--dy:-14px] [--r:0deg]" },
+    { id: 4, img: "/students/student-5.webp", shape: "blob", className: "w-[76px] h-[76px] top-[70%] left-[3%] [--dy:-10px] [--r:2deg]" },
+    { id: 5, img: "/students/student-9.webp", shape: "rounded-full", className: "w-[88px] h-[88px] top-[6%] right-[12%] [--dy:-9px] [--r:0deg]" },
+    { id: 6, img: "/students/student-2.webp", shape: "rounded-[32%]", className: "w-20 h-20 top-[20%] right-[5%] [--dy:-13px] [--r:1deg]" },
+    { id: 7, img: "/students/student-6.webp", shape: "hex", className: "w-[100px] h-[100px] top-[40%] right-[4%] [--dy:-11px] [--r:-2deg]" },
+    { id: 8, img: "/students/student-4.webp", shape: "blob", className: "w-[84px] h-[84px] top-[62%] right-[10%] [--dy:-8px] [--r:0deg]" },
 ];
 
 export function BelieveSection() {

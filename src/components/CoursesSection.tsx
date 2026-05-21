@@ -131,13 +131,13 @@ const COURSES = [
     {
         id: 1,
         Icon: WorkflowIcon,
-        img: "/students/student-5.png",
+        img: "/students/student-5.webp",
         className: "course-card-1 flex-[4] bg-gradient-to-br from-[#9ef0b8] via-[#5cd68a] via-[#2aaa62] to-[#0f4428] shadow-[0_8px_40px_rgba(42,170,98,0.3)]",
     },
     {
         id: 2,
         Icon: AIIcon,
-        img: "/students/student-3.png",
+        img: "/students/student-3.webp",
         className: "course-card-2 flex-[2] w-[90%] md:w-auto bg-gradient-to-br from-[#52d4a0] via-[#1e9e72] via-[#0d6048] to-[#051e16] shadow-[0_8px_40px_rgba(13,96,72,0.35)] !p-[24px_22px]",
     },
     {

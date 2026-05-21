@@ -111,12 +111,12 @@ export default function AboutPage() {
     ];
 
     const team = [
-        { id: "ibrahim-maghfoul", name: "Ibrahim Maghfoul", role: "Website Manager", initials: "IM", color: "bg-green", img: "/team/ibrahim-maghfoul.png" },
-        { id: "abderrahman-aouinat", name: "Abderrahman Aouinat", role: "Multimedia Responsable", initials: "AA", color: "bg-blue-500", img: "/team/abderrahman-aouinat.png" },
-        { id: "abdelhakim-taouqi", name: "Abdelhakim Taouqi", role: "Marketing Manager", initials: "AT", color: "bg-amber-500", img: "/team/abdelhakim-taouqi.png" },
-        { id: "mouhamed-el-wardi", name: "Mouhamed El Wardi", role: "Developer", initials: "MW", color: "bg-purple-500", img: "/team/mouhamed-el-wardi.png" },
-        { id: "asmae-monaghim", name: "Asmae Monaghim", role: "Finance Manager", initials: "AM", color: "bg-red-500", img: "/team/asmae-monaghim.png" },
-        { id: "safae-el-oujdi", name: "Safae El Oujdi", role: "Logistic", initials: "SO", color: "bg-cyan-500", img: "/team/safae-el-oujdi.png" },
+        { id: "ibrahim-maghfoul", name: "Ibrahim Maghfoul", role: "Website Manager", initials: "IM", color: "bg-green", img: "/team/ibrahim-maghfoul.webp" },
+        { id: "abderrahman-aouinat", name: "Abderrahman Aouinat", role: "Multimedia Responsable", initials: "AA", color: "bg-blue-500", img: "/team/abderrahman-aouinat.webp" },
+        { id: "abdelhakim-taouqi", name: "Abdelhakim Taouqi", role: "Marketing Manager", initials: "AT", color: "bg-amber-500", img: "/team/abdelhakim-taouqi.webp" },
+        { id: "mouhamed-el-wardi", name: "Mouhamed El Wardi", role: "Developer", initials: "MW", color: "bg-purple-500", img: "/team/mouhamed-el-wardi.webp" },
+        { id: "asmae-monaghim", name: "Asmae Monaghim", role: "Finance Manager", initials: "AM", color: "bg-red-500", img: "/team/asmae-monaghim.webp" },
+        { id: "safae-el-oujdi", name: "Safae El Oujdi", role: "Logistic", initials: "SO", color: "bg-cyan-500", img: "/team/safae-el-oujdi.webp" },
     ];
 
     const milestones = [

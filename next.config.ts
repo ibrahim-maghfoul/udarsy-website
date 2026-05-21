@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from 'path';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin(
@@ -9,6 +10,9 @@ const isDev = process.env.NODE_ENV === 'development';
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  turbopack: {
+    root: __dirname,
+  },
   images: {
     remotePatterns: [
       // News articles can come from any external source (scraped Moroccan edu/news sites)
@@ -56,6 +60,26 @@ const nextConfig: NextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
           // HSTS — force HTTPS for 1 year (Cloudflare also enforces this)
           { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
+          // XSS protection via CSP — unsafe-inline required for Next.js hydration without nonces
+          { key: 'Content-Security-Policy', value: [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: blob: https:",
+            "font-src 'self' data:",
+            "connect-src 'self' ws: wss: https:",
+            "media-src 'self' blob: https:",
+            "object-src 'none'",
+            "frame-src 'self' https://accounts.google.com",
+            "frame-ancestors 'self'",
+            "base-uri 'self'",
+            "form-action 'self' https://accounts.google.com",
+            "upgrade-insecure-requests",
+            "require-trusted-types-for 'script'",
+            "trusted-types 'allow-duplicates' nextjs",
+          ].join('; ') },
+          // Cross-origin opener isolation — allows OAuth popups (Google) to work
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
         ],
       },
       {
@@ -90,9 +114,24 @@ const nextConfig: NextConfig = {
     ];
   },
   compress: true,
+  // Slim down Next.js's built-in polyfill bundle.
+  // The default polyfill-module guards Array.at, Object.hasOwn, Object.fromEntries,
+  // flat/flatMap, trimStart/trimEnd, Promise.finally — all Baseline 2021 features
+  // supported natively since late 2021. Our replacement keeps only URL.canParse
+  // (Chrome 120+, Dec 2023) which Next.js routing depends on.
+  //
+  // Works for webpack builds. Turbopack (current default) injects polyfill-module as
+  // a hardcoded entry point that bypasses resolveAlias — the ~1.4 KB guarded
+  // polyfill code is unavoidable there until Next.js exposes a public override.
+  webpack(config) {
+    config.resolve.alias['next/dist/build/polyfills/polyfill-module'] =
+      path.resolve(__dirname, 'src/polyfills-modern.js');
+    return config;
+  },
   // Reduce unused JavaScript sent to client
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion', 'date-fns', 'd3-geo'],
+    optimizeCss: !isDev,
   },
 };
 

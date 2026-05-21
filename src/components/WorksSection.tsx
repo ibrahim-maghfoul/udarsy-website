@@ -107,7 +107,7 @@ export function WorksSection() {
                 className="absolute top-[32%] right-[4%] w-[150px] h-[150px] rounded-[50%_50%_50%_44%_/_50%_50%_44%_50%] overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.2)] border-4 border-white/90 animate-[wFloat_6s_ease-in-out_infinite] delay-[0.5s] [--wdy:-10px] [--wr:0deg] hidden md:block will-change-transform"
                 style={{ animationPlayState: floatRunning ? 'running' : 'paused' }}
             >
-                <Image src="/students/student-9.png" alt="" fill className="object-cover" sizes="150px" />
+                <Image src="/students/student-9.webp" alt="" fill className="object-cover" sizes="150px" />
             </div>
 
             <div className="max-w-[780px] w-full relative z-2" dir={isRTL ? 'rtl' : 'ltr'}>

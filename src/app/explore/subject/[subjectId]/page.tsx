@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
     BookOpen, FileText, Play, ArrowLeft,
-    ClipboardList, CheckCircle2, GraduationCap, Search
+    ClipboardList, CheckCircle2, GraduationCap, Search, Settings2
 } from "lucide-react";
 import { getLessons, getSubjectBySlug, lessonSlug } from "@/services/data";
 import { useAuth } from "@/contexts/AuthContext";
@@ -106,6 +106,15 @@ export default function SubjectLessonsPage() {
             </header>
 
             <main className="max-w-6xl mx-auto pt-4 md:pt-10 pb-[120px] md:pb-32 px-4 md:px-6">
+
+                {/* Path hint */}
+                <div className={`flex items-center gap-2 mb-5 text-xs text-dark/40 ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
+                    <Settings2 size={12} className="shrink-0" />
+                    <span>{t("change_path_hint")}</span>
+                    <Link href="/profile" className="text-green underline underline-offset-2 hover:text-green/80 transition-colors">
+                        {t("change_path_link")}
+                    </Link>
+                </div>
 
                 {loading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" dir={isAr ? "rtl" : undefined}>

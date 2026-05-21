@@ -577,6 +577,8 @@
         "lessons": "lessons",
         "completed": "Done",
         "in_progress": "In progress",
+        "change_path_hint": "Not your path?",
+        "change_path_link": "Update it from your profile",
         "mark_completed": "Mark as Completed",
         "mark_completed_done": "Completed",
         "ai_explain_title": "AI Explanation",

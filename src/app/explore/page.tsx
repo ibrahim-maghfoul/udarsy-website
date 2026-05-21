@@ -1,34 +1,14 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Search, BookOpen, ChevronRight, ChevronLeft, LogIn, Calculator, Atom, Globe, Microscope, Cpu, Music, Palette, Scale, Database, Dumbbell, Stethoscope, Lightbulb, Map, FlaskConical, Languages } from "lucide-react";
+import { Search, BookOpen, ChevronRight, ChevronLeft, LogIn } from "lucide-react";
 import Link from "next/link";
 import { getSubjects, getGuidances, getSchools, getLevels, prefetchLessons, prefetchLevels, prefetchGuidances, subjectSlug, guidanceSlug } from "@/services/data";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { getSubjectImage } from "@/lib/subjectImages";
 import "./subject-cards.css";
-
-const getSubjectIcon = (title: string) => {
-    const t = title.toLowerCase();
-    if (t.includes('math') || t.includes('calculus') || t.includes('رياضيات')) return <Calculator size={24} />;
-    if (t.includes('physi') || t.includes('فيزياء') || t.includes('chimie') || t.includes('pc')) return <Atom size={24} />;
-    if (t.includes('chemistry') || t.includes('كيمياء')) return <FlaskConical size={24} />;
-    if (t.includes('biology') || t.includes('أحياء') || t.includes('علوم') || t.includes('svt') || t.includes('science') || t.includes('terre') || t.includes('vie')) return <Microscope size={24} />;
-    if (t.includes('histor') || t.includes('تاريخ') || t.includes('histoire') || t.includes('géo') || t.includes('géographie')) return <Globe size={24} />;
-    if (t.includes('geography') || t.includes('جغرافيا')) return <Map size={24} />;
-    if (t.includes('english') || t.includes('إنجليزي') || t.includes('لغة') || t.includes('anglais') || t.includes('français') || t.includes('french') || t.includes('arabe') || t.includes('arabic')) return <Languages size={24} />;
-    if (t.includes('computer') || t.includes('حاسب') || t.includes('it') || t.includes('tech') || t.includes('informatique')) return <Cpu size={24} />;
-    if (t.includes('art') || t.includes('فنية')) return <Palette size={24} />;
-    if (t.includes('music') || t.includes('موسيقى')) return <Music size={24} />;
-    if (t.includes('islamic') || t.includes('دين') || t.includes('إسلامية') || t.includes('islamique') || t.includes('education') || t.includes('éducation')) return <BookOpen size={24} />;
-    if (t.includes('law') || t.includes('قانون') || t.includes('droit')) return <Scale size={24} />;
-    if (t.includes('medicine') || t.includes('طب') || t.includes('médecine')) return <Stethoscope size={24} />;
-    if (t.includes('sport') || t.includes('رياضة') || t.includes('بدنية') || t.includes('eps')) return <Dumbbell size={24} />;
-    if (t.includes('philosophy') || t.includes('فلسفة') || t.includes('philosophie')) return <Lightbulb size={24} />;
-    if (t.includes('economy') || t.includes('اقتصاد') || t.includes('économie') || t.includes('gestion') || t.includes('compta') || t.includes('management')) return <Database size={24} />;
-    return <BookOpen size={24} />;
-};
 
 // ---------- Guest Level Selector component ----------
 import { GraduationCap, School, UserPlus } from "lucide-react";
@@ -388,7 +368,7 @@ export default function ExplorePage() {
             </div>
 
             {/* Content */}
-            <main className="max-w-7xl mx-auto pt-8 px-6" style={{ paddingBottom: '8rem' }}>
+            <main className="max-w-7xl mx-auto pt-8 px-5 md:px-10" style={{ paddingBottom: '8rem' }}>
                 {!loading && filteredSubjects.length > 0 && (
                     <div className="flex items-center gap-4 mb-8">
                         <div className="flex-1 h-px bg-green/10" />
@@ -399,7 +379,7 @@ export default function ExplorePage() {
                     </div>
                 )}
                 {loading ? (
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
                         {Array(6).fill(0).map((_, i) => (
                             <div
                                 key={i}
@@ -409,7 +389,7 @@ export default function ExplorePage() {
                         ))}
                     </div>
                 ) : filteredSubjects.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
                         {filteredSubjects.map((subject: any, index: number) => {
                             const subjectLessons = user?.progress?.lessons?.filter(
                                 (l: any) => l.subjectId === (subject._id || subject.id)
@@ -431,60 +411,47 @@ export default function ExplorePage() {
                             const circumference = 2 * Math.PI * radius;
                             const strokeOffset = circumference - (progressPct / 100) * circumference;
 
+                            const imageUrl = getSubjectImage(subject.title);
+
                             return (
                                 <Link
                                     href={`/courses/subject/${subject.slug ?? subjectSlug(subject.title)}`}
                                     key={subject.id}
-                                    className={`subject-card ${isComplete ? 'subject-card-done' : ''}`}
-                                    style={{ animationDelay: `${index * 40}ms` }}
+                                    className={`subject-card ${isComplete ? 'subject-card-done' : ''}${!imageUrl ? ' subject-card-fallback' : ''}`}
+                                    style={{
+                                        animationDelay: `${index * 40}ms`,
+                                        backgroundImage: imageUrl ? `url('${imageUrl}')` : undefined,
+                                    }}
                                     onMouseEnter={() => prefetchLessons(subject.id)}
                                 >
-                                    {/* Icon header area */}
-                                    <div className="subject-card-icon-area">
+                                    <div className="subject-card-overlay" />
 
-                                        <div className="subject-card-icon">
-                                            {getSubjectIcon(subject.title)}
-                                        </div>
-
-                                        {isStarted ? (
-                                            <div className="subject-card-ring">
-                                                <svg className="w-full h-full -rotate-90" viewBox="0 0 40 40">
-                                                    <circle cx="20" cy="20" r={radius} fill="none" stroke="rgba(58,170,106,0.12)" strokeWidth="2.5" />
-                                                    <circle
-                                                        cx="20" cy="20" r={radius} fill="none"
-                                                        stroke={isComplete ? '#3aaa6a' : 'rgba(58,170,106,0.65)'}
-                                                        strokeWidth="2.5" strokeLinecap="round"
-                                                        strokeDasharray={circumference}
-                                                        strokeDashoffset={strokeOffset}
-                                                        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
-                                                    />
-                                                </svg>
-                                                <span className={`absolute inset-0 flex items-center justify-center text-[9px] font-black ${isComplete ? 'text-green' : 'text-gray-500'}`}>
-                                                    {isComplete ? '✓' : `${progressPct}%`}
-                                                </span>
-                                            </div>
-                                        ) : (
-                                            <div className="subject-card-arrow">
-                                                {isAr ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Content body */}
-                                    <div className="subject-card-body">
+                                    <div className="subject-card-title-wrap">
                                         <h3 className="subject-card-title">{subject.title}</h3>
-
-                                        {isStarted && (
-                                            <div className="subject-card-footer">
-                                                <span className="subject-card-stat">
-                                                    {totalCompleted}/{totalResources} resources
-                                                </span>
-                                                {isComplete && (
-                                                    <span className="subject-card-badge">Done</span>
-                                                )}
-                                            </div>
-                                        )}
                                     </div>
+
+                                    <div className="subject-card-arrow">
+                                        {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
+                                    </div>
+
+                                    {isStarted && (
+                                        <div className="subject-card-ring">
+                                            <svg className="w-full h-full -rotate-90" viewBox="0 0 40 40">
+                                                <circle cx="20" cy="20" r={radius} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2.5" />
+                                                <circle
+                                                    cx="20" cy="20" r={radius} fill="none"
+                                                    stroke={isComplete ? '#3aaa6a' : 'rgba(255,255,255,0.75)'}
+                                                    strokeWidth="2.5" strokeLinecap="round"
+                                                    strokeDasharray={circumference}
+                                                    strokeDashoffset={strokeOffset}
+                                                    style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+                                                />
+                                            </svg>
+                                            <span className={`absolute inset-0 flex items-center justify-center text-[9px] font-black ${isComplete ? 'text-green-400' : 'text-white'}`}>
+                                                {isComplete ? '✓' : `${progressPct}%`}
+                                            </span>
+                                        </div>
+                                    )}
                                 </Link>
                             );
                         })}

@@ -388,6 +388,7 @@ export function FuturisticHero() {
               padding: '6px 15px 6px 10px', borderRadius: 999,
               background: 'rgba(8,22,14,0.72)', border: '1px solid rgba(58,170,106,0.32)',
               width: 'fit-content', marginBottom: 24,
+              willChange: 'transform, opacity',
               animation: 'hFadeUp 0.7s ease-out 0.1s both, hBadge 4s ease-in-out 1s infinite',
             }}>
               <span aria-hidden style={{ display: 'flex', animation: 'hSparkle 2.8s ease-in-out infinite' }}>

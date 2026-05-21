@@ -80,7 +80,7 @@ export default function CookieBanner() {
 
                             <div className="flex-1 min-w-0">
                                 <h3 className="font-bold text-dark text-base leading-tight">{t('title')}</h3>
-                                <p className="text-sm text-dark/60 mt-1 leading-snug">
+                                <p className="text-sm text-dark/80 mt-1 leading-snug">
                                     {t('desc', { days: CONSENT_DAYS })}{' '}
                                     <Link href="/privacy" className="text-green hover:underline font-semibold">{t('privacy')}</Link>
                                 </p>
@@ -89,7 +89,7 @@ export default function CookieBanner() {
                             <button
                                 onClick={decline}
                                 aria-label={t('decline')}
-                                className="p-1.5 rounded-xl hover:bg-green/10 text-dark/30 hover:text-dark/60 transition-all flex-shrink-0"
+                                className="p-1.5 rounded-xl hover:bg-green/10 text-dark/60 hover:text-dark/80 transition-all flex-shrink-0"
                             >
                                 <X size={16} />
                             </button>
@@ -98,7 +98,7 @@ export default function CookieBanner() {
                         {/* Details toggle */}
                         <button
                             onClick={() => setShowDetails(!showDetails)}
-                            className="text-xs text-dark/40 hover:text-green flex items-center gap-1.5 mb-4 transition-colors font-medium"
+                            className="text-xs text-dark/85 hover:text-green flex items-center gap-1.5 mb-4 transition-colors font-medium"
                         >
                             <span className="transition-transform duration-200" style={{ display: 'inline-block', transform: showDetails ? 'rotate(90deg)' : 'none' }}>›</span>
                             {t('details')}
@@ -110,14 +110,14 @@ export default function CookieBanner() {
                                     <Shield size={13} className="text-green mt-0.5 flex-shrink-0" />
                                     <div>
                                         <p className="text-xs font-bold text-dark">{t('essential')}</p>
-                                        <p className="text-xs text-dark/50">{t('essential_desc')}</p>
+                                        <p className="text-xs text-dark/85">{t('essential_desc')}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-2xl p-3">
                                     <BarChart2 size={13} className="text-blue-500 mt-0.5 flex-shrink-0" />
                                     <div>
                                         <p className="text-xs font-bold text-dark">{t('analytics')}</p>
-                                        <p className="text-xs text-dark/50">{t('analytics_desc')}</p>
+                                        <p className="text-xs text-dark/85">{t('analytics_desc')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -127,7 +127,7 @@ export default function CookieBanner() {
                         <div className="flex gap-3">
                             <button
                                 onClick={decline}
-                                className="flex-1 py-2.5 border border-gray-200 hover:border-green/30 rounded-2xl text-sm font-semibold text-dark/60 hover:text-dark hover:bg-green/5 transition-all"
+                                className="flex-1 py-2.5 border border-gray-200 hover:border-green/30 rounded-2xl text-sm font-semibold text-dark/80 hover:text-dark hover:bg-green/5 transition-all"
                             >
                                 {t('decline')}
                             </button>

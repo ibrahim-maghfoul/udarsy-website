@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Cairo, Barlow_Condensed, Instrument_Sans } from "next/font/google";
 import "./globals.css";
-import "../styles/pickers.css";
+
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -10,7 +10,6 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getLocale } from 'next-intl/server';
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import CookieBanner from "@/components/CookieBanner";
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { PageTransition } from "@/components/PageTransition";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { MicrosoftClarity } from "@/components/MicrosoftClarity";
@@ -105,9 +104,6 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <head>
-        {process.env.NEXT_PUBLIC_BACKEND_URL && (
-          <link rel="preconnect" href={process.env.NEXT_PUBLIC_BACKEND_URL} crossOrigin="anonymous" />
-        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -198,8 +194,7 @@ export default async function RootLayout({
         <GoogleAnalytics />
         <MicrosoftClarity />
         <NextIntlClientProvider messages={messages}>
-          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'placeholder-client-id'}>
-            <AuthProvider>
+          <AuthProvider>
               <SnackbarProvider>
                 {/* AnalyticsProvider: activates page-view + scroll-depth + referral tracking */}
                 <AnalyticsProvider>
@@ -211,7 +206,6 @@ export default async function RootLayout({
                 </AnalyticsProvider>
               </SnackbarProvider>
             </AuthProvider>
-          </GoogleOAuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

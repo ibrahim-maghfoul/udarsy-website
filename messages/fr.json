@@ -576,6 +576,8 @@
         "lessons": "leçons",
         "completed": "Terminé",
         "in_progress": "En cours",
+        "change_path_hint": "Ce n'est pas votre filière ?",
+        "change_path_link": "Modifiez-la depuis votre profil",
         "mark_completed": "Marquer comme terminé",
         "mark_completed_done": "Terminé",
         "ai_explain_title": "Explication IA",

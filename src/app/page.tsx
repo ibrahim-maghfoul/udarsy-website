@@ -2,19 +2,13 @@
 
 import { FuturisticHero } from "@/components/FuturisticHero";
 import { HeroSection } from "@/components/HeroSection";
-// SubjectCardsSection is static-imported (not dynamic) so its bundle is part of
-// the main chunk — parsed during page load instead of mid-scroll. This kills
-// the "scrolling into the section feels janky on a fresh load" lag spike that
-// happens when JS parse + first paint + scroll all collide. The section's own
-// internal IntersectionObserver still gates the heavy work (card mount,
-// animations), so we don't lose lazy behavior where it actually matters.
-import { SubjectCardsSection } from "@/components/SubjectCardsSection";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef } from "react";
 import { trackEvent } from "@/lib/analytics";
 
+const SubjectCardsSection = dynamic(() => import("@/components/SubjectCardsSection").then(m => ({ default: m.SubjectCardsSection })), { ssr: false, loading: () => <div style={{ minHeight: 700 }} /> });
 const BelieveSection      = dynamic(() => import("@/components/BelieveSection").then(m => ({ default: m.BelieveSection })), { ssr: false, loading: () => <div style={{ minHeight: 600 }} /> });
 const ChatFeatureSection  = dynamic(() => import("@/components/ChatFeatureSection").then(m => ({ default: m.ChatFeatureSection })), { ssr: false, loading: () => <div style={{ minHeight: 500 }} /> });
 const CoursesSection      = dynamic(() => import("@/components/CoursesSection").then(m => ({ default: m.CoursesSection })), { ssr: false, loading: () => <div style={{ minHeight: 600 }} /> });
@@ -23,7 +17,7 @@ const PlatformFeatures    = dynamic(() => import("@/components/PlatformFeatures"
 const PricingSection      = dynamic(() => import("@/components/PricingSection").then(m => ({ default: m.PricingSection })), { ssr: false, loading: () => <div style={{ minHeight: 500 }} /> });
 const TeamSection         = dynamic(() => import("@/components/TeamSection").then(m => ({ default: m.TeamSection })), { ssr: false, loading: () => <div style={{ minHeight: 400 }} /> });
 
-function LazySection({ children, minHeight = 400 }: { children: React.ReactNode; minHeight?: number }) {
+function LazySection({ children, minHeight = 400, rootMargin = "800px" }: { children: React.ReactNode; minHeight?: number; rootMargin?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -31,11 +25,11 @@ function LazySection({ children, minHeight = 400 }: { children: React.ReactNode;
     if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setMounted(true); io.disconnect(); } },
-      { rootMargin: "800px" }
+      { rootMargin }
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [rootMargin]);
   return (
     <div ref={ref} style={mounted ? undefined : { minHeight }}>
       {mounted ? children : null}
@@ -143,7 +137,7 @@ export default function Home() {
           </div>
         </div>
 
-        <LazySection minHeight={700}><SubjectCardsSection /></LazySection>
+        <LazySection minHeight={700} rootMargin="2000px"><SubjectCardsSection /></LazySection>
         <div className="hidden sm:block"><LazySection minHeight={600}><BelieveSection /></LazySection></div>
         <LazySection minHeight={500}><ChatFeatureSection /></LazySection>
         <LazySection minHeight={600}>

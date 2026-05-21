@@ -23,6 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const image = article.imageUrl || article.images?.[0]?.src || `${SITE_URL}/og-image.png`;
   const url = `${SITE_URL}/news/${id}`;
 
+  const ogLocale = article.language === "fr" ? "fr_MA" : "ar_MA";
+
   return {
     title,
     description,
@@ -32,10 +34,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url,
       type: "article",
+      locale: ogLocale,
       images: [{ url: image, width: 1200, height: 630, alt: article.title }],
       publishedTime: article.createdAt,
       modifiedTime: article.updatedAt || article.createdAt,
       siteName: "Udarsy",
+      section: article.category || "Education",
+      tags: Array.isArray(article.tags) ? article.tags : [],
     },
     twitter: {
       card: "summary_large_image",
@@ -60,6 +65,9 @@ export default async function NewsDetailPage({ params }: Props) {
         article.ratings.length
       : null;
 
+  const inLanguage =
+    article?.language === "fr" ? "fr" : article?.language === "en" ? "en" : "ar";
+
   const articleSchema = article
     ? {
         "@context": "https://schema.org",
@@ -67,11 +75,16 @@ export default async function NewsDetailPage({ params }: Props) {
         "@id": `${articleUrl}#article`,
         headline: article.title,
         description: article.description?.slice(0, 160) || article.title,
-        image: articleImage,
+        image: {
+          "@type": "ImageObject",
+          url: articleImage,
+          width: 1200,
+          height: 630,
+        },
         datePublished: article.createdAt,
         dateModified: article.updatedAt || article.createdAt,
         url: articleUrl,
-        inLanguage: article.language === "fr" ? "fr" : "ar",
+        inLanguage,
         articleSection: article.category || "Education",
         keywords: Array.isArray(article.tags) ? article.tags.join(", ") : undefined,
         isPartOf: { "@type": "WebSite", "@id": `${SITE_URL}/#website` },
@@ -79,7 +92,12 @@ export default async function NewsDetailPage({ params }: Props) {
           "@type": "EducationalOrganization",
           "@id": `${SITE_URL}/#organization`,
           name: "Udarsy",
-          logo: { "@type": "ImageObject", url: `${SITE_URL}/og-image.png` },
+          logo: {
+            "@type": "ImageObject",
+            url: `${SITE_URL}/og-image.png`,
+            width: 1200,
+            height: 630,
+          },
         },
         author: {
           "@type": "Organization",
@@ -89,7 +107,7 @@ export default async function NewsDetailPage({ params }: Props) {
         ...(avgRating !== null && {
           aggregateRating: {
             "@type": "AggregateRating",
-            ratingValue: avgRating.toFixed(1),
+            ratingValue: parseFloat(avgRating.toFixed(1)),
             ratingCount: article.ratings.length,
             bestRating: 5,
             worstRating: 1,
@@ -99,6 +117,18 @@ export default async function NewsDetailPage({ params }: Props) {
           "@type": "SpeakableSpecification",
           cssSelector: [".article-description", "article p:first-of-type"],
         },
+      }
+    : null;
+
+  const breadcrumbSchema = article
+    ? {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Udarsy", item: SITE_URL },
+          { "@type": "ListItem", position: 2, name: "أخبار", item: `${SITE_URL}/news` },
+          { "@type": "ListItem", position: 3, name: article.title, item: articleUrl },
+        ],
       }
     : null;
 
@@ -127,6 +157,12 @@ export default async function NewsDetailPage({ params }: Props) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        />
+      )}
+      {breadcrumbSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
         />
       )}
       {faqSchema && (

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageTitle } from "@/lib/page-title";
 import "./calendar.css";
+import "../../styles/pickers.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {

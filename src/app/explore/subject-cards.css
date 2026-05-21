@@ -1,6 +1,6 @@
 /* ════════════════════════════════
    Subject Cards — Udarsy Theme
-   Matches lesson cards design language
+   Image-background card design
 ════════════════════════════════ */
 
 @keyframes fadeSlideUp {
@@ -21,8 +21,8 @@
 
 /* ─── Skeleton ─── */
 .subject-card-skeleton {
-  height: 188px;
-  border-radius: 18px;
+  height: 200px;
+  border-radius: 10px;
   background: linear-gradient(90deg, #f3f4f3 0%, #eaf2ed 40%, #f3f4f3 80%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite, fadeSlideUp 0.3s ease-out both;
@@ -31,19 +31,19 @@
 /* ─── Card ─── */
 .subject-card {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border-radius: 18px;
-  border: 1.5px solid rgba(58, 170, 106, 0.11);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  display: block;
+  height: 200px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(58, 170, 106, 0.55);
   overflow: hidden;
-  text-decoration: none;
   cursor: pointer;
+  text-decoration: none;
+  background-color: #1a3a2a;
+  background-size: cover;
+  background-position: center;
   transform: translateZ(0);
   transition:
     transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.28s ease,
     border-color 0.28s ease;
   will-change: transform;
   animation: fadeSlideUp 0.35s ease-out both;
@@ -51,10 +51,7 @@
 
 .subject-card:hover {
   transform: translate3d(0, -5px, 0);
-  border-color: rgba(58, 170, 106, 0.35);
-  box-shadow:
-    0 10px 28px rgba(58, 170, 106, 0.14),
-    0 3px 10px rgba(58, 170, 106, 0.08);
+  border-color: #3aaa6a;
 }
 
 .subject-card:active {
@@ -62,190 +59,109 @@
   transition-duration: 0.12s;
 }
 
-.subject-card-done {
-  border-color: rgba(58, 170, 106, 0.28);
-}
-
-/* ─── Icon header ─── */
-.subject-card-icon-area {
-  position: relative;
-  overflow: hidden;
-  padding: 1.4rem 1rem 1rem;
-  background: linear-gradient(135deg, #f0faf5 0%, #e8f5ee 100%);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-/* Dot texture overlay */
-.subject-card-icon-area::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(58, 170, 106, 0.18) 1px, transparent 1px);
-  background-size: 14px 14px;
-  pointer-events: none;
-}
-
-.subject-card-done .subject-card-icon-area {
-  background: linear-gradient(135deg, #e8f5ee 0%, #d4eddf 100%);
-}
-
-/* ─── Contour border — traces from both top corners down to bottom ─── */
+/* ─── Contour trace: green, clips from corners on hover ─── */
 .subject-card::before,
 .subject-card::after {
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: 18px;
-  border: 1px solid #3aaa6a;
+  inset: -1.5px;
+  border-radius: 10px;
+  border: 2px solid #3aaa6a;
   pointer-events: none;
   transition: clip-path 0.45s cubic-bezier(0.34, 1.2, 0.64, 1);
-  z-index: 2;
+  z-index: 4;
 }
 
-/* Left half — starts at top-left, traces down to bottom-left */
-.subject-card::before {
-  clip-path: inset(0 50% 100% 0);
-}
-
-/* Right half — starts at top-right, traces down to bottom-right */
-.subject-card::after {
-  clip-path: inset(0 0 100% 50%);
-}
+.subject-card::before { clip-path: inset(0 50% 100% 0); }
+.subject-card::after  { clip-path: inset(0 0 100% 50%); }
 
 .subject-card:hover::before,
-.subject-card-done::before {
-  clip-path: inset(0 50% 0% 0);
-}
-
+.subject-card-done::before { clip-path: inset(0 50% 0% 0); }
 .subject-card:hover::after,
-.subject-card-done::after {
-  clip-path: inset(0 0 0% 50%);
+.subject-card-done::after  { clip-path: inset(0 0 0% 50%); }
+
+/* ─── Gradient overlay ─── */
+.subject-card-overlay {
+  display: none;
 }
 
-/* ─── Icon box ─── */
-.subject-card-icon {
-  position: relative;
-  z-index: 1;
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
+/* ─── Title area: top-left, 50% wide, top 50% tall ─── */
+.subject-card-title-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  padding: 20px 12px 0 20px;
+  z-index: 2;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(58, 170, 106, 0.1);
+  align-items: flex-start;
+}
+
+.subject-card-title {
+  font-size: 1.45rem;
+  font-weight: 900;
   color: #3aaa6a;
-  transition: background 0.25s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  flex-shrink: 0;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.subject-card:hover .subject-card-icon {
-  background: rgba(58, 170, 106, 0.16);
-  transform: scale(1.08);
-}
-
-.subject-card-done .subject-card-icon {
-  background: #3aaa6a;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(58, 170, 106, 0.3);
-}
-
-/* ─── Progress ring ─── */
-.subject-card-ring {
-  position: relative;
-  z-index: 1;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-}
-
-/* Chevron arrow (shown on hover when not started) */
+/* ─── Arrow circle: bottom-left, appears on hover ─── */
 .subject-card-arrow {
-  position: relative;
-  z-index: 1;
-  width: 32px;
-  height: 32px;
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  border: 1.5px solid rgba(58, 170, 106, 0.15);
-  color: rgba(58, 170, 106, 0.4);
+  border: none;
+  background: #3aaa6a;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #ffffff;
   opacity: 0;
-  transform: translateX(-4px);
-  transition: opacity 0.2s, transform 0.2s, border-color 0.2s, color 0.2s;
+  transform: translateY(7px);
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .subject-card:hover .subject-card-arrow {
   opacity: 1;
-  transform: translateX(0);
-  border-color: rgba(58, 170, 106, 0.35);
-  color: #3aaa6a;
+  transform: translateY(0);
 }
 
-/* ─── Content body ─── */
-.subject-card-body {
-  padding: 0.9rem 1rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-}
-
-.subject-card-title {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #1a3a2a;
-  line-height: 1.45;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+/* ─── Progress ring: bottom-right ─── */
+.subject-card-ring {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 3;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   overflow: hidden;
-  transition: color 0.2s;
 }
 
-.subject-card:hover .subject-card-title {
-  color: #3aaa6a;
-}
-
-.subject-card-done .subject-card-title {
-  color: #3aaa6a;
-}
-
-/* ─── Footer (progress stats) ─── */
-.subject-card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 6px;
-  border-top: 1px solid rgba(58, 170, 106, 0.07);
-  margin-top: auto;
-}
-
-.subject-card-stat {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: rgba(58, 170, 106, 0.6);
-}
-
-.subject-card-badge {
-  font-size: 0.58rem;
-  font-weight: 800;
-  color: #fff;
-  background: #3aaa6a;
-  border-radius: 999px;
-  padding: 2px 8px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+/* ─── Fallback (no image) ─── */
+.subject-card-fallback {
+  background-image: linear-gradient(135deg, #1a3a2a 0%, #2a5c3f 50%, #1e4a32 100%) !important;
 }
 
 /* ════════════════════════════════
    Level Selector — Step Wizard
 ════════════════════════════════ */
 
-/* Step dots */
 .step-dot {
   width: 28px;
   height: 28px;
@@ -272,7 +188,6 @@
 .step-line-done    { background: #3aaa6a; }
 .step-line-pending { background: rgba(58,170,106,0.12); }
 
-/* Step icon box */
 .step-icon-box {
   width: 56px;
   height: 56px;
@@ -286,7 +201,6 @@
   animation: fadeSlideUp 0.4s ease-out both;
 }
 
-/* Selection option cards */
 .selection-card {
   position: relative;
   display: block;
@@ -318,7 +232,6 @@
   transition-duration: 0.1s;
 }
 
-/* ─── Contour border — traces from both top corners down to bottom ─── */
 .selection-card::before,
 .selection-card::after {
   content: '';
@@ -331,23 +244,12 @@
   z-index: 2;
 }
 
-.selection-card::before {
-  clip-path: inset(0 50% 100% 0);
-}
+.selection-card::before { clip-path: inset(0 50% 100% 0); }
+.selection-card::after  { clip-path: inset(0 0 100% 50%); }
 
-.selection-card::after {
-  clip-path: inset(0 0 100% 50%);
-}
+.selection-card:hover::before { clip-path: inset(0 50% 0% 0); }
+.selection-card:hover::after  { clip-path: inset(0 0 0% 50%); }
 
-.selection-card:hover::before {
-  clip-path: inset(0 50% 0% 0);
-}
-
-.selection-card:hover::after {
-  clip-path: inset(0 0 0% 50%);
-}
-
-/* Card inner row */
 .selection-card-row {
   display: flex;
   align-items: center;
@@ -383,9 +285,7 @@
   transition: color 0.2s;
 }
 
-.selection-card:hover .selection-card-label {
-  color: #3aaa6a;
-}
+.selection-card:hover .selection-card-label { color: #3aaa6a; }
 
 .selection-card-chevron {
   color: rgba(58,170,106,0.25);
@@ -398,7 +298,6 @@
   transform: translateX(3px);
 }
 
-/* Skeleton for selection cards */
 .selection-skeleton {
   height: 58px;
   border-radius: 16px;
@@ -411,7 +310,6 @@
    Navigation Buttons
 ════════════════════════════════ */
 
-/* ─── Back button ─── */
 .btn-back {
   display: inline-flex;
   align-items: center;
@@ -450,16 +348,9 @@
   flex-shrink: 0;
 }
 
-.btn-back:hover .btn-back-arrow {
-  transform: translateX(-3px);
-}
+.btn-back:hover .btn-back-arrow { transform: translateX(-3px); }
+.btn-back.rtl:hover .btn-back-arrow { transform: translateX(3px); }
 
-/* RTL variant */
-.btn-back.rtl:hover .btn-back-arrow {
-  transform: translateX(3px);
-}
-
-/* ─── Sign In button (used on dark green panels) ─── */
 .btn-signin {
   display: inline-flex;
   align-items: center;
@@ -494,22 +385,10 @@
 
 /* ─── Responsive ─── */
 @media (max-width: 640px) {
-  .subject-card-icon-area {
-    padding: 1.1rem 0.9rem 0.9rem;
-  }
-
-  .subject-card-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 11px;
-  }
-
-  .subject-card-body {
-    padding: 0.75rem 0.9rem 0.85rem;
-    gap: 5px;
-  }
-
-  .subject-card-title {
-    font-size: 0.83rem;
-  }
+  .subject-card { height: 175px; }
+  .subject-card-skeleton { height: 175px; }
+  .subject-card-title { font-size: 0.92rem; }
+  .subject-card-title-wrap { padding: 11px 11px 0; }
+  .subject-card-arrow { width: 30px; height: 30px; bottom: 10px; left: 10px; }
+  .subject-card-ring  { width: 34px; height: 34px; bottom: 10px; right: 10px; }
 }

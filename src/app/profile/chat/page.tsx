@@ -1376,7 +1376,7 @@ export default function ChatPage() {
                                 onChange={handleInputChange}
                                 placeholder={t("chat_placeholder")}
                                 disabled={isConnecting}
-                                className={`w-full bg-green/5 border-[1.5px] focus:bg-white focus:ring-4 pl-5 pr-14 py-4 outline-none transition-all disabled:opacity-50 font-medium text-dark placeholder:text-dark/35 text-sm ${badWordWarning ? "border-red-400 focus:border-red-400 focus:ring-red-100 bg-red-50/40" : "border-green/15 focus:border-green focus:ring-green/8"} ${activeReply ? "rounded-b-[22px] rounded-t-none border-t-0" : "rounded-[22px]"}`}
+                                className={`w-full bg-green/5 border-[1.5px] focus:bg-white focus:ring-4 pl-5 pr-14 py-4 outline-none transition-all disabled:opacity-50 font-medium text-dark placeholder:text-dark/85 text-sm ${badWordWarning ? "border-red-400 focus:border-red-400 focus:ring-red-100 bg-red-50/40" : "border-green/15 focus:border-green focus:ring-green/8"} ${activeReply ? "rounded-b-[22px] rounded-t-none border-t-0" : "rounded-[22px]"}`}
                             />
                             <motion.button
                                 whileHover={{ scale: 1.08, rotate: 3 }}
@@ -1456,7 +1456,7 @@ export default function ChatPage() {
                                             required
                                             value={reportDetails}
                                             onChange={(e) => setReportDetails(e.target.value)}
-                                            className="w-full px-4 py-3 rounded-[14px] bg-green/5 border-[1.5px] border-green/15 focus:border-green focus:bg-white outline-none transition-all font-medium text-sm text-dark min-h-[100px] resize-none placeholder:text-dark/30"
+                                            className="w-full px-4 py-3 rounded-[14px] bg-green/5 border-[1.5px] border-green/15 focus:border-green focus:bg-white outline-none transition-all font-medium text-sm text-dark min-h-[100px] resize-none placeholder:text-dark/85"
                                             placeholder={t("chat_details_placeholder")}
                                         />
                                     </div>

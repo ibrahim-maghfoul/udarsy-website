@@ -576,6 +576,8 @@
         "lessons": "دروس",
         "completed": "مكتمل",
         "in_progress": "قيد التقدم",
+        "change_path_hint": "هذا ليس مسارك؟",
+        "change_path_link": "غيّره من ملفك الشخصي",
         "mark_completed": "تعليم كمكتمل",
         "mark_completed_done": "مكتمل",
         "ai_explain_title": "شرح بالذكاء الاصطناعي",

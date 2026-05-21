@@ -224,7 +224,7 @@ export default function OnboardingPage() {
         if (photoMode === "avatar" && selections.gender) {
             try {
                 await api.patch("/user/profile", {
-                    photoURL: `/avatars/${selections.gender}.png`,
+                    photoURL: `/avatars/${selections.gender}.webp`,
                 });
             } catch (e) {
                 console.error("Failed to save avatar:", e);
@@ -540,7 +540,7 @@ export default function OnboardingPage() {
                                                             <div className="absolute inset-x-1 -inset-y-2 bg-gradient-to-tr from-green/20 to-emerald-400/20 rounded-[2.5rem] -z-10 blur-2xl" />
                                                             <div className="w-36 h-36 rounded-[2rem] overflow-hidden border-[3px] border-green shadow-xl relative">
                                                                 <Image
-                                                                    src={`/avatars/${selections.gender}.png`}
+                                                                    src={`/avatars/${selections.gender}.webp`}
                                                                     alt={`${selections.gender} avatar`}
                                                                     fill
                                                                     className="object-cover"
