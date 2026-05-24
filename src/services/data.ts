@@ -40,7 +40,18 @@ export function guidanceSlug(title: string): string {
     return subjectSlug(title);
 }
 
-export const getGuidanceBySlug = async (slug: string): Promise<Guidance & { _id: string }> => {
+// Backend now enriches both guidance endpoints with parent { level, school } and an
+// `implicit` flag so callers can build hierarchical /courses URLs without walking the
+// curriculum tree themselves. Older fields (_id, title, slug) are unchanged.
+export type GuidanceWithChain = Guidance & {
+    _id: string;
+    slug?: string;
+    implicit?: boolean;
+    level?: { _id: string; title: string; slug: string } | null;
+    school?: { _id: string; title: string; slug: string } | null;
+};
+
+export const getGuidanceBySlug = async (slug: string): Promise<GuidanceWithChain> => {
     const res = await api.get(`/data/guidance/by-slug/${slug}`);
     return { ...res.data, id: res.data._id };
 };
@@ -48,7 +59,7 @@ export const getGuidanceBySlug = async (slug: string): Promise<Guidance & { _id:
 // Canonical fetch by _id. Title-slugs are NOT unique across the curriculum
 // (multiple guidances/subjects share the same title), so in-app navigation must
 // use _id; getGuidanceBySlug / getSubjectBySlug are best-effort fallbacks only.
-export const getGuidanceById = async (id: string): Promise<(Guidance & { _id: string }) | null> => {
+export const getGuidanceById = async (id: string): Promise<GuidanceWithChain | null> => {
     try {
         const res = await api.get(`/data/guidance/${id}`);
         if (!res.data?._id) return null;

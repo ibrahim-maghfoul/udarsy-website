@@ -395,11 +395,11 @@
 }
 
 /* ─── Responsive ─── */
-@media (max-width: 640px) {
+@media (max-width: 549px) {
   .subject-card { height: 175px; }
   .subject-card-skeleton { height: 175px; }
-  .subject-card-title { font-size: 0.92rem; }
-  .subject-card-title-wrap { padding: 11px 11px 0; }
+  .subject-card-title { font-size: 1.25rem; }
+  .subject-card-title-wrap { padding: 16px 14px 0 16px; }
   .subject-card-arrow { width: 30px; height: 30px; bottom: 10px; left: 10px; }
   .subject-card-ring  { width: 34px; height: 34px; bottom: 10px; left: 10px; }
   .subject-card:hover .subject-card-ring { left: calc(100% - 44px); }

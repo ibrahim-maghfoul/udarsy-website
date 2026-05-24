@@ -116,13 +116,13 @@ function GuidanceSubjectsView({ chain }: { chain: CurriculumChain }) {
                     </div>
                 )}
                 {loading ? (
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
+                    <div className="grid grid-cols-1 min-[550px]:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
                         {Array(6).fill(0).map((_, i) => (
                             <div key={i} className="subject-card-skeleton" style={{ animationDelay: `${i * 70}ms` }} />
                         ))}
                     </div>
                 ) : filtered.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
+                    <div className="grid grid-cols-1 min-[550px]:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
                         {filtered.map((subject: any, index: number) => {
                             const lessonIdSet: Set<string> = new Set(subject.lessonIds || []);
                             const currentSubjectId: string = subject._id || subject.id || '';

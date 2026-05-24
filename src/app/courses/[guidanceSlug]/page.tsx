@@ -7,7 +7,7 @@ import {
     Search, BookOpen, ChevronRight, ChevronLeft, LogIn,
     ArrowLeft, UserPlus, School, GraduationCap,
 } from "lucide-react";
-import { getGuidanceBySlug, getGuidanceById, getSubjects, getSchools, getLevels, subjectSlug, prefetchLessons } from "@/services/data";
+import { getGuidanceBySlug, getGuidanceById, getSubjects, getSchools, getLevels, subjectSlug, curriculumPath, prefetchLessons, type CurriculumChain } from "@/services/data";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslations, useLocale } from "next-intl";
 import { getSubjectImage } from "@/lib/subjectImages";
@@ -30,6 +30,12 @@ export default function GuidanceSubjectsPage() {
     const [subjects, setSubjects] = useState<any[]>([]);
     const [schoolName, setSchoolName] = useState('');
     const [levels, setLevels] = useState<any[]>([]);
+    // Resolved chain (school/level/guidance) for the current guidance. Used to build the
+    // hierarchical /courses/<school>/<level>/<guidance>/<subject> URLs on subject cards.
+    // Without this, guests landing here from the GuestLevelSelector ended up with ugly
+    // /courses/subject/<uuid> links because the chain was only available to authed users
+    // (via user.level) on /explore.
+    const [chain, setChain] = useState<Partial<CurriculumChain> | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -42,6 +48,19 @@ export default function GuidanceSubjectsPage() {
             // Canonical _id first, then legacy slug, then school slug.
             const guidance = (await getGuidanceById(guidanceParam)) ?? (await getGuidanceBySlug(guidanceParam).catch(() => null));
             if (guidance?._id) {
+                // If we have the full chain, redirect to the canonical hierarchical URL so
+                // the address bar matches what the rest of the site uses. The catch-all
+                // route at /courses/[...path] renders the same guidance subject grid, so
+                // there's no visual flash beyond the URL change.
+                if (guidance.school && guidance.level) {
+                    const canonical = curriculumPath({
+                        school: guidance.school,
+                        level: guidance.level,
+                        guidance: { _id: guidance._id, title: guidance.title, slug: guidance.slug ?? subjectSlug(guidance.title), implicit: !!guidance.implicit },
+                    });
+                    router.replace(canonical);
+                    return;
+                }
                 setMode('guidance');
                 setGuidanceName(guidance.title);
                 const subs = await getSubjects(guidance._id);
@@ -219,13 +238,13 @@ export default function GuidanceSubjectsPage() {
                 )}
 
                 {loading ? (
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
+                    <div className="grid grid-cols-1 min-[550px]:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
                         {Array(6).fill(0).map((_, i) => (
                             <div key={i} className="subject-card-skeleton" style={{ animationDelay: `${i * 70}ms` }} />
                         ))}
                     </div>
                 ) : filteredSubjects.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
+                    <div className="grid grid-cols-1 min-[550px]:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
                         {filteredSubjects.map((subject: any, index: number) => {
                             const lessonIdSet: Set<string> = new Set(subject.lessonIds || []);
                             const currentSubjectId: string = subject._id || subject.id || '';
@@ -251,7 +270,9 @@ export default function GuidanceSubjectsPage() {
 
                             return (
                                 <Link
-                                    href={`/courses/subject/${subject._id ?? subject.id}`}
+                                    href={chain?.school && chain?.level && chain?.guidance
+                                        ? curriculumPath({ ...chain, subject: { _id: subject._id, title: subject.title, slug: subject.slug ?? subjectSlug(subject.title) } })
+                                        : `/courses/subject/${subject._id ?? subject.id}`}
                                     key={subject.id}
                                     className={`subject-card ${isComplete ? 'subject-card-done' : ''}${!imageUrl ? ' subject-card-fallback' : ''}`}
                                     style={{

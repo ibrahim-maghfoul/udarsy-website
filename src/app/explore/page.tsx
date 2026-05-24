@@ -13,13 +13,32 @@ import "./subject-cards.css";
 // ---------- Guest Level Selector component ----------
 import { GraduationCap, School, UserPlus } from "lucide-react";
 
-function GuestLevelSelector({ onSelect }: { onSelect: (guidanceId: string, title: string) => void }) {
+// onSelect receives a ready-to-navigate hierarchical /courses URL. We keep the title
+// only for callers that want to set a display name; the URL is already canonical.
+function GuestLevelSelector({ onSelect }: { onSelect: (url: string, title: string) => void }) {
     const t = useTranslations('Onboarding');
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(true);
     const [options, setOptions] = useState<any[]>([]);
-    const [selections, setSelections] = useState({ schoolId: "", levelId: "" });
+    // Stash the school + level the user picked along the way — we need their titles
+    // (not just IDs) to build the hierarchical URL at the end, matching what authed
+    // users get from /explore without a redirect bounce through the UUID URL.
+    const [selections, setSelections] = useState<{
+        school?: { id: string; title: string };
+        level?: { id: string; title: string };
+    }>({});
+
+    const finishSelection = (guidance: { id: string; title: string }, implicit: boolean) => {
+        const { school, level } = selections;
+        if (!school || !level) return;
+        const url = curriculumPath({
+            school: { _id: school.id, title: school.title, slug: subjectSlug(school.title) },
+            level: { _id: level.id, title: level.title, slug: subjectSlug(level.title) },
+            guidance: { _id: guidance.id, title: guidance.title, slug: subjectSlug(guidance.title), implicit },
+        });
+        onSelect(url, guidance.title);
+    };
 
     useEffect(() => {
         fetchOptions();
@@ -44,7 +63,8 @@ function GuestLevelSelector({ onSelect }: { onSelect: (guidanceId: string, title
                 // Prefetch levels for all schools so next step loads instantly
                 res.forEach(s => prefetchLevels(s.id));
             } else if (step === 2) {
-                res = await getLevels(selections.schoolId);
+                if (!selections.school) return;
+                res = await getLevels(selections.school.id);
                 res.sort((a, b) => {
                     const priority = (title: string) => {
                         const l = title.toLowerCase();
@@ -58,9 +78,11 @@ function GuestLevelSelector({ onSelect }: { onSelect: (guidanceId: string, title
                 // Prefetch guidances for all levels
                 res.forEach(l => prefetchGuidances(l.id));
             } else if (step === 3) {
-                res = await getGuidances(selections.levelId);
+                if (!selections.level) return;
+                res = await getGuidances(selections.level.id);
                 if (res.length === 1) {
-                    onSelect(res[0].id, res[0].title);
+                    // Implicit guidance: curriculumPath drops the guidance segment for us.
+                    finishSelection({ id: res[0].id, title: res[0].title }, true);
                     return;
                 }
             }
@@ -74,13 +96,14 @@ function GuestLevelSelector({ onSelect }: { onSelect: (guidanceId: string, title
 
     const handleSelect = (item: any) => {
         if (step === 1) {
-            setSelections(prev => ({ ...prev, schoolId: item.id }));
+            setSelections({ school: { id: item.id, title: item.title } });
             setStep(2);
         } else if (step === 2) {
-            setSelections(prev => ({ ...prev, levelId: item.id }));
+            setSelections(prev => ({ ...prev, level: { id: item.id, title: item.title } }));
             setStep(3);
         } else {
-            onSelect(item.id, item.title);
+            // Reached step 3 with multiple guidances — explicit pick, not implicit.
+            finishSelection({ id: item.id, title: item.title }, false);
         }
     };
 
@@ -302,8 +325,8 @@ export default function ExplorePage() {
 
     // If not logged in and no path is selected yet, show selector
     if (!user && !loading && !anonymousPathParams) {
-        return <GuestLevelSelector onSelect={(guidanceId) => {
-            router.replace(`/courses/${guidanceId}`);
+        return <GuestLevelSelector onSelect={(url) => {
+            router.replace(url);
         }} />;
     }
 
