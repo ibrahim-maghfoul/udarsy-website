@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import "@/styles/pickers.css";
 
 type View = 'day' | 'month' | 'year';
 
