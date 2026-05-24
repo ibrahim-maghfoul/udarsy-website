@@ -8,7 +8,7 @@ import {
     Calculator, Atom, Globe, Microscope, Cpu, Lightbulb,
     FlaskConical, Languages, Database,
 } from "lucide-react";
-import { getSchools, getLevels, getGuidances, subjectSlug, guidanceSlug } from "@/services/data";
+import { getSchools, getLevels, getGuidances, subjectSlug } from "@/services/data";
 import { useLocale } from "next-intl";
 
 function getGuidanceIcon(title: string) {
@@ -43,22 +43,27 @@ export default function LevelPage() {
         if (!sSlug || !lSlug) return;
         setLoading(true);
         setError(false);
-        getSchools()
-            .then(schools => {
-                const school = schools.find(s => subjectSlug(s.title) === sSlug);
-                if (!school) throw new Error('School not found');
-                setSchoolName(school.title);
-                return getLevels(school.id);
-            })
-            .then(levels => {
-                const level = levels.find((l: any) => subjectSlug(l.title) === lSlug);
-                if (!level) throw new Error('Level not found');
-                setLevelName(level.title);
-                return getGuidances(level.id);
-            })
-            .then(gs => { setGuidances(gs); setLoading(false); })
-            .catch(() => { setError(true); setLoading(false); });
-    }, [sSlug, lSlug]);
+        (async () => {
+            const schools = await getSchools();
+            const school = schools.find(s => subjectSlug(s.title) === sSlug);
+            if (!school) throw new Error('School not found');
+            setSchoolName(school.title);
+            const levels = await getLevels(school.id);
+            const level = levels.find((l: any) => subjectSlug(l.title) === lSlug);
+            if (!level) throw new Error('Level not found');
+            setLevelName(level.title);
+            const gs = await getGuidances(level.id);
+            // Primaire/Collège levels have a single "General" guidance — there's no
+            // meaningful choice for the user, so route them straight to that guidance's
+            // subjects page. The catch-all renders the subjects view there.
+            if (gs.length === 1) {
+                router.replace(`/courses/${encodeURIComponent(sSlug)}/${encodeURIComponent(lSlug)}/${encodeURIComponent(subjectSlug(gs[0].title))}`);
+                return;
+            }
+            setGuidances(gs);
+            setLoading(false);
+        })().catch(() => { setError(true); setLoading(false); });
+    }, [sSlug, lSlug, router]);
 
     const filtered = useMemo(() =>
         guidances.filter(g => g.title.toLowerCase().includes(searchQuery.toLowerCase())),
@@ -144,7 +149,7 @@ export default function LevelPage() {
                 ) : filtered.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                         {filtered.map((g: any, index: number) => (
-                            <Link key={g.id || g._id} href={`/courses/${guidanceSlug(g.title)}`}
+                            <Link key={g.id || g._id} href={`/courses/${encodeURIComponent(sSlug)}/${encodeURIComponent(lSlug)}/${encodeURIComponent(subjectSlug(g.title))}`}
                                 className="group flex items-center gap-4 p-5 bg-white border border-green/12 rounded-2xl hover:border-green/30 hover:shadow-md hover:shadow-green/8 transition-all duration-200"
                                 style={{ animationDelay: `${index * 40}ms` }}>
                                 <div className="w-11 h-11 rounded-xl bg-green/8 text-green flex items-center justify-center shrink-0 group-hover:bg-green/15 transition-colors">

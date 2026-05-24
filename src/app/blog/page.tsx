@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BookOpen, Clock, ChevronRight, Rss } from 'lucide-react';
-import { getPostsByLocale, CATEGORY_COLORS, type BlogPost } from './_data';
-import { serverFetch } from '@/lib/serverFetch';
+import { getPostsByLocale, CATEGORY_COLORS } from './_data';
 import { getTranslations, getLocale } from 'next-intl/server';
 
 export const metadata: Metadata = {
@@ -22,7 +21,7 @@ export const metadata: Metadata = {
     title: 'Blog Udarsy — Guides et Conseils Éducatifs',
     description:
       "Tout ce qu'il faut savoir pour réussir au Maroc : BAC, méthodes de révision et fonctionnalités de la plateforme.",
-    images: [{ url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&auto=format&fit=crop&q=80', width: 1200, height: 630, alt: 'Blog Udarsy' }],
+    images: [{ url: 'https://files.udarsy.com/uploads/blog/6a0e3e8a9b343850b033636c/cover-5375ba96-e690-4941-b932-6d309b5651c9.webp', width: 1200, height: 630, alt: 'Blog Udarsy' }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -32,23 +31,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/blog' },
 };
 
-async function getPosts(locale: string): Promise<BlogPost[]> {
-  try {
-    const data = await serverFetch<BlogPost[]>('/blog', { revalidate: 3600 });
-    if (Array.isArray(data) && data.length > 0) return data;
-  } catch {
-    // fall through to static
-  }
-  return getPostsByLocale(locale);
-}
-
 export default async function BlogPage() {
   const [t, locale] = await Promise.all([
     getTranslations('Blog'),
     getLocale(),
   ]);
 
-  const allPosts = await getPosts(locale);
+  const allPosts = getPostsByLocale(locale);
   const [featured, ...rest] = allPosts;
 
   const isRtl = locale === 'ar';

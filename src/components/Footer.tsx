@@ -69,7 +69,7 @@ export function Footer() {
                         <Link href="/pricing" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('pricing')}</Link>
                         <Link href="/services" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('services')}</Link>
                         <Link href="/news" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('news')}</Link>
-                        <Link href="/blog" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">Blog</Link>
+                        <Link href="/blog" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('blog')}</Link>
                         <Link href="/instructors" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('instructors')}</Link>
                         <Link href="/download" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('download')}</Link>
                     </div>
@@ -78,7 +78,7 @@ export function Footer() {
                     <div className="flex flex-col gap-3">
                         <h3 className="text-[11px] font-black tracking-widest uppercase text-white mb-1">{t('company')}</h3>
                         <Link href="/about" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('about')}</Link>
-                        <Link href="/blog" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">Blog</Link>
+                        <Link href="/blog" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('blog')}</Link>
                         <Link href="/pricing" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('pricing')}</Link>
                         <Link href="/contact" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('contact')}</Link>
                         <Link href="/report" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('report')}</Link>

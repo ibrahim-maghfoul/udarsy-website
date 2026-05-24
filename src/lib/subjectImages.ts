@@ -11,6 +11,7 @@ const SUBJECT_IMAGES: Record<string, string> = {
   "Français":                                                `${CDN}/Francais.webp`,
   "Histoire Géographie":                                     `${CDN}/Histoire-Geo.webp`,
   "Informatique":                                            `${CDN}/Informatique.webp`,
+  "Informatique de gestion":                                 `${CDN}/Informatique-de-gestion.webp`,
   "Mathématiques (BIOF)":                                    `${CDN}/Maths-BIOF.webp`,
   "Mathématiques (Fr)":                                      `${CDN}/Maths-Fr.webp`,
   "Mathématiques":                                           `${CDN}/Maths.webp`,

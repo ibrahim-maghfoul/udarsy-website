@@ -1,52 +1,23 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, ChevronRight, BookOpen, ArrowLeft, Tag, ExternalLink } from 'lucide-react';
-import { posts as staticPosts, getPostByLocale, CATEGORY_COLORS, type BlogPost, type Block } from '../_data';
-import { serverFetch } from '@/lib/serverFetch';
+import { getPostByLocale, getPostsByLocale, getAllSlugs, CATEGORY_COLORS, type Block } from '../_data';
 import { getTranslations, getLocale } from 'next-intl/server';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function fetchPost(slug: string, locale: string): Promise<BlogPost | null> {
-  try {
-    const data = await serverFetch<BlogPost>(`/blog/${slug}`, { revalidate: 3600 });
-    if (data && data.slug) return data;
-  } catch {
-    // fall through
-  }
-  return getPostByLocale(locale, slug) ?? null;
-}
-
-async function fetchAllPosts(locale: string): Promise<BlogPost[]> {
-  try {
-    const data = await serverFetch<BlogPost[]>('/blog', { revalidate: 3600 });
-    if (Array.isArray(data) && data.length > 0) return data;
-  } catch {
-    // fall through
-  }
-  const { getPostsByLocale } = await import('../_data');
-  return getPostsByLocale(locale);
-}
-
-export async function generateStaticParams() {
-  try {
-    const data = await serverFetch<BlogPost[]>('/blog', { revalidate: 3600 });
-    if (Array.isArray(data) && data.length > 0) {
-      return data.map((p) => ({ slug: p.slug }));
-    }
-  } catch {
-    // fall through
-  }
-  return staticPosts.map((p) => ({ slug: p.slug }));
+export function generateStaticParams() {
+  return getAllSlugs().map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = await fetchPost(slug, 'fr');
+  const locale = await getLocale();
+  const post = getPostByLocale(locale, slug);
   if (!post) return {};
 
   return {
@@ -166,11 +137,14 @@ export default async function BlogPostPage({ params }: Props) {
   const isRtl = locale === 'ar';
   const dateLocale = locale === 'ar' ? 'ar-MA' : locale === 'en' ? 'en-US' : 'fr-MA';
 
-  const [post, allPosts] = await Promise.all([
-    fetchPost(slug, locale),
-    fetchAllPosts(locale),
-  ]);
+  const post = getPostByLocale(locale, slug);
   if (!post) notFound();
+
+  if (post.slug !== slug) {
+    redirect(`/blog/${post.slug}`);
+  }
+
+  const allPosts = getPostsByLocale(locale);
 
   const related = allPosts
     .filter((p) => p.slug !== post.slug && p.category === post.category)

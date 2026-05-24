@@ -2,7 +2,8 @@ import type { BlogPost } from './_data';
 
 export const enPosts: BlogPost[] = [
   {
-    slug: 'qu-est-ce-que-udarsy',
+    id: 'what-is-udarsy',
+    slug: 'what-is-udarsy',
     title: "What is Udarsy? Morocco's #1 Educational Platform",
     description:
       "Udarsy is a free digital learning platform built for Moroccan students from middle school through the BAC. Thousands of courses, exercises, and past exams — all aligned with the official curriculum.",
@@ -13,7 +14,7 @@ export const enPosts: BlogPost[] = [
     date: '2025-09-01',
     readTime: '9 min',
     coverImage:
-      'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8a9b343850b033636c/cover-5375ba96-e690-4941-b932-6d309b5651c9.webp',
     keywords: ['udarsy', 'educational platform morocco', 'online courses morocco'],
     blocks: [
       {
@@ -45,7 +46,8 @@ export const enPosts: BlogPost[] = [
   },
 
   {
-    slug: 'comment-reussir-son-bac-maroc',
+    id: 'pass-bac-morocco',
+    slug: 'how-to-pass-bac-morocco',
     title: 'How to Pass Your BAC in Morocco — Methods & Resources 2025',
     description:
       'Practical guide to passing the Moroccan Baccalaureate with honors. Study schedule, memorization techniques, and recommended Udarsy resources.',
@@ -56,7 +58,7 @@ export const enPosts: BlogPost[] = [
     date: '2025-09-15',
     readTime: '11 min',
     coverImage:
-      'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b033636f/cover-f0997faa-a7bd-4ecb-bea7-fff9acbe8acd.webp',
     keywords: ['bac morocco 2025', 'pass baccalaureate morocco', 'bac revision morocco'],
     blocks: [
       {
@@ -88,7 +90,8 @@ export const enPosts: BlogPost[] = [
   },
 
   {
-    slug: 'cours-gratuits-lycee-maroc',
+    id: 'free-high-school-courses',
+    slug: 'free-high-school-courses-morocco',
     title: 'Free Courses for High School Students in Morocco',
     description:
       'Math, Physics, Biology, History-Geography, Arabic... Thousands of free PDF courses and videos aligned with the official Moroccan curriculum.',
@@ -99,7 +102,7 @@ export const enPosts: BlogPost[] = [
     date: '2025-10-01',
     readTime: '9 min',
     coverImage:
-      'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b0336372/cover-90e67a5c-30dd-4233-ba57-ca0653e76ec7.webp',
     keywords: ['free high school courses morocco', 'math courses morocco', 'physics morocco'],
     blocks: [
       {
@@ -137,7 +140,8 @@ export const enPosts: BlogPost[] = [
   },
 
   {
-    slug: 'premiers-pas-sur-udarsy',
+    id: 'getting-started',
+    slug: 'getting-started-udarsy',
     title: 'First Steps on Udarsy — Complete Getting Started Guide',
     description:
       'How to create your account, set up your profile, choose your subjects, and get the most out of Udarsy from your very first session.',
@@ -148,7 +152,7 @@ export const enPosts: BlogPost[] = [
     date: '2025-10-15',
     readTime: '8 min',
     coverImage:
-      'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b0336375/cover-6537210e-64a9-4b18-a25c-aabe46bd28f2.webp',
     keywords: ['how to use udarsy', 'getting started udarsy', 'create udarsy account'],
     blocks: [
       {
@@ -180,7 +184,8 @@ export const enPosts: BlogPost[] = [
   },
 
   {
-    slug: 'salles-chat-etude-udarsy',
+    id: 'study-chat-rooms',
+    slug: 'study-chat-rooms-udarsy',
     title: 'Study Chat Rooms — Study Together on Udarsy',
     description:
       "Udarsy's chat rooms let Moroccan students collaborate, ask questions, and study in groups by subject and level in real time.",
@@ -191,7 +196,7 @@ export const enPosts: BlogPost[] = [
     date: '2025-11-01',
     readTime: '7 min',
     coverImage:
-      'https://images.unsplash.com/photo-1529390079861-591de354faf5?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b0336378/cover-fda1db07-ef9b-478a-b564-bbbc1f3ebc8b.webp',
     keywords: ['study chat morocco', 'revision group morocco', 'udarsy chat'],
     blocks: [
       {
@@ -226,7 +231,8 @@ export const enPosts: BlogPost[] = [
   },
 
   {
-    slug: 'abonnements-udarsy-gratuit-pro-premium',
+    id: 'subscriptions',
+    slug: 'udarsy-subscriptions-free-pro-premium',
     title: 'Free, Pro or Premium — Which Udarsy Plan in 2025?',
     description:
       'Detailed comparison of Udarsy plans: included content, downloads, pricing, and benefits of each offer for Moroccan students.',
@@ -237,7 +243,7 @@ export const enPosts: BlogPost[] = [
     date: '2025-11-15',
     readTime: '8 min',
     coverImage:
-      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b033637b/cover-38b0e0fc-090f-4e50-beb3-82d339c626e4.webp',
     keywords: ['udarsy subscription price', 'udarsy pro premium', 'educational platform pricing morocco'],
     blocks: [
       {
@@ -270,7 +276,8 @@ export const enPosts: BlogPost[] = [
   },
 
   {
-    slug: 'devenir-enseignant-instructeur-udarsy',
+    id: 'become-teacher-instructor',
+    slug: 'become-teacher-instructor-udarsy',
     title: 'Become a Teacher or Instructor on Udarsy — Full Guide',
     description:
       "Share your knowledge and reach thousands of Moroccan students. Learn how to apply as a teacher or instructor on Udarsy.",
@@ -281,7 +288,7 @@ export const enPosts: BlogPost[] = [
     date: '2025-12-01',
     readTime: '9 min',
     coverImage:
-      'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b033637e/cover-b462e0af-cb05-42f8-b94f-f927383490db.webp',
     keywords: ['become teacher udarsy', 'instructor platform morocco', 'share courses morocco'],
     blocks: [
       {
@@ -311,7 +318,8 @@ export const enPosts: BlogPost[] = [
   },
 
   {
-    slug: 'cours-hors-ligne-telechargement',
+    id: 'offline-courses',
+    slug: 'offline-courses-download',
     title: 'Study Offline — Download Your Courses on Udarsy',
     description:
       'How to download your PDF courses on Udarsy for offline study. Perfect for low-connectivity areas or studying on the go.',
@@ -322,7 +330,7 @@ export const enPosts: BlogPost[] = [
     date: '2025-12-15',
     readTime: '6 min',
     coverImage:
-      'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b0336381/cover-53ea023d-0363-4995-8142-91fbb4ec8e89.webp',
     keywords: ['offline courses morocco', 'download PDF courses morocco', 'udarsy offline'],
     blocks: [
       {
@@ -357,7 +365,8 @@ export const enPosts: BlogPost[] = [
   },
 
   {
-    slug: 'hub-contributions-communaute',
+    id: 'contributions-hub',
+    slug: 'community-contributions-hub',
     title: 'The Contributions Hub — Share Your Resources on Udarsy',
     description:
       "Submit your revision notes, exercises, and courses on Udarsy, climb the leaderboard, and help thousands of Moroccan students succeed.",
@@ -368,7 +377,7 @@ export const enPosts: BlogPost[] = [
     date: '2026-01-10',
     readTime: '7 min',
     coverImage:
-      'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8c9b343850b0336384/cover-25127d83-25da-46ab-8b58-98b33a7d4263.webp',
     keywords: ['udarsy contributions', 'share revision notes morocco', 'student leaderboard morocco'],
     blocks: [
       {
@@ -404,7 +413,8 @@ export const enPosts: BlogPost[] = [
   },
 
   {
-    slug: 'calendrier-scolaire-maroc-2025-2026',
+    id: 'school-calendar-2025-2026',
+    slug: 'school-calendar-morocco-2025-2026',
     title: 'Moroccan School Calendar 2025-2026 — All Important Dates',
     description:
       'Back to school, holidays, Brevet and BAC exams in Morocco for the 2025-2026 year. Check the official calendar and sync it with Udarsy.',
@@ -415,7 +425,7 @@ export const enPosts: BlogPost[] = [
     date: '2026-01-20',
     readTime: '7 min',
     coverImage:
-      'https://images.unsplash.com/photo-1506784926709-22f1ec395907?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8c9b343850b0336387/cover-edfb4bb5-7b9c-4cea-ac15-4aa1f92a49ed.webp',
     keywords: ['moroccan school calendar 2025-2026', 'school holidays morocco', 'bac dates morocco 2026'],
     blocks: [
       {

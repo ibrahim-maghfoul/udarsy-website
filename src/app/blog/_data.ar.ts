@@ -2,7 +2,8 @@ import type { BlogPost } from './_data';
 
 export const arPosts: BlogPost[] = [
   {
-    slug: 'qu-est-ce-que-udarsy',
+    id: 'what-is-udarsy',
+    slug: 'ma-houwa-udarsy',
     title: 'ما هو أدارسي؟ منصة التعليم الأولى في المغرب',
     description:
       'أدارسي هي منصة تعليمية رقمية مجانية مصممة للطلاب المغاربة من الإعدادي حتى الباكالوريا. آلاف الدروس والتمارين والامتحانات الوطنية — متوافقة مع البرنامج الرسمي.',
@@ -13,7 +14,7 @@ export const arPosts: BlogPost[] = [
     date: '2025-09-01',
     readTime: '9 دقائق',
     coverImage:
-      'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8a9b343850b033636c/cover-5375ba96-e690-4941-b932-6d309b5651c9.webp',
     keywords: ['أدارسي', 'منصة تعليمية المغرب', 'دروس مجانية المغرب'],
     blocks: [
       {
@@ -45,7 +46,8 @@ export const arPosts: BlogPost[] = [
   },
 
   {
-    slug: 'comment-reussir-son-bac-maroc',
+    id: 'pass-bac-morocco',
+    slug: 'kayfa-tanjah-bac-maghrib',
     title: 'كيف تنجح في الباكالوريا بالمغرب — أساليب وموارد 2025',
     description:
       'دليل عملي للنجاح في الباكالوريا المغربية بتقدير مرتفع. جدول المراجعة وتقنيات الحفظ والموارد الموصى بها على أدارسي.',
@@ -56,7 +58,7 @@ export const arPosts: BlogPost[] = [
     date: '2025-09-15',
     readTime: '11 دقيقة',
     coverImage:
-      'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b033636f/cover-f0997faa-a7bd-4ecb-bea7-fff9acbe8acd.webp',
     keywords: ['باكالوريا المغرب 2025', 'النجاح في الباكالوريا', 'مراجعة الباك المغرب'],
     blocks: [
       {
@@ -88,7 +90,8 @@ export const arPosts: BlogPost[] = [
   },
 
   {
-    slug: 'cours-gratuits-lycee-maroc',
+    id: 'free-high-school-courses',
+    slug: 'doroos-majaniya-thanaoui-maghrib',
     title: 'دروس مجانية لطلاب الثانوي في المغرب',
     description:
       'الرياضيات، الفيزياء والكيمياء، علوم الحياة والأرض، التاريخ والجغرافيا... آلاف الدروس PDF ومقاطع الفيديو المجانية المتوافقة مع البرنامج الرسمي المغربي.',
@@ -99,7 +102,7 @@ export const arPosts: BlogPost[] = [
     date: '2025-10-01',
     readTime: '9 دقائق',
     coverImage:
-      'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b0336372/cover-90e67a5c-30dd-4233-ba57-ca0653e76ec7.webp',
     keywords: ['دروس مجانية ثانوي المغرب', 'دروس رياضيات المغرب', 'فيزياء وكيمياء المغرب'],
     blocks: [
       {
@@ -137,7 +140,8 @@ export const arPosts: BlogPost[] = [
   },
 
   {
-    slug: 'premiers-pas-sur-udarsy',
+    id: 'getting-started',
+    slug: 'bidaya-maa-udarsy',
     title: 'الخطوات الأولى على أدارسي — دليل شامل للبداية',
     description:
       'كيف تنشئ حسابك وتضبط ملفك الشخصي وتختار موادك وتستفيد من أدارسي منذ جلستك الأولى.',
@@ -148,7 +152,7 @@ export const arPosts: BlogPost[] = [
     date: '2025-10-15',
     readTime: '8 دقائق',
     coverImage:
-      'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b0336375/cover-6537210e-64a9-4b18-a25c-aabe46bd28f2.webp',
     keywords: ['كيفية استخدام أدارسي', 'البدء مع أدارسي', 'إنشاء حساب أدارسي'],
     blocks: [
       {
@@ -180,7 +184,8 @@ export const arPosts: BlogPost[] = [
   },
 
   {
-    slug: 'salles-chat-etude-udarsy',
+    id: 'study-chat-rooms',
+    slug: 'ghuraf-dirasa-udarsy',
     title: 'غرف الدراسة الجماعية — ذاكر مع زملائك على أدارسي',
     description:
       'تتيح غرف الدردشة في أدارسي للطلاب المغاربة التعاون وطرح الأسئلة والمذاكرة الجماعية حسب المادة والمستوى في الوقت الفعلي.',
@@ -191,7 +196,7 @@ export const arPosts: BlogPost[] = [
     date: '2025-11-01',
     readTime: '7 دقائق',
     coverImage:
-      'https://images.unsplash.com/photo-1529390079861-591de354faf5?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b0336378/cover-fda1db07-ef9b-478a-b564-bbbc1f3ebc8b.webp',
     keywords: ['دردشة دراسة المغرب', 'مجموعة مراجعة المغرب', 'أدارسي شات'],
     blocks: [
       {
@@ -226,7 +231,8 @@ export const arPosts: BlogPost[] = [
   },
 
   {
-    slug: 'abonnements-udarsy-gratuit-pro-premium',
+    id: 'subscriptions',
+    slug: 'ishtirakaat-udarsy-majani-pro-premium',
     title: 'مجاني، برو أم بريميوم — أي اشتراك أدارسي تختار في 2025؟',
     description:
       'مقارنة تفصيلية بين اشتراكات أدارسي: المحتوى المتضمن، التحميلات، الأسعار، ومزايا كل عرض للطلاب المغاربة.',
@@ -237,7 +243,7 @@ export const arPosts: BlogPost[] = [
     date: '2025-11-15',
     readTime: '8 دقائق',
     coverImage:
-      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b033637b/cover-38b0e0fc-090f-4e50-beb3-82d339c626e4.webp',
     keywords: ['سعر اشتراك أدارسي', 'أدارسي برو بريميوم', 'تسعير منصة تعليمية المغرب'],
     blocks: [
       {
@@ -270,7 +276,8 @@ export const arPosts: BlogPost[] = [
   },
 
   {
-    slug: 'devenir-enseignant-instructeur-udarsy',
+    id: 'become-teacher-instructor',
+    slug: 'sir-ustadh-aw-mudarrib-udarsy',
     title: 'كيف تصبح أستاذاً أو مدرباً على أدارسي — دليل شامل',
     description:
       'شارك علمك وصل لآلاف الطلاب المغاربة. اكتشف كيف تتقدم كأستاذ أو مدرب على أدارسي.',
@@ -281,7 +288,7 @@ export const arPosts: BlogPost[] = [
     date: '2025-12-01',
     readTime: '9 دقائق',
     coverImage:
-      'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b033637e/cover-b462e0af-cb05-42f8-b94f-f927383490db.webp',
     keywords: ['أصبح أستاذاً على أدارسي', 'مدرب منصة تعليمية المغرب', 'مشاركة الدروس المغرب'],
     blocks: [
       {
@@ -311,7 +318,8 @@ export const arPosts: BlogPost[] = [
   },
 
   {
-    slug: 'cours-hors-ligne-telechargement',
+    id: 'offline-courses',
+    slug: 'doroos-bidoun-internet',
     title: 'الدراسة بدون إنترنت — حمّل دروسك على أدارسي',
     description:
       'كيف تحمّل دروسك PDF على أدارسي للدراسة بدون إنترنت. مثالي للمناطق ذات الاتصال الضعيف أو للمذاكرة أثناء التنقل.',
@@ -322,7 +330,7 @@ export const arPosts: BlogPost[] = [
     date: '2025-12-15',
     readTime: '6 دقائق',
     coverImage:
-      'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b0336381/cover-53ea023d-0363-4995-8142-91fbb4ec8e89.webp',
     keywords: ['دروس بدون إنترنت المغرب', 'تحميل دروس PDF المغرب', 'أدارسي أوفلاين'],
     blocks: [
       {
@@ -357,7 +365,8 @@ export const arPosts: BlogPost[] = [
   },
 
   {
-    slug: 'hub-contributions-communaute',
+    id: 'contributions-hub',
+    slug: 'markaz-musahamaat-udarsy',
     title: 'مركز المساهمات — شارك مواردك على أدارسي',
     description:
       'قدّم ملخصاتك وتمارينك ودروسك على أدارسي، ارتقِ في لوحة المتصدرين، وساعد آلاف الطلاب المغاربة على النجاح.',
@@ -368,7 +377,7 @@ export const arPosts: BlogPost[] = [
     date: '2026-01-10',
     readTime: '7 دقائق',
     coverImage:
-      'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8c9b343850b0336384/cover-25127d83-25da-46ab-8b58-98b33a7d4263.webp',
     keywords: ['مساهمات أدارسي', 'مشاركة ملخصات المراجعة المغرب', 'لوحة المتصدرين المغرب'],
     blocks: [
       {
@@ -404,7 +413,8 @@ export const arPosts: BlogPost[] = [
   },
 
   {
-    slug: 'calendrier-scolaire-maroc-2025-2026',
+    id: 'school-calendar-2025-2026',
+    slug: 'taqweem-madrasiy-maghrib-2025-2026',
     title: 'التقويم المدرسي المغربي 2025-2026 — جميع التواريخ المهمة',
     description:
       'الدخول المدرسي، العطل، امتحانات البريفي والباكالوريا في المغرب للعام 2025-2026. اطلع على التقويم الرسمي وزامنه مع أدارسي.',
@@ -415,7 +425,7 @@ export const arPosts: BlogPost[] = [
     date: '2026-01-20',
     readTime: '7 دقائق',
     coverImage:
-      'https://images.unsplash.com/photo-1506784926709-22f1ec395907?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8c9b343850b0336387/cover-edfb4bb5-7b9c-4cea-ac15-4aa1f92a49ed.webp',
     keywords: ['التقويم المدرسي المغربي 2025-2026', 'عطل مدرسية المغرب', 'تواريخ الباك المغرب 2026'],
     blocks: [
       {

@@ -3,15 +3,25 @@ import { serverFetch } from "@/lib/serverFetch";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.udarsy.com";
 
+// Try id first (canonical, unique); fall back to slug only for legacy URLs.
+async function fetchGuidance(param: string) {
+  let g = await serverFetch<{ _id: string; title: string; slug?: string } | null>(`/data/guidance/${param}`, { revalidate: 3600 });
+  if (!g || !g._id) {
+    g = await serverFetch<{ _id: string; title: string; slug?: string } | null>(`/data/guidance/by-slug/${param}`, { revalidate: 3600 });
+  }
+  return g;
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ guidanceSlug: string }>;
 }): Promise<Metadata> {
-  const slug = (await params).guidanceSlug;
+  const param = (await params).guidanceSlug;
   try {
-    const guidance = await serverFetch<{ _id: string; title: string }>(`/data/guidance/by-slug/${slug}`, { revalidate: 3600 });
+    const guidance = await fetchGuidance(param);
     if (!guidance) throw new Error("Not found");
+    const canonicalId = guidance._id ?? param;
     return {
       title: `${guidance.title} — Udarsy`,
       description: `اكتشف مواد ${guidance.title} بالدروس والفيديوهات والتمارين على منصة درسي. Découvrez les matières de ${guidance.title} avec leçons, vidéos et exercices.`,
@@ -19,9 +29,9 @@ export async function generateMetadata({
         title: `${guidance.title} | Udarsy`,
         description: `تصفح مواد ${guidance.title} على منصة درسي التعليمية.`,
         type: "website",
-        url: `/courses/${slug}`,
+        url: `/courses/${canonicalId}`,
       },
-      alternates: { canonical: `/courses/${slug}` },
+      alternates: { canonical: `/courses/${canonicalId}` },
     };
   } catch {
     return {
@@ -33,13 +43,10 @@ export async function generateMetadata({
 
 async function GuidanceSchemas({ slug }: { slug: string }) {
   try {
-    const guidance = await serverFetch<{ _id: string; title: string; slug: string }>(
-      `/data/guidance/by-slug/${slug}`,
-      { revalidate: 3600 }
-    );
+    const guidance = await fetchGuidance(slug);
     if (!guidance) return null;
-    const canonicalSlug = guidance.slug ?? slug;
-    const guidanceUrl = `${SITE_URL}/courses/${canonicalSlug}`;
+    const canonicalId = guidance._id ?? slug;
+    const guidanceUrl = `${SITE_URL}/courses/${canonicalId}`;
 
     const courseSchema = {
       "@context": "https://schema.org",

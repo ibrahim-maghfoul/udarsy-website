@@ -40,7 +40,7 @@ export const updateResourceProgress = (params: {
     debouncedCall(key, () => api.post('/progress/update-progress', params), 3000);
 };
 
-/** Mark resource complete — immediate but fire-and-forget */
+/** Mark resource complete — throws on failure so the caller can revert optimistic UI. */
 export const markResourceComplete = async (params: {
     lessonId: string;
     subjectId: string;
@@ -48,11 +48,7 @@ export const markResourceComplete = async (params: {
     resourceType: string;
     isCompleted: boolean;
 }) => {
-    try {
-        await api.post('/progress/mark-complete', params);
-    } catch (error) {
-        console.error("Error marking complete:", error);
-    }
+    await api.post('/progress/mark-complete', params);
 };
 
 export const toggleFavorite = async (lessonId: string, subjectId: string) => {

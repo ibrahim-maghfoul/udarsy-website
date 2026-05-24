@@ -5,12 +5,11 @@ import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, ExternalLink, Download, FileText, Heart, MessageCircle, Send, Star, Eye, ChevronRight, CircleCheck, CircleX, CircleDot } from "lucide-react";
 import { DownloadButton } from "@/components/DownloadButton";
-import { CookiesWindow } from "@/components/CookiesWindow";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSnackbar } from "@/contexts/SnackbarContext";
 import api from "@/lib/api";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 const viewedNewsIds = new Set<string>();
 
@@ -63,7 +62,7 @@ const renderText = (text: string, style: any, forceBlack = false, forceWhite = f
     ));
 };
 
-const renderBlock = (block: any, index: number) => {
+const renderBlock = (block: any, index: number, t: (key: string) => string) => {
     const blockStyle = block.style || {};
     switch (block.type) {
         case "text": {
@@ -98,7 +97,7 @@ const renderBlock = (block: any, index: number) => {
                             className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 backdrop-blur-md"
                             style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}
                         >
-                            <Download size={12} /> Download
+                            <Download size={12} /> {t('download')}
                         </button>
                     </div>
                 </motion.div>
@@ -206,6 +205,7 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
     const params = useParams();
     const router = useRouter();
     const t = useTranslations("News");
+    const locale = useLocale();
     const rawParam = params.id as string;
 
     const [article, setArticle] = useState<any>(initialArticle || null);
@@ -329,15 +329,20 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA]">
                 <div className="text-center space-y-6">
-                    <h1 className="text-3xl font-black text-dark tracking-tight">Article not found</h1>
+                    <h1 className="text-3xl font-black text-dark tracking-tight">{t('not_found')}</h1>
                     <button onClick={() => router.push("/news")}
                         className="px-8 py-3 rounded-2xl bg-dark text-white font-bold hover:scale-105 transition-all flex items-center gap-2 mx-auto">
-                        <ArrowLeft size={18} /> Return to News
+                        <ArrowLeft size={18} /> {t('back_to_news')}
                     </button>
                 </div>
             </div>
         );
     }
+
+    const trans = article.translations?.[locale as 'ar' | 'fr'];
+    const displayTitle = trans?.title || article.title;
+    const displayDescription = trans?.description || article.description;
+    const displayBlocks = trans?.content_blocks?.length ? trans.content_blocks : article.content_blocks;
 
     const heroImage = article.imageUrl
         || article.images?.[0]?.src
@@ -345,15 +350,15 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
         || null;
 
     const statusConfig: Record<string, { color: string; bg: string; icon: React.ReactNode; label: string }> = {
-        open:    { color: '#3aaa6a', bg: 'rgba(58,170,106,0.15)', icon: <CircleCheck size={13} />, label: 'Ouvert' },
-        closed:  { color: '#ef4444', bg: 'rgba(239,68,68,0.12)',  icon: <CircleX size={13} />,    label: 'Fermé' },
-        unknown: { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', icon: <CircleDot size={13} />,  label: 'Statut inconnu' },
+        open:    { color: '#3aaa6a', bg: 'rgba(58,170,106,0.15)', icon: <CircleCheck size={13} />, label: t('status_open') },
+        closed:  { color: '#ef4444', bg: 'rgba(239,68,68,0.12)',  icon: <CircleX size={13} />,    label: t('status_closed') },
+        unknown: { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', icon: <CircleDot size={13} />,  label: t('status_unknown') },
     };
     const statusInfo = statusConfig[article.status] || statusConfig.unknown;
 
     const DATE_LABELS: Record<string, string> = {
-        deadline: 'Date limite', registration: 'Inscription', exam: 'Examen',
-        results: 'Résultats', interview: 'Entretien', update: 'Mise à jour', date: 'Date',
+        deadline: t('date_deadline'), registration: t('date_registration'), exam: t('date_exam'),
+        results: t('date_results'), interview: t('date_interview'), update: t('date_update'), date: t('date_date'),
     };
 
     return (
@@ -414,7 +419,7 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
                     </div>
 
                     <h1 className="text-lg sm:text-2xl md:text-4xl lg:text-5xl font-black text-white leading-[1.15] tracking-tight max-w-3xl break-words overflow-hidden">
-                        {article.title}
+                        {displayTitle}
                     </h1>
 
                     <div className="hidden md:block mt-5">
@@ -469,7 +474,7 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
                             <div className="w-9 h-9 rounded-xl bg-green/10 flex items-center justify-center text-green shrink-0">
                                 <Calendar size={17} />
                             </div>
-                            <h3 className="text-lg font-black text-dark tracking-tight">Dates importantes</h3>
+                            <h3 className="text-lg font-black text-dark tracking-tight">{t('important_dates')}</h3>
                         </div>
                         <div className="relative pl-5 border-l-2 border-green/15 space-y-4">
                             {article.important_dates.map((d: any, i: number) => {
@@ -486,7 +491,7 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
                                                     {DATE_LABELS[d.label] || d.label}
                                                 </span>
                                                 {!isPast && isDeadline && (
-                                                    <span className="text-[10px] font-bold text-red-400">Délai actif</span>
+                                                    <span className="text-[10px] font-bold text-red-400">{t('deadline_active')}</span>
                                                 )}
                                             </div>
                                             <p className={`text-base font-black mt-1 ${isPast ? 'text-dark/35 line-through' : 'text-dark'}`}>
@@ -502,8 +507,8 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
 
                 <div className="mb-16 overflow-x-hidden">
                     <article className="prose md:prose-xl max-w-none prose-headings:text-dark prose-p:text-dark/75 prose-p:leading-[1.9] prose-li:text-dark/75">
-                        {article.content_blocks && article.content_blocks.length > 0
-                            ? article.content_blocks.map((block: any, idx: number) => renderBlock(block, idx))
+                        {displayBlocks && displayBlocks.length > 0
+                            ? displayBlocks.map((block: any, idx: number) => renderBlock(block, idx, t))
                             : article.content_sections && article.content_sections.length > 0
                                 ? article.content_sections.map((sec: any, idx: number) => {
                                     const arabicCharCount = (s: string) => (s.match(/[؀-ۿ]/g) || []).length;
@@ -537,7 +542,7 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
                                                                 className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 backdrop-blur-md"
                                                                 style={{ background: "rgba(0,0,0,0.55)", color: "#fff" }}
                                                             >
-                                                                <Download size={12} /> Download
+                                                                <Download size={12} /> {t('download')}
                                                             </button>
                                                         </div>
                                                     );
@@ -622,7 +627,7 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
                         <div className="p-6 md:p-8 flex flex-col sm:flex-row items-center gap-6">
                             <div className="flex flex-col items-center sm:items-start gap-1 sm:min-w-[160px]">
                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-dark/30">
-                                    {t('questions_answers').split(' ')[0] === 'Questions' ? 'Rate this article' : 'تقييم المقال'}
+                                    {t('rate_article')}
                                 </span>
                                 <div className="flex items-baseline gap-2 mt-1">
                                     <span className="text-4xl font-black text-dark">
@@ -631,7 +636,7 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
                                     <span className="text-dark/25 font-bold text-sm">/5</span>
                                 </div>
                                 {article.rating?.count > 0 && (
-                                    <span className="text-xs text-dark/30 font-semibold">{article.rating.count} {article.rating.count === 1 ? 'rating' : 'ratings'}</span>
+                                    <span className="text-xs text-dark/30 font-semibold">{article.rating.count} {article.rating.count === 1 ? t('rating_one') : t('rating_other')}</span>
                                 )}
                             </div>
                             <div className="flex-1 flex flex-col items-center sm:items-start gap-3">
@@ -647,10 +652,10 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
                                 </div>
                                 {userRating > 0 ? (
                                     <motion.span initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green/8 border border-green/15 text-green text-xs font-bold">
-                                        <Star size={11} className="fill-green" /> Thank you for rating!
+                                        <Star size={11} className="fill-green" /> {t('rating_thanks')}
                                     </motion.span>
                                 ) : (
-                                    <p className="text-xs text-dark/35 font-medium">Your feedback helps us improve our content</p>
+                                    <p className="text-xs text-dark/35 font-medium">{t('rating_feedback_hint')}</p>
                                 )}
                             </div>
                         </div>
@@ -760,7 +765,7 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
                                                 {replyingToId === q._id ? (
                                                     <div className="space-y-2">
                                                         <textarea value={adminAnswer} onChange={(e) => setAdminAnswer(e.target.value)}
-                                                            placeholder="Write your answer..."
+                                                            placeholder={t('answer_placeholder')}
                                                             className="w-full bg-white border border-green/15 rounded-xl p-3 text-sm resize-none focus:outline-none focus:border-green/30 transition-all min-h-[70px]"
                                                             autoFocus />
                                                         <div className="flex gap-2">
@@ -790,17 +795,15 @@ export default function NewsDetailClient({ initialArticle }: NewsDetailClientPro
                 </section>
 
                 <footer className="pt-8 pb-4 border-t border-green/6 flex flex-col items-center gap-5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-dark/15">Verified by Udarsy Editorial Team</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-dark/15">{t('verified_by')}</p>
                     {(article.source_url || article.url) && (
                         <a href={article.source_url || article.url} target="_blank" rel="noopener noreferrer"
                             className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-dark text-white font-bold text-xs hover:scale-105 transition-all duration-200 shadow-xl shadow-dark/15">
-                            Original Source <ExternalLink size={13} strokeWidth={2.5} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                            {t('original_source')} <ExternalLink size={13} strokeWidth={2.5} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                         </a>
                     )}
                 </footer>
             </div>
-
-            <CookiesWindow />
 
             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style={{ position: 'absolute', width: 0, height: 0 }} aria-hidden="true">
                 <defs>

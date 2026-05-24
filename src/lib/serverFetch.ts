@@ -55,7 +55,9 @@ export async function serverFetch<T = unknown>(
         });
 
         if (!res.ok) {
-            console.error(`[serverFetch] ${res.status} ${res.statusText} — GET ${url}`);
+            if (res.status !== 404) {
+                console.error(`[serverFetch] ${res.status} ${res.statusText} — GET ${url}`);
+            }
             return null;
         }
 

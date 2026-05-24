@@ -125,7 +125,7 @@ export function TeamSection() {
                                             fill
                                             loading="lazy"
                                             sizes="(max-width: 640px) 33vw, 33vw"
-                                            className="object-cover md:grayscale md:group-hover:grayscale-0 transition-[filter] duration-300 pointer-events-none"
+                                            className="object-cover md:[@media(hover:hover)]:grayscale md:[@media(hover:hover)]:group-hover:grayscale-0 transition-[filter] duration-300 pointer-events-none"
                                         />
                                     </div>
                                     <div className="absolute inset-x-0 bottom-0 p-3 md:p-8 pt-6 md:pt-12 bg-gradient-to-t from-black/90 to-transparent text-white transition-transform duration-300 md:translate-y-6 group-hover:translate-y-0">

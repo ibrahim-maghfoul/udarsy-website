@@ -3,18 +3,26 @@ import { serverFetch } from "@/lib/serverFetch";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.udarsy.com";
 
+async function fetchSubject(param: string) {
+  let s = await serverFetch<{ _id: string; title: string; slug?: string } | null>(`/data/subject/${param}`, { revalidate: 3600 });
+  if (!s || !s._id) {
+    s = await serverFetch<{ _id: string; title: string; slug?: string } | null>(`/data/subject/by-slug/${param}`, { revalidate: 3600 });
+  }
+  return s;
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ subjectId: string }>;
 }): Promise<Metadata> {
-  const slug = (await params).subjectId;
+  const param = (await params).subjectId;
   try {
-    const subject = await serverFetch<{ _id: string; title: string; slug: string }>(`/data/subject/by-slug/${slug}`, { revalidate: 3600 });
+    const subject = await fetchSubject(param);
     if (!subject) throw new Error("Not found");
     const lessons = await serverFetch<unknown[]>(`/data/lessons/${subject._id}`, { revalidate: 3600 });
     const count = lessons?.length ?? 0;
-    const canonicalSlug = subject.slug ?? slug;
+    const canonicalId = subject._id ?? param;
     return {
       title: `${subject.title} — Udarsy`,
       description: `اكتشف دروس ${subject.title} بالفيديوهات والتمارين والامتحانات على منصة درسي. Découvrez les leçons de ${subject.title} avec vidéos, exercices et examens.`,
@@ -22,9 +30,9 @@ export async function generateMetadata({
         title: `${subject.title} | Udarsy`,
         description: `${count} درساً بالفيديوهات والتمارين والامتحانات على منصة درسي.`,
         type: "website",
-        url: `/explore/subject/${canonicalSlug}`,
+        url: `/explore/subject/${canonicalId}`,
       },
-      alternates: { canonical: `/explore/subject/${canonicalSlug}` },
+      alternates: { canonical: `/explore/subject/${canonicalId}` },
     };
   } catch {
     return {
@@ -36,11 +44,11 @@ export async function generateMetadata({
 
 async function SubjectSchemas({ subjectId }: { subjectId: string }) {
   try {
-    const subject = await serverFetch<{ _id: string; title: string; slug: string }>(`/data/subject/by-slug/${subjectId}`, { revalidate: 3600 });
+    const subject = await fetchSubject(subjectId);
     if (!subject) return null;
-    const lessons = await serverFetch<{ title: string; slug: string }[]>(`/data/lessons/${subject._id}`, { revalidate: 3600 });
-    const canonicalSlug = subject.slug ?? subjectId;
-    const subjectUrl = `${SITE_URL}/explore/subject/${canonicalSlug}`;
+    const lessons = await serverFetch<{ _id: string; title: string; slug: string }[]>(`/data/lessons/${subject._id}`, { revalidate: 3600 });
+    const canonicalId = subject._id ?? subjectId;
+    const subjectUrl = `${SITE_URL}/explore/subject/${canonicalId}`;
 
     const courseSchema = {
       "@context": "https://schema.org",
@@ -60,7 +68,7 @@ async function SubjectSchemas({ subjectId }: { subjectId: string }) {
       hasPart: (lessons ?? []).map(lesson => ({
         "@type": "Course",
         name: lesson.title,
-        url: `${SITE_URL}/lesson/${lesson.slug}`,
+        url: `${SITE_URL}/lesson/${lesson._id}`,
       })),
     };
 

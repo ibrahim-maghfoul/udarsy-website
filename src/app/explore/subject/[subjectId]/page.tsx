@@ -5,19 +5,20 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
     BookOpen, FileText, Play, ArrowLeft,
-    ClipboardList, CheckCircle2, GraduationCap, Search, Settings2
+    ClipboardList, CheckCircle2, GraduationCap, Search
 } from "lucide-react";
-import { getLessons, getSubjectBySlug, lessonSlug } from "@/services/data";
+import { getLessons, getSubjectBySlug, getSubjectById, curriculumPath, type CurriculumChain } from "@/services/data";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslations, useLocale } from "next-intl";
 import "./lesson-cards.css";
 
-export default function SubjectLessonsPage() {
+export default function SubjectLessonsPage({ subjectId: subjectIdProp, chain }: { subjectId?: string; chain?: CurriculumChain } = {}) {
     const params = useParams();
-    const slug = params.subjectId as string; // param name matches folder [subjectId], value is now a slug
+    // Either passed in by the hierarchical /courses/[...] catch-all (canonical _id),
+    // or read from the [subjectId] URL segment (also _id; slug fallback for legacy).
+    const subjectParam = (subjectIdProp ?? (params.subjectId as string)) || '';
     const { user } = useAuth();
     const router = useRouter();
-    const [subjectId, setSubjectId] = useState('');
     const [subjectTitle, setSubjectTitle] = useState('');
     const [lessons, setLessons] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -28,18 +29,19 @@ export default function SubjectLessonsPage() {
     const isAr = locale === 'ar';
 
     useEffect(() => {
-        if (!slug) return;
+        if (!subjectParam) return;
         setError(false);
         setLoading(true);
-        getSubjectBySlug(slug)
-            .then(subject => {
-                setSubjectId(subject._id);
-                setSubjectTitle(subject.title ?? '');
-                return getLessons(subject._id);
-            })
-            .then(res => { setLessons(res); setLoading(false); })
-            .catch(() => { setError(true); setLoading(false); });
-    }, [slug]);
+        (async () => {
+            // Prefer fetch by canonical _id; fall back to slug only for legacy URLs.
+            const subject = (await getSubjectById(subjectParam)) ?? (await getSubjectBySlug(subjectParam).catch(() => null));
+            if (!subject) { setError(true); setLoading(false); return; }
+            setSubjectTitle(subject.title ?? '');
+            const lessonsRes = await getLessons(subject._id);
+            setLessons(lessonsRes);
+            setLoading(false);
+        })().catch(() => { setError(true); setLoading(false); });
+    }, [subjectParam]);
 
     const filteredLessons = search.trim()
         ? lessons.filter(l => l.title?.toLowerCase().includes(search.trim().toLowerCase()))
@@ -107,15 +109,6 @@ export default function SubjectLessonsPage() {
 
             <main className="max-w-6xl mx-auto pt-4 md:pt-10 pb-[120px] md:pb-32 px-4 md:px-6">
 
-                {/* Path hint */}
-                <div className={`flex items-center gap-2 mb-5 text-xs text-dark/40 ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
-                    <Settings2 size={12} className="shrink-0" />
-                    <span>{t("change_path_hint")}</span>
-                    <Link href="/profile" className="text-green underline underline-offset-2 hover:text-green/80 transition-colors">
-                        {t("change_path_link")}
-                    </Link>
-                </div>
-
                 {loading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" dir={isAr ? "rtl" : undefined}>
                         {Array(6).fill(0).map((_, i) => (
@@ -130,7 +123,7 @@ export default function SubjectLessonsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" dir={isAr ? "rtl" : undefined}>
                         {filteredLessons.map((lesson: any, index: number) => {
                             const progress = user?.progress?.lessons?.find(
-                                (l: any) => l.lessonId === (lesson._id || lesson.id)
+                                (l: any) => l.lessonId === (lesson._id ?? lesson.id)
                             );
                             const completedCount = progress?.completedResources?.length ?? 0;
                             const totalResources =
@@ -154,7 +147,9 @@ export default function SubjectLessonsPage() {
 
                             return (
                                 <Link
-                                    href={`/lesson/${lesson.slug ?? lessonSlug(lesson.title)}`}
+                                    href={chain?.school && chain?.level && chain?.guidance && chain?.subject
+                                        ? curriculumPath({ ...chain, lesson: { _id: lesson._id, title: lesson.title, slug: lesson.slug ?? lesson.title } })
+                                        : `/lesson/${lesson._id ?? lesson.id}`}
                                     key={lesson.id || lesson._id}
                                     className={`lesson-card-v2 ${isDone ? 'lesson-card-done' : ''}`}
                                     style={{ animationDelay: `${index * 40}ms` }}
@@ -222,7 +217,7 @@ export default function SubjectLessonsPage() {
                         <h2 className="text-xl font-bold text-gray-900">Failed to load lessons</h2>
                         <p className="text-gray-400 max-w-xs mx-auto text-sm">Check your connection and try again.</p>
                         <button
-                            onClick={() => { setLoading(true); setError(false); getSubjectBySlug(slug).then(s => { setSubjectId(s._id); return getLessons(s._id); }).then(res => { setLessons(res); setLoading(false); }).catch(() => { setError(true); setLoading(false); }); }}
+                            onClick={() => { setLoading(true); setError(false); (async () => { const s = (await getSubjectById(subjectParam)) ?? (await getSubjectBySlug(subjectParam).catch(() => null)); if (!s) throw new Error('not found'); const res = await getLessons(s._id); setLessons(res); setLoading(false); })().catch(() => { setError(true); setLoading(false); }); }}
                             className="mt-2 px-5 py-2 bg-green text-white text-sm font-bold rounded-xl hover:bg-green/90 transition-colors"
                         >
                             Retry

@@ -7,7 +7,7 @@ import {
     Search, BookOpen, ChevronRight, ChevronLeft, LogIn,
     ArrowLeft, UserPlus, School, GraduationCap,
 } from "lucide-react";
-import { getGuidanceBySlug, getSubjects, getSchools, getLevels, subjectSlug, prefetchLessons } from "@/services/data";
+import { getGuidanceBySlug, getGuidanceById, getSubjects, getSchools, getLevels, subjectSlug, prefetchLessons } from "@/services/data";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslations, useLocale } from "next-intl";
 import { getSubjectImage } from "@/lib/subjectImages";
@@ -15,7 +15,10 @@ import "../../explore/subject-cards.css";
 
 export default function GuidanceSubjectsPage() {
     const params = useParams();
-    const slug = params.guidanceSlug as string;
+    // The route segment is the canonical guidance _id (slug-only URLs were ambiguous —
+    // see find-guidance-collisions.ts). Slug fallback kept for legacy bookmarks and the
+    // "browse a school" entry point which still resolves a school name from this segment.
+    const guidanceParam = params.guidanceSlug as string;
     const { user } = useAuth();
     const router = useRouter();
     const t = useTranslations('Subjects');
@@ -32,31 +35,31 @@ export default function GuidanceSubjectsPage() {
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        if (!slug) return;
+        if (!guidanceParam) return;
         setLoading(true);
         setError(false);
-        getGuidanceBySlug(slug)
-            .then(guidance => {
-                if (!guidance?._id) throw new Error('not a guidance');
+        (async () => {
+            // Canonical _id first, then legacy slug, then school slug.
+            const guidance = (await getGuidanceById(guidanceParam)) ?? (await getGuidanceBySlug(guidanceParam).catch(() => null));
+            if (guidance?._id) {
                 setMode('guidance');
                 setGuidanceName(guidance.title);
-                return getSubjects(guidance._id);
-            })
-            .then(res => { setSubjects(res); setLoading(false); })
-            .catch(() => {
-                // Not a guidance slug — try school
-                getSchools()
-                    .then(schools => {
-                        const school = schools.find(s => subjectSlug(s.title) === slug);
-                        if (!school) { setError(true); setLoading(false); return; }
-                        setMode('school');
-                        setSchoolName(school.title);
-                        return getLevels(school.id);
-                    })
-                    .then(lvls => { if (lvls) { setLevels(lvls); setLoading(false); } })
-                    .catch(() => { setError(true); setLoading(false); });
-            });
-    }, [slug]);
+                const subs = await getSubjects(guidance._id);
+                setSubjects(subs);
+                setLoading(false);
+                return;
+            }
+            // Not a guidance — try interpreting the segment as a school slug.
+            const schools = await getSchools();
+            const school = schools.find(s => subjectSlug(s.title) === guidanceParam);
+            if (!school) { setError(true); setLoading(false); return; }
+            setMode('school');
+            setSchoolName(school.title);
+            const lvls = await getLevels(school.id);
+            setLevels(lvls);
+            setLoading(false);
+        })().catch(() => { setError(true); setLoading(false); });
+    }, [guidanceParam]);
 
     const filteredSubjects = useMemo(() =>
         subjects.filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase())),
@@ -96,7 +99,7 @@ export default function GuidanceSubjectsPage() {
                             return (
                                 <button
                                     key={level.id || level._id}
-                                    onClick={() => router.push(`/courses/${slug}/${subjectSlug(level.title)}`)}
+                                    onClick={() => router.push(`/courses/${guidanceParam}/${subjectSlug(level.title)}`)}
                                     className="group relative flex flex-col items-center justify-center gap-3 p-6 bg-white border border-green/12 rounded-2xl text-center hover:border-green/30 hover:shadow-md hover:shadow-green/8 transition-all duration-200"
                                     style={{ animationDelay: `${index * 40}ms` }}
                                 >
@@ -154,20 +157,18 @@ export default function GuidanceSubjectsPage() {
                             {guidanceName || t('title')}
                         </h1>
                     </div>
-                    <div className={`flex items-center justify-between gap-6 ${isAr ? 'flex-row-reverse' : ''}`}>
+                    <div className="flex items-center justify-between gap-6" dir={isAr ? 'rtl' : 'ltr'}>
                         <div className="relative w-72 shrink-0">
                             <Search
                                 size={15}
-                                className="absolute top-1/2 -translate-y-1/2 text-green/40 pointer-events-none"
-                                style={{ [isAr ? 'right' : 'left']: '12px' }}
+                                className={`absolute top-1/2 -translate-y-1/2 text-green/40 pointer-events-none ${isAr ? 'right-3' : 'left-3'}`}
                             />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
                                 placeholder={t('search_placeholder')}
-                                className={`w-full py-2.5 text-sm bg-white border border-green/20 rounded-xl text-dark placeholder:text-gray-400 focus:outline-none focus:border-green/40 focus:ring-2 focus:ring-green/8 ${isAr ? 'pr-9 pl-4 text-right' : 'pl-9 pr-4'}`}
-                                dir={isAr ? 'rtl' : undefined}
+                                className={`w-full py-2.5 text-sm bg-white border border-green/20 rounded-xl text-dark placeholder:text-gray-400 focus:outline-none focus:border-green/40 focus:ring-2 focus:ring-green/8 ${isAr ? 'pr-9 pl-4' : 'pl-9 pr-4'}`}
                             />
                         </div>
                         {!user && (
@@ -192,7 +193,7 @@ export default function GuidanceSubjectsPage() {
             </header>
 
             {/* Mobile search */}
-            <div className="md:hidden px-4 pt-3">
+            <div className="md:hidden px-4 pt-3" dir={isAr ? 'rtl' : 'ltr'}>
                 <div className="relative">
                     <Search size={15} className={`absolute top-1/2 -translate-y-1/2 text-green/40 pointer-events-none ${isAr ? 'right-3' : 'left-3'}`} />
                     <input
@@ -200,8 +201,7 @@ export default function GuidanceSubjectsPage() {
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         placeholder={t('search_placeholder')}
-                        className={`w-full py-2.5 text-sm bg-white border border-green/20 rounded-xl text-dark placeholder:text-gray-400 focus:outline-none focus:border-green/40 ${isAr ? 'pr-9 pl-4 text-right' : 'pl-9 pr-4'}`}
-                        dir={isAr ? 'rtl' : undefined}
+                        className={`w-full py-2.5 text-sm bg-white border border-green/20 rounded-xl text-dark placeholder:text-gray-400 focus:outline-none focus:border-green/40 ${isAr ? 'pr-9 pl-4' : 'pl-9 pr-4'}`}
                     />
                 </div>
             </div>
@@ -227,9 +227,12 @@ export default function GuidanceSubjectsPage() {
                 ) : filteredSubjects.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
                         {filteredSubjects.map((subject: any, index: number) => {
-                            const subjectLessons = user?.progress?.lessons?.filter(
-                                (l: any) => l.subjectId === (subject._id || subject.id)
-                            ) ?? [];
+                            const lessonIdSet: Set<string> = new Set(subject.lessonIds || []);
+                            const currentSubjectId: string = subject._id || subject.id || '';
+                            const subjectLessons = (user?.progress?.lessons?.filter((l: any) =>
+                                (lessonIdSet.size > 0 && lessonIdSet.has(l.lessonId)) ||
+                                (currentSubjectId && l.subjectId === currentSubjectId)
+                            ) ?? []);
                             const totalCompleted = subjectLessons.reduce(
                                 (sum: number, l: any) => sum + (l.completedResources?.length ?? 0), 0
                             );
@@ -239,7 +242,6 @@ export default function GuidanceSubjectsPage() {
                             const progressPct = totalResources > 0
                                 ? Math.min(100, Math.round((totalCompleted / totalResources) * 100))
                                 : 0;
-                            const isStarted = subjectLessons.length > 0;
                             const isComplete = totalResources > 0 && progressPct === 100;
                             const radius = 17;
                             const circumference = 2 * Math.PI * radius;
@@ -249,7 +251,7 @@ export default function GuidanceSubjectsPage() {
 
                             return (
                                 <Link
-                                    href={`/courses/subject/${subject.slug ?? subjectSlug(subject.title)}`}
+                                    href={`/courses/subject/${subject._id ?? subject.id}`}
                                     key={subject.id}
                                     className={`subject-card ${isComplete ? 'subject-card-done' : ''}${!imageUrl ? ' subject-card-fallback' : ''}`}
                                     style={{
@@ -268,7 +270,7 @@ export default function GuidanceSubjectsPage() {
                                         {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                                     </div>
 
-                                    {isStarted && (
+                                    {user && (
                                         <div className="subject-card-ring">
                                             <svg className="w-full h-full -rotate-90" viewBox="0 0 40 40">
                                                 <circle cx="20" cy="20" r={radius} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2.5" />

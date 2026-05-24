@@ -45,9 +45,60 @@ export const getGuidanceBySlug = async (slug: string): Promise<Guidance & { _id:
     return { ...res.data, id: res.data._id };
 };
 
+// Canonical fetch by _id. Title-slugs are NOT unique across the curriculum
+// (multiple guidances/subjects share the same title), so in-app navigation must
+// use _id; getGuidanceBySlug / getSubjectBySlug are best-effort fallbacks only.
+export const getGuidanceById = async (id: string): Promise<(Guidance & { _id: string }) | null> => {
+    try {
+        const res = await api.get(`/data/guidance/${id}`);
+        if (!res.data?._id) return null;
+        return { ...res.data, id: res.data._id };
+    } catch { return null; }
+};
+
 export const getSubjectBySlug = async (slug: string): Promise<Subject & { _id: string }> => {
     const res = await api.get(`/data/subject/by-slug/${slug}`);
     return { ...res.data, id: res.data._id };
+};
+
+export const getSubjectById = async (id: string): Promise<(Subject & { _id: string }) | null> => {
+    try {
+        const res = await api.get(`/data/subject/${id}`);
+        if (!res.data?._id) return null;
+        return { ...res.data, id: res.data._id };
+    } catch { return null; }
+};
+
+// Walk the curriculum tree by title-slugs. Used by the hierarchical /courses/... routes
+// to translate a pretty URL into the canonical _id chain that the rest of the app uses.
+export type CurriculumChain = {
+    school: { _id: string; title: string; slug: string };
+    level?: { _id: string; title: string; slug: string };
+    guidance?: { _id: string; title: string; slug: string; implicit: boolean };
+    subject?: { _id: string; title: string; slug: string };
+    lesson?: { _id: string; title: string; slug: string };
+};
+export type ResolvedPath = { kind: 'school' | 'level' | 'guidance' | 'subject' | 'lesson'; chain: CurriculumChain };
+
+export const resolveCurriculumPath = async (segments: string[]): Promise<ResolvedPath | null> => {
+    if (segments.length === 0) return null;
+    try {
+        const qs = segments.map(s => `p=${encodeURIComponent(s)}`).join('&');
+        const res = await api.get(`/data/path-resolve?${qs}`);
+        return res.data ?? null;
+    } catch { return null; }
+};
+
+// Build a hierarchical URL from a partial chain. Skips the guidance segment when it's
+// implicit (e.g. Primaire/Collège levels with a single "General" guidance).
+export const curriculumPath = (chain: Partial<CurriculumChain>): string => {
+    const parts: string[] = [];
+    if (chain.school)   parts.push(chain.school.slug);
+    if (chain.level)    parts.push(chain.level.slug);
+    if (chain.guidance && !chain.guidance.implicit) parts.push(chain.guidance.slug);
+    if (chain.subject)  parts.push(chain.subject.slug);
+    if (chain.lesson)   parts.push(chain.lesson.slug);
+    return '/courses/' + parts.map(encodeURIComponent).join('/');
 };
 
 export const getLessons = async (subjectId: string): Promise<Lesson[]> => {

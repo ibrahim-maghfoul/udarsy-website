@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import Link from "next/link";
-import { getLessonById, getLessons, getLessonBySlug, lessonSlug } from "@/services/data";
+import { getLessonById, getLessons, getLessonBySlug } from "@/services/data";
 import { trackResourceView, markResourceComplete, updateResourceProgress, toggleFavorite } from "@/services/progress";
 import { trackEvent } from "@/lib/analytics";
 import { useAuth } from "@/contexts/AuthContext";
@@ -65,16 +65,19 @@ function getEmbedUrl(url: string): string {
     }
 }
 
-export default function LessonPageClient() {
+export default function LessonPageClient({ lessonId: lessonIdProp }: { lessonId?: string } = {}) {
     const t = useTranslations("Lesson");
     const tc = useTranslations("Common");
     const { showSnackbar } = useSnackbar();
     const locale = useLocale();
     const isRTL = locale === 'ar';
     const params = useParams();
-    const slug = params.lessonId as string; // folder is [lessonId] but value is now a slug
+    // The lesson identifier is either passed in as a prop (when the catch-all curriculum
+    // route mounts us directly) or read from the [lessonId] URL segment of the legacy
+    // /lesson/:id route. Both are the canonical _id; slug fallback is for old bookmarks.
+    const lessonParam = (lessonIdProp ?? (params.lessonId as string)) || '';
     const router = useRouter();
-    const { user, refreshUser, getResourceURL } = useAuth();
+    const { user, refreshUser, forceRefreshUser, getResourceURL } = useAuth();
     const [lesson, setLesson] = useState<any>(null);
     const [lessonId, setLessonId] = useState('');
     const [loading, setLoading] = useState(true);
@@ -107,6 +110,7 @@ export default function LessonPageClient() {
     const [aiRegenLoading, setAiRegenLoading] = useState(false);
     const [showProLangDialog, setShowProLangDialog] = useState(false);
     const [aiLimitError, setAiLimitError] = useState<string | null>(null);
+    const [iframeLoading, setIframeLoading] = useState(false);
 
     // Q&A state
     type QaMessage = { role: 'user' | 'ai'; text: string };
@@ -149,9 +153,10 @@ export default function LessonPageClient() {
     }, [showProLangDialog]);
 
 
-    // Sync completed resources from user progress
+    // Sync completed resources from user progress (entries are keyed by the lesson's canonical _id)
     useEffect(() => {
-        const lessonProgress = user?.progress?.lessons?.find((l: any) => l.lessonId === (lesson?.id || lesson?._id));
+        const canonicalId = lesson?._id ?? lesson?.id;
+        const lessonProgress = user?.progress?.lessons?.find((l: any) => l.lessonId === canonicalId);
         if (lessonProgress?.completedResources) {
             setLocalCompletedResources(prev => {
                 const merged = new Set([...prev, ...lessonProgress.completedResources]);
@@ -165,11 +170,14 @@ export default function LessonPageClient() {
 
     // Fetch lesson data + siblings in parallel
     useEffect(() => {
-        if (!slug) return;
+        if (!lessonParam) return;
         let cancelled = false;
 
         (async () => {
-            const res = await getLessonBySlug(slug);
+            // Prefer fetch by canonical _id; fall back to slug only for legacy URLs.
+            // (Slugs are not unique — see find-slug-collisions.ts.)
+            let res = await getLessonById(lessonParam);
+            if (!res) res = await getLessonBySlug(lessonParam);
             if (cancelled) return;
             setLesson(res);
             const lessonId = res?._id ?? res?.id ?? '';
@@ -184,6 +192,7 @@ export default function LessonPageClient() {
                     const firstType = res.coursesPdf?.length ? 'coursesPdf' : res.resourses?.length ? 'resourses' : res.exercices?.length ? 'exercices' : res.exams?.length ? 'exams' : res.videos?.length ? 'videos' : null;
                     const firstDoc = firstType ? res[firstType as keyof typeof res]?.[0] : null;
                     if (firstDoc && typeof firstDoc === 'object') {
+                        setIframeLoading(true);
                         setActiveResource({ ...(firstDoc as any), type: firstType });
                     }
                 }
@@ -203,7 +212,7 @@ export default function LessonPageClient() {
         })();
 
         return () => { cancelled = true; };
-    }, [slug]);
+    }, [lessonParam]);
 
     // Progress save on unmount / resource switch — using refs to avoid re-renders
     const lastSavedRef = useRef(Date.now());
@@ -258,6 +267,7 @@ export default function LessonPageClient() {
         if (isMobile && resource.url) {
             window.open(resource.url, '_blank', 'noopener,noreferrer');
         } else {
+            setIframeLoading(true);
             setActiveResource({ ...resource, type });
         }
 
@@ -278,7 +288,8 @@ export default function LessonPageClient() {
         if (!user) { router.push('/signup'); return; }
 
         const id = safeId(activeResource);
-        if (!localCompletedResources.includes(id)) {
+        const wasNew = !localCompletedResources.includes(id);
+        if (wasNew) {
             setLocalCompletedResources(prev => [...prev, id]);
         }
 
@@ -291,25 +302,44 @@ export default function LessonPageClient() {
                 isCompleted: true
             });
             trackEvent({ event: 'lesson_complete', category: 'Content', label: lesson?.title, lesson_id: lessonId, resource_type: activeResource.type });
-            refreshUser();
-        } catch (error) {
+            // Force immediate refresh so the subject/courses cards reflect the new progress
+            // when the user navigates back (the debounced refreshUser is too slow here).
+            await forceRefreshUser();
+        } catch (error: any) {
             console.error('Failed to mark complete:', error);
+            if (wasNew) setLocalCompletedResources(prev => prev.filter(x => x !== id));
+            const status = error?.response?.status;
+            showSnackbar(
+                status === 401
+                    ? 'Session expired. Please log in again to save your progress.'
+                    : 'Failed to save. Check your connection and try again.',
+                'error'
+            );
         }
-    }, [activeResource, user, lessonId, lesson?.subjectId, localCompletedResources, refreshUser, router]);
+    }, [activeResource, user, lessonId, lesson?.subjectId, localCompletedResources, forceRefreshUser, router, showSnackbar]);
 
     const handleMarkMobileResourceComplete = useCallback(async (resource: any, type: string) => {
         if (!user) { router.push('/signup'); return; }
         const id = safeId(resource);
-        if (!localCompletedResources.includes(id)) {
+        const wasNew = !localCompletedResources.includes(id);
+        if (wasNew) {
             setLocalCompletedResources(prev => [...prev, id]);
         }
         try {
             await markResourceComplete({ lessonId, subjectId: lesson?.subjectId || '', resourceId: id, resourceType: type, isCompleted: true });
-            refreshUser();
-        } catch (error) {
+            await forceRefreshUser();
+        } catch (error: any) {
             console.error('Failed to mark complete:', error);
+            if (wasNew) setLocalCompletedResources(prev => prev.filter(x => x !== id));
+            const status = error?.response?.status;
+            showSnackbar(
+                status === 401
+                    ? 'Session expired. Please log in again to save your progress.'
+                    : 'Failed to save. Check your connection and try again.',
+                'error'
+            );
         }
-    }, [user, lessonId, lesson?.subjectId, localCompletedResources, refreshUser, router]);
+    }, [user, lessonId, lesson?.subjectId, localCompletedResources, forceRefreshUser, router, showSnackbar]);
 
     const handleToggleFavorite = useCallback(async () => {
         if (!user) return router.push('/signup');
@@ -318,13 +348,13 @@ export default function LessonPageClient() {
             setIsFavorite(newFavStatus);
             await toggleFavorite(lessonId, lesson?.subjectId);
             showSnackbar(newFavStatus ? t('fav_added_snack') : t('fav_removed_snack'), "success");
-            refreshUser();
+            await forceRefreshUser();
         } catch (error) {
             console.error('Failed to toggle favorite:', error);
             setIsFavorite(!isFavorite);
             showSnackbar(t('fav_failed'), "error");
         }
-    }, [user, isFavorite, lessonId, lesson?.subjectId, refreshUser, showSnackbar, router]);
+    }, [user, isFavorite, lessonId, lesson?.subjectId, forceRefreshUser, showSnackbar, router]);
 
     // Reset AI answer + Q&A when switching to a different resource and auto-detect language
     useEffect(() => {
@@ -706,7 +736,7 @@ export default function LessonPageClient() {
 
                 {/* Content viewer — desktop only */}
                 <div className="flex-1 p-6 lg:p-12 transition-all duration-200 hidden lg:block">
-                    <div className="h-[75vh] min-h-[500px] bg-dark rounded-[10px] overflow-hidden shadow-2xl relative">
+                    <div className="h-[75vh] min-h-[500px] bg-dark rounded-lg overflow-hidden border border-white/5 relative">
                         {activeResource?.type === 'video' ? (
                             <iframe
                                 src={getEmbedUrl(getResourceURL(activeResource.url) || '')}
@@ -714,14 +744,25 @@ export default function LessonPageClient() {
                                 allowFullScreen
                                 loading="lazy"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                onLoad={() => setIframeLoading(false)}
                             />
                         ) : activeResource ? (
-                            <iframe
-                                src={getEmbedUrl(getResourceURL(activeResource.url) || '')}
-                                className="w-full h-full border-none bg-white"
-                                loading="lazy"
-                                allowFullScreen
-                            />
+                            <>
+                                {iframeLoading && (
+                                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-dark text-white/40">
+                                        <Loader2 size={32} className="animate-spin text-green/60" />
+                                        <span className="text-sm">{t("loading")}</span>
+                                    </div>
+                                )}
+                                <iframe
+                                    key={activeResource.url}
+                                    src={getEmbedUrl(getResourceURL(activeResource.url) || '')}
+                                    className="w-full h-full border-none bg-white"
+                                    loading="lazy"
+                                    allowFullScreen
+                                    onLoad={() => setIframeLoading(false)}
+                                />
+                            </>
                         ) : (
                             <div className="w-full h-full flex flex-col items-center justify-center text-white/50 space-y-4">
                                 <FileText size={48} />
@@ -1124,7 +1165,7 @@ export default function LessonPageClient() {
                                     <h4 className="font-bold text-sm">{t("next_lesson")}</h4>
                                     <p className="text-white/80 text-sm leading-snug line-clamp-2" dir="auto">{nextLesson.title}</p>
                                     <button
-                                        onClick={() => router.push(`/lesson/${nextLesson.slug ?? lessonSlug(nextLesson.title)}`)}
+                                        onClick={() => router.push(`/lesson/${nextLesson._id ?? nextLesson.id}`)}
                                         className="w-full py-2 bg-white text-green font-bold rounded-xl hover:scale-[1.02] transition-transform text-sm"
                                     >
                                         {t("continue_path")}

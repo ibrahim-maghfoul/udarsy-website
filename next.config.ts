@@ -10,8 +10,11 @@ const isDev = process.env.NODE_ENV === 'development';
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Self-contained production server: bundles only the files actually used into
+  // .next/standalone, so deploys are small and run with low RAM — ideal for a
+  // cheap DigitalOcean droplet. No effect on local dev.
+  output: 'standalone',
   turbopack: {
-    root: __dirname,
     resolveAlias: {
       'next/dist/build/polyfills/polyfill-module': './src/polyfills-modern.js',
     },
@@ -66,7 +69,7 @@ const nextConfig: NextConfig = {
           // XSS protection via CSP — unsafe-inline required for Next.js hydration without nonces
           { key: 'Content-Security-Policy', value: [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' https://www.clarity.ms https://www.googletagmanager.com https://www.google-analytics.com",
+            "script-src 'self' 'unsafe-inline' https://accounts.google.com https://www.clarity.ms https://www.googletagmanager.com https://www.google-analytics.com",
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: blob: https:",
             "font-src 'self' data:",

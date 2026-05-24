@@ -102,8 +102,7 @@ export default function AiExplainPage() {
         const usage = getUsage();
 
         if (plan === "free" && !force && usage.explanations >= 1) {
-            setError("free_limit");
-            setPhase("done");
+            setShowUpgradeModal(true);
             return;
         }
 
@@ -180,7 +179,7 @@ export default function AiExplainPage() {
         const docCount = usage.questions_per_doc[effectiveDocId] || 0;
         const total    = usage.questions_total || 0;
 
-        if (plan === "free") { setQaLimitError("free_qa"); return; }
+        if (plan === "free") { setShowUpgradeModal(true); return; }
         if (plan === "pro"     && docCount >= 3)  { setQaLimitError("Pro: max 3 questions per document reached."); return; }
         if (plan === "pro"     && total    >= 30) { setQaLimitError("Pro: daily question limit (30) reached."); return; }
         if (plan === "premium" && docCount >= 15) { setQaLimitError("Premium: max 15 questions per document reached."); return; }
@@ -389,27 +388,8 @@ export default function AiExplainPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="flex-1 px-4 py-5 max-w-2xl mx-auto w-full space-y-4"
                 >
-                    {/* Free daily limit hit */}
-                    {error === "free_limit" && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-[20px] p-6 text-center space-y-4">
-                            <Lock size={28} className="text-amber-500 mx-auto" />
-                            <div>
-                                <p className="font-black text-amber-800 text-lg">Daily limit reached</p>
-                                <p className="text-sm text-amber-600/80 mt-1">Free users get 1 AI explanation per day.</p>
-                            </div>
-                            <button onClick={() => router.push("/pricing")}
-                                className="w-full py-3.5 bg-amber-500 text-white font-black rounded-[14px] hover:bg-amber-600 transition-colors">
-                                Upgrade to Pro →
-                            </button>
-                            <button onClick={() => { setError(null); setPhase("select"); }}
-                                className="text-sm text-dark/35 font-semibold hover:text-dark/60 transition-colors">
-                                ← Back
-                            </button>
-                        </div>
-                    )}
-
                     {/* Generic error */}
-                    {error && error !== "free_limit" && (
+                    {error && (
                         <div className="bg-red-50 border border-red-100 rounded-[16px] p-5 text-center space-y-3">
                             <p className="text-red-600 font-bold text-sm">{error}</p>
                             <button onClick={() => { setError(null); setPhase("select"); }}
@@ -531,20 +511,10 @@ export default function AiExplainPage() {
                                 <div ref={qaBottomRef} />
                             </div>
 
-                            {/* Q&A limit error */}
+                            {/* Q&A limit error (pro/premium) */}
                             {qaLimitError && (
-                                <div className="mx-4 mb-3 p-3 bg-amber-50 border border-amber-200 rounded-[12px] flex items-center justify-between gap-3">
-                                    <p className="text-xs font-bold text-amber-700">
-                                        {qaLimitError === "free_qa"
-                                            ? "Upgrade to Pro to ask questions."
-                                            : qaLimitError}
-                                    </p>
-                                    {qaLimitError === "free_qa" && (
-                                        <button onClick={() => router.push("/pricing")}
-                                            className="text-[10px] font-black text-amber-600 shrink-0 hover:text-amber-800 transition-colors">
-                                            Upgrade →
-                                        </button>
-                                    )}
+                                <div className="mx-4 mb-3 p-3 bg-amber-50 border border-amber-200 rounded-[12px]">
+                                    <p className="text-xs font-bold text-amber-700">{qaLimitError}</p>
                                 </div>
                             )}
 

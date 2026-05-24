@@ -23,9 +23,9 @@ export function LanguageSwitcher({ mode = 'fixed' }: { mode?: 'fixed' | 'compact
 
     const handleLocaleChange = (newLocale: string) => {
         if (newLocale !== currentLocale && !isPending) {
-            startTransition(() => {
-                setUserLocaleAction(newLocale as Locale);
-                setIsOpen(false);
+            startTransition(async () => {
+                await setUserLocaleAction(newLocale as Locale);
+                window.location.reload();
             });
         } else {
             setIsOpen(false);

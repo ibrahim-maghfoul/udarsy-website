@@ -3,9 +3,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { Search, BookOpen, ChevronRight, ChevronLeft, LogIn } from "lucide-react";
 import Link from "next/link";
-import { getSubjects, getGuidances, getSchools, getLevels, prefetchLessons, prefetchLevels, prefetchGuidances, subjectSlug, guidanceSlug } from "@/services/data";
+import { getSubjects, getGuidances, getSchools, getLevels, prefetchLessons, prefetchLevels, prefetchGuidances, subjectSlug, curriculumPath, type CurriculumChain } from "@/services/data";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { getSubjectImage } from "@/lib/subjectImages";
 import "./subject-cards.css";
@@ -213,7 +213,6 @@ function GuestLevelSelector({ onSelect }: { onSelect: (guidanceId: string, title
     );
 }
 
-
 // ---------- Main page ----------
 export default function ExplorePage() {
     const { user } = useAuth();
@@ -226,8 +225,11 @@ export default function ExplorePage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [anonymousPathParams, setAnonymousPathParams] = useState<any>(null);
     const [guidanceName, setGuidanceName] = useState('');
+    // Resolved curriculum chain (school/level/guidance) used to build hierarchical URLs
+    // for the subject cards. Lazily filled after fetchSubjects resolves; until then,
+    // cards fall back to /courses/subject/<_id>.
+    const [chain, setChain] = useState<Partial<CurriculumChain> | null>(null);
     const router = useRouter();
-    const pathname = usePathname();
 
     useEffect(() => {
         if (!user) {
@@ -274,6 +276,16 @@ export default function ExplorePage() {
             if (guidances) {
                 const g = guidances.find((g: any) => (g.id || g._id) === guidanceId);
                 if (g) setGuidanceName(g.title);
+                // Build the chain used for hierarchical subject card URLs. We have the
+                // titles from user.level; the slug fn matches the backend's generateSlug.
+                if (user?.level && guidances.length > 0) {
+                    const implicit = guidances.length === 1;
+                    setChain({
+                        school:   { _id: user.selectedPath?.schoolId   ?? '', title: user.level.school,   slug: subjectSlug(user.level.school) },
+                        level:    { _id: user.selectedPath?.levelId    ?? '', title: user.level.level,    slug: subjectSlug(user.level.level) },
+                        guidance: { _id: user.selectedPath?.guidanceId ?? '', title: user.level.guidance, slug: subjectSlug(user.level.guidance), implicit },
+                    });
+                }
             }
         } catch {
             setSubjects([]);
@@ -290,8 +302,8 @@ export default function ExplorePage() {
 
     // If not logged in and no path is selected yet, show selector
     if (!user && !loading && !anonymousPathParams) {
-        return <GuestLevelSelector onSelect={(guidanceId, title) => {
-            router.replace(`/courses/${guidanceSlug(title)}`);
+        return <GuestLevelSelector onSelect={(guidanceId) => {
+            router.replace(`/courses/${guidanceId}`);
         }} />;
     }
 
@@ -308,7 +320,7 @@ export default function ExplorePage() {
             <header className="hidden md:block relative overflow-hidden bg-gradient-to-b from-[#f0f7f3] to-transparent border-b border-green/8 pt-32 pb-10 px-6">
                 <div className="absolute top-0 right-0 w-[420px] h-[420px] rounded-full bg-green/5 blur-3xl pointer-events-none" style={{ transform: 'translate3d(30%, -30%, 0)' }} />
                 <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-green/4 blur-2xl pointer-events-none" style={{ transform: 'translate3d(-20%, 20%, 0)' }} />
-                <div className="max-w-7xl mx-auto relative">
+                <div className="max-w-7xl mx-auto relative" dir={isAr ? 'rtl' : 'ltr'}>
                     <div className="space-y-2 mb-6">
                         <h1 className="text-2xl md:text-4xl font-bold text-dark">
                             {nt('welcome')}, {user?.displayName?.split(' ')[0] || t('student')}!
@@ -317,20 +329,18 @@ export default function ExplorePage() {
                             <p className="text-muted-foreground text-lg">{guidanceName}</p>
                         )}
                     </div>
-                    <div className={`flex items-center justify-between gap-6 ${isAr ? 'flex-row-reverse' : ''}`}>
+                    <div className="flex items-center justify-between gap-6">
                         <div className="relative w-72 shrink-0">
                             <Search
                                 size={15}
-                                className="absolute top-1/2 -translate-y-1/2 text-green/40 pointer-events-none"
-                                style={{ [isAr ? 'right' : 'left']: '12px' }}
+                                className={`absolute top-1/2 -translate-y-1/2 text-green/40 pointer-events-none ${isAr ? 'right-3' : 'left-3'}`}
                             />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder={t('search_placeholder')}
-                                className={`w-full py-2.5 text-sm bg-white border border-green/20 rounded-xl text-dark placeholder:text-gray-400 focus:outline-none focus:border-green/40 focus:ring-2 focus:ring-green/8 ${isAr ? 'pr-9 pl-4 text-right' : 'pl-9 pr-4'}`}
-                                dir={isAr ? 'rtl' : undefined}
+                                className={`w-full py-2.5 text-sm bg-white border border-green/20 rounded-xl text-dark placeholder:text-gray-400 focus:outline-none focus:border-green/40 focus:ring-2 focus:ring-green/8 ${isAr ? 'pr-9 pl-4' : 'pl-9 pr-4'}`}
                             />
                         </div>
                         {!user && (
@@ -353,7 +363,7 @@ export default function ExplorePage() {
             </header>
 
             {/* Mobile search */}
-            <div className="md:hidden px-4 pt-3">
+            <div className="md:hidden px-4 pt-3 space-y-2" dir={isAr ? 'rtl' : 'ltr'}>
                 <div className="relative">
                     <Search size={15} className={`absolute top-1/2 -translate-y-1/2 text-green/40 pointer-events-none ${isAr ? 'right-3' : 'left-3'}`} />
                     <input
@@ -361,8 +371,7 @@ export default function ExplorePage() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={t('search_placeholder')}
-                        className={`w-full py-2.5 text-sm bg-white border border-green/20 rounded-xl text-dark placeholder:text-gray-400 focus:outline-none focus:border-green/40 ${isAr ? 'pr-9 pl-4 text-right' : 'pl-9 pr-4'}`}
-                        dir={isAr ? 'rtl' : undefined}
+                        className={`w-full py-2.5 text-sm bg-white border border-green/20 rounded-xl text-dark placeholder:text-gray-400 focus:outline-none focus:border-green/40 ${isAr ? 'pr-9 pl-4' : 'pl-9 pr-4'}`}
                     />
                 </div>
             </div>
@@ -370,7 +379,7 @@ export default function ExplorePage() {
             {/* Content */}
             <main className="max-w-7xl mx-auto pt-8 px-5 md:px-10" style={{ paddingBottom: '8rem' }}>
                 {!loading && filteredSubjects.length > 0 && (
-                    <div className="flex items-center gap-4 mb-8">
+                    <div className="flex items-center gap-4 mb-6">
                         <div className="flex-1 h-px bg-green/10" />
                         <span className="px-3.5 py-1 bg-green text-white text-xs font-bold rounded-full whitespace-nowrap tracking-wide">
                             {filteredSubjects.length} {filteredSubjects.length === 1 ? "subject" : "subjects"}
@@ -391,9 +400,13 @@ export default function ExplorePage() {
                 ) : filteredSubjects.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
                         {filteredSubjects.map((subject: any, index: number) => {
-                            const subjectLessons = user?.progress?.lessons?.filter(
-                                (l: any) => l.subjectId === (subject._id || subject.id)
-                            ) ?? [];
+                            // Match by lessonId set (slug or _id) OR subjectId — whichever is current
+                            const lessonIdSet: Set<string> = new Set(subject.lessonIds || []);
+                            const currentSubjectId: string = subject._id || subject.id || '';
+                            const subjectLessons = (user?.progress?.lessons?.filter((l: any) =>
+                                (lessonIdSet.size > 0 && lessonIdSet.has(l.lessonId)) ||
+                                (currentSubjectId && l.subjectId === currentSubjectId)
+                            ) ?? []);
                             const totalCompleted = subjectLessons.reduce(
                                 (sum: number, l: any) => sum + (l.completedResources?.length ?? 0), 0
                             );
@@ -404,7 +417,6 @@ export default function ExplorePage() {
                             const progressPct = totalResources > 0
                                 ? Math.min(100, Math.round((totalCompleted / totalResources) * 100))
                                 : 0;
-                            const isStarted = subjectLessons.length > 0;
                             const isComplete = totalResources > 0 && progressPct === 100;
 
                             const radius = 17;
@@ -415,7 +427,9 @@ export default function ExplorePage() {
 
                             return (
                                 <Link
-                                    href={`/courses/subject/${subject.slug ?? subjectSlug(subject.title)}`}
+                                    href={chain?.school && chain?.level && chain?.guidance
+                                        ? curriculumPath({ ...chain, subject: { _id: subject._id, title: subject.title, slug: subject.slug ?? subjectSlug(subject.title) } })
+                                        : `/courses/subject/${subject._id ?? subject.id}`}
                                     key={subject.id}
                                     className={`subject-card ${isComplete ? 'subject-card-done' : ''}${!imageUrl ? ' subject-card-fallback' : ''}`}
                                     style={{
@@ -434,7 +448,7 @@ export default function ExplorePage() {
                                         {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                                     </div>
 
-                                    {isStarted && (
+                                    {user && (
                                         <div className="subject-card-ring">
                                             <svg className="w-full h-full -rotate-90" viewBox="0 0 40 40">
                                                 <circle cx="20" cy="20" r={radius} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2.5" />

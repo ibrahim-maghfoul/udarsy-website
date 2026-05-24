@@ -35,6 +35,8 @@ export interface LessonResource {
 
 export interface Lesson {
     id: string;
+    _id?: string;
+    slug?: string;
     subjectId: string;
     title: string;
     coursesPdf?: LessonResource[];
@@ -165,15 +167,21 @@ export interface User {
     schoolName?: string;
     studyLocation?: string;
     progress: {
-        totalLessons: number;
-        completedLessons: number;
         learningTime: number;
         documentsOpened: number;
         videosWatched: number;
-        usageTime: number;
         savedNews: string[];
-        lessons?: any[];
-        timeSpentHistory?: { date: string; minutes: number }[];
+        timeSpentHistory?: { date: string; minutes: number; filesOpened?: number }[];
+        lessons?: {
+            lessonId: string;
+            subjectId: string;
+            guidanceId: string;
+            isFavorite: boolean;
+            lastAccessed: string;
+            totalTimeSpent: number;
+            completedResources: string[];
+            totalResourcesCount: number;
+        }[];
     };
     selectedPath?: {
         schoolId: string;

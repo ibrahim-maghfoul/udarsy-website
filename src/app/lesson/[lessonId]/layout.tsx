@@ -3,17 +3,26 @@ import { serverFetch } from "@/lib/serverFetch";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.udarsy.com";
 
+// Try id first (canonical); fall back to slug for legacy URLs.
+async function fetchLessonForMeta(param: string) {
+  let lesson = await serverFetch<Record<string, unknown> | null>(`/data/lesson/${param}`, { revalidate: 3600 });
+  if (!lesson || !(lesson as any)._id) {
+    lesson = await serverFetch<Record<string, unknown> | null>(`/data/lesson/by-slug/${param}`, { revalidate: 3600 });
+  }
+  return lesson;
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ lessonId: string }>;
 }): Promise<Metadata> {
-  const slug = (await params).lessonId;
+  const param = (await params).lessonId;
   try {
-    const lesson = await serverFetch(`/data/lesson/by-slug/${slug}`, { revalidate: 3600 }) as Record<string, unknown>;
+    const lesson = await fetchLessonForMeta(param);
     if (!lesson) throw new Error("Not found");
     const title = (lesson.title as string) || "درس";
-    const canonicalSlug = (lesson.slug as string) ?? slug;
+    const canonicalId = ((lesson as any)._id as string) ?? param;
     return {
       title,
       description: `تعلم درس "${title}" — دروس، تمارين وامتحانات على منصة درسي. Apprenez "${title}" avec cours, exercices et examens sur Udarsy.`,
@@ -21,14 +30,14 @@ export async function generateMetadata({
         title: `${title} | Udarsy`,
         description: `دروس وتمارين لـ "${title}" على منصة درسي.`,
         type: "article",
-        url: `/lesson/${canonicalSlug}`,
+        url: `/lesson/${canonicalId}`,
       },
       twitter: {
         card: "summary_large_image",
         title: `${title} | Udarsy`,
         description: `دروس وتمارين لـ "${title}" على منصة درسي.`,
       },
-      alternates: { canonical: `/lesson/${canonicalSlug}` },
+      alternates: { canonical: `/lesson/${canonicalId}` },
     };
   } catch {
     return {
@@ -40,10 +49,10 @@ export async function generateMetadata({
 
 async function LessonSchemas({ slug }: { slug: string }) {
   try {
-    const lesson = await serverFetch<Record<string, unknown>>(`/data/lesson/by-slug/${slug}`, { revalidate: 3600 });
+    const lesson = await fetchLessonForMeta(slug);
     if (!lesson) return null;
-    const canonicalSlug = (lesson.slug as string) ?? slug;
-    const lessonUrl = `${SITE_URL}/lesson/${canonicalSlug}`;
+    const canonicalId = ((lesson as any)._id as string) ?? slug;
+    const lessonUrl = `${SITE_URL}/lesson/${canonicalId}`;
 
     const courseSchema = {
       "@context": "https://schema.org",

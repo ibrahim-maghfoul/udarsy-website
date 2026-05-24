@@ -14,6 +14,7 @@ export interface Block {
 }
 
 export interface BlogPost {
+  id: string;
   slug: string;
   title: string;
   description: string;
@@ -32,6 +33,7 @@ export const posts: BlogPost[] = [
   // 1. Présentation générale
   // ─────────────────────────────────────────────────────────────────
   {
+    id: 'what-is-udarsy',
     slug: 'qu-est-ce-que-udarsy',
     title: "Qu'est-ce qu'Udarsy ? La plateforme éducative numéro 1 au Maroc",
     description:
@@ -43,7 +45,7 @@ export const posts: BlogPost[] = [
     date: '2025-09-01',
     readTime: '9 min',
     coverImage:
-      'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8a9b343850b033636c/cover-5375ba96-e690-4941-b932-6d309b5651c9.webp',
     keywords: [
       'udarsy',
       'يودرسي',
@@ -186,6 +188,7 @@ export const posts: BlogPost[] = [
   // 2. Réussir le BAC
   // ─────────────────────────────────────────────────────────────────
   {
+    id: 'pass-bac-morocco',
     slug: 'comment-reussir-son-bac-maroc',
     title: 'Comment réussir son BAC au Maroc — Méthodes et ressources 2025',
     description:
@@ -197,7 +200,7 @@ export const posts: BlogPost[] = [
     date: '2025-09-15',
     readTime: '11 min',
     coverImage:
-      'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b033636f/cover-f0997faa-a7bd-4ecb-bea7-fff9acbe8acd.webp',
     keywords: [
       'bac maroc 2025',
       'réussir baccalauréat maroc',
@@ -310,6 +313,7 @@ export const posts: BlogPost[] = [
   // 3. Cours gratuits lycée
   // ─────────────────────────────────────────────────────────────────
   {
+    id: 'free-high-school-courses',
     slug: 'cours-gratuits-lycee-maroc',
     title: 'Cours gratuits pour lycéens au Maroc — Ce que propose Udarsy',
     description:
@@ -321,7 +325,7 @@ export const posts: BlogPost[] = [
     date: '2025-10-01',
     readTime: '9 min',
     coverImage:
-      'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b0336372/cover-90e67a5c-30dd-4233-ba57-ca0653e76ec7.webp',
     keywords: [
       'cours gratuits lycée maroc',
       'cours mathématiques maroc',
@@ -428,6 +432,7 @@ export const posts: BlogPost[] = [
   // 4. Premiers pas
   // ─────────────────────────────────────────────────────────────────
   {
+    id: 'getting-started',
     slug: 'premiers-pas-sur-udarsy',
     title: "Premiers pas sur Udarsy — Guide complet pour bien démarrer",
     description:
@@ -439,7 +444,7 @@ export const posts: BlogPost[] = [
     date: '2025-10-15',
     readTime: '8 min',
     coverImage:
-      'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b0336375/cover-6537210e-64a9-4b18-a25c-aabe46bd28f2.webp',
     keywords: [
       'comment utiliser udarsy',
       'démarrer udarsy',
@@ -551,6 +556,7 @@ export const posts: BlogPost[] = [
   // 5. Salles de chat
   // ─────────────────────────────────────────────────────────────────
   {
+    id: 'study-chat-rooms',
     slug: 'salles-chat-etude-udarsy',
     title: "Salles de chat d'étude — Révisez ensemble sur Udarsy",
     description:
@@ -562,7 +568,7 @@ export const posts: BlogPost[] = [
     date: '2025-11-01',
     readTime: '7 min',
     coverImage:
-      'https://images.unsplash.com/photo-1529390079861-591de354faf5?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b0336378/cover-fda1db07-ef9b-478a-b564-bbbc1f3ebc8b.webp',
     keywords: [
       'chat étude maroc',
       'groupe révision maroc',
@@ -647,6 +653,7 @@ export const posts: BlogPost[] = [
   // 6. Abonnements
   // ─────────────────────────────────────────────────────────────────
   {
+    id: 'subscriptions',
     slug: 'abonnements-udarsy-gratuit-pro-premium',
     title: 'Gratuit, Pro ou Premium — Quel abonnement Udarsy choisir en 2025 ?',
     description:
@@ -658,7 +665,7 @@ export const posts: BlogPost[] = [
     date: '2025-11-15',
     readTime: '8 min',
     coverImage:
-      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b033637b/cover-38b0e0fc-090f-4e50-beb3-82d339c626e4.webp',
     keywords: [
       'abonnement udarsy prix',
       'udarsy pro premium',
@@ -761,6 +768,7 @@ export const posts: BlogPost[] = [
   // 7. Enseignant / Instructeur
   // ─────────────────────────────────────────────────────────────────
   {
+    id: 'become-teacher-instructor',
     slug: 'devenir-enseignant-instructeur-udarsy',
     title: "Devenir enseignant ou instructeur sur Udarsy — Guide complet",
     description:
@@ -772,7 +780,7 @@ export const posts: BlogPost[] = [
     date: '2025-12-01',
     readTime: '9 min',
     coverImage:
-      'https://images.unsplash.com/photo-1544717305-2782549b5136?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b033637e/cover-b462e0af-cb05-42f8-b94f-f927383490db.webp',
     keywords: [
       'devenir enseignant udarsy',
       'instructeur plateforme maroc',
@@ -874,6 +882,7 @@ export const posts: BlogPost[] = [
   // 8. Étude hors ligne
   // ─────────────────────────────────────────────────────────────────
   {
+    id: 'offline-courses',
     slug: 'cours-hors-ligne-telechargement',
     title: "Étudier sans connexion — Téléchargez vos cours sur Udarsy",
     description:
@@ -885,7 +894,7 @@ export const posts: BlogPost[] = [
     date: '2025-12-15',
     readTime: '6 min',
     coverImage:
-      'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8b9b343850b0336381/cover-53ea023d-0363-4995-8142-91fbb4ec8e89.webp',
     keywords: [
       'cours hors ligne maroc',
       'télécharger cours PDF maroc',
@@ -970,6 +979,7 @@ export const posts: BlogPost[] = [
   // 9. Hub de contributions
   // ─────────────────────────────────────────────────────────────────
   {
+    id: 'contributions-hub',
     slug: 'hub-contributions-communaute',
     title: "Le Hub de contributions — Partagez vos ressources sur Udarsy",
     description:
@@ -981,7 +991,7 @@ export const posts: BlogPost[] = [
     date: '2026-01-10',
     readTime: '7 min',
     coverImage:
-      'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8c9b343850b0336384/cover-25127d83-25da-46ab-8b58-98b33a7d4263.webp',
     keywords: [
       'contributions udarsy',
       'partager fiches révision maroc',
@@ -1077,6 +1087,7 @@ export const posts: BlogPost[] = [
   // 10. Calendrier scolaire
   // ─────────────────────────────────────────────────────────────────
   {
+    id: 'school-calendar-2025-2026',
     slug: 'calendrier-scolaire-maroc-2025-2026',
     title: "Calendrier scolaire marocain 2025-2026 — Toutes les dates importantes",
     description:
@@ -1088,7 +1099,7 @@ export const posts: BlogPost[] = [
     date: '2026-01-20',
     readTime: '7 min',
     coverImage:
-      'https://images.unsplash.com/photo-1506784926709-22f1ec395907?w=1200&auto=format&fit=crop&q=80',
+      'https://files.udarsy.com/uploads/blog/6a0e3e8c9b343850b0336387/cover-edfb4bb5-7b9c-4cea-ac15-4aa1f92a49ed.webp',
     keywords: [
       'calendrier scolaire maroc 2025-2026',
       'vacances scolaires maroc',
@@ -1209,8 +1220,29 @@ export function getPostsByLocale(locale: string): BlogPost[] {
   return posts;
 }
 
+const ALL_LOCALES = ['fr', 'en', 'ar'];
+
 export function getPostByLocale(locale: string, slug: string): BlogPost | undefined {
-  return getPostsByLocale(locale).find((p) => p.slug === slug);
+  const localePosts = getPostsByLocale(locale);
+  const direct = localePosts.find((p) => p.slug === slug);
+  if (direct) return direct;
+
+  for (const other of ALL_LOCALES) {
+    if (other === locale) continue;
+    const found = getPostsByLocale(other).find((p) => p.slug === slug);
+    if (found) {
+      return localePosts.find((p) => p.id === found.id);
+    }
+  }
+  return undefined;
+}
+
+export function getAllSlugs(): string[] {
+  const slugs = new Set<string>();
+  for (const loc of ALL_LOCALES) {
+    for (const p of getPostsByLocale(loc)) slugs.add(p.slug);
+  }
+  return Array.from(slugs);
 }
 
 export const CATEGORY_COLORS: Record<string, string> = {

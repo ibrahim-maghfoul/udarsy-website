@@ -66,11 +66,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const [newsData, lessonData, guidanceData, subjectData, schoolData, levelData, teacherData, instructorData, serviceData] = await Promise.all([
     serverFetch<any>('/news?limit=500', { cache: 'no-store' }),
-    serverFetch<{ _id: string; slug: string }[]>('/data/lessons/all', { cache: 'no-store' }),
-    serverFetch<{ _id: string; slug: string }[]>('/data/guidances/all', { cache: 'no-store' }),
-    serverFetch<{ _id: string; slug: string }[]>('/data/subjects/all', { cache: 'no-store' }),
+    serverFetch<{ _id: string; slug: string; subjectId: string }[]>('/data/lessons/all', { cache: 'no-store' }),
+    serverFetch<{ _id: string; slug: string; levelId: string }[]>('/data/guidances/all', { cache: 'no-store' }),
+    serverFetch<{ _id: string; slug: string; guidanceId: string }[]>('/data/subjects/all', { cache: 'no-store' }),
     serverFetch<{ _id: string; title: string }[]>('/data/schools', { cache: 'no-store' }),
-    serverFetch<{ levelSlug: string; schoolSlug: string }[]>('/data/levels/all', { cache: 'no-store' }),
+    serverFetch<{ _id: string; levelSlug: string; schoolId: string; schoolSlug: string }[]>('/data/levels/all', { cache: 'no-store' }),
     serverFetch<any[]>('/teacher/profiles', { cache: 'no-store' }),
     serverFetch<any[]>('/instructor', { cache: 'no-store' }),
     serverFetch<any[]>('/data/school-services', { cache: 'no-store' }),
@@ -78,14 +78,66 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const newsList: { _id: string; slug?: string; updatedAt?: string; createdAt?: string }[] =
     newsData?.news || (Array.isArray(newsData) ? newsData : []);
-  const lessonList: { _id: string; slug: string }[] = Array.isArray(lessonData) ? lessonData : [];
-  const guidanceList: { _id: string; slug: string }[] = Array.isArray(guidanceData) ? guidanceData : [];
-  const subjectList: { _id: string; slug: string }[] = Array.isArray(subjectData) ? subjectData : [];
-  const schoolList: { _id: string; title: string }[] = Array.isArray(schoolData) ? schoolData : [];
-  const levelList: { levelSlug: string; schoolSlug: string }[] = Array.isArray(levelData) ? levelData : [];
+  const lessonList = Array.isArray(lessonData) ? lessonData : [];
+  const guidanceList = Array.isArray(guidanceData) ? guidanceData : [];
+  const subjectList = Array.isArray(subjectData) ? subjectData : [];
+  const schoolList = Array.isArray(schoolData) ? schoolData : [];
+  const levelList = Array.isArray(levelData) ? levelData : [];
   const teacherList: { _id: string }[] = Array.isArray(teacherData) ? teacherData : [];
   const instructorList: { _id: string }[] = Array.isArray(instructorData) ? instructorData : [];
   const serviceList: { _id: string }[] = Array.isArray(serviceData) ? serviceData : [];
+
+  // Build the chain lookups used to produce hierarchical URLs.
+  // The implicit-guidance flag mirrors the catch-all route: a level with exactly one
+  // guidance (Primaire/Collège "General") omits the guidance segment from URLs.
+  const guidancesByLevel = new Map<string, typeof guidanceList>();
+  for (const g of guidanceList) {
+    const arr = guidancesByLevel.get(String(g.levelId)) ?? [];
+    arr.push(g);
+    guidancesByLevel.set(String(g.levelId), arr);
+  }
+  const levelById = new Map(levelList.map(l => [String(l._id), l]));
+  const guidanceById = new Map(guidanceList.map(g => [String(g._id), g]));
+  const subjectById = new Map(subjectList.map(s => [String(s._id), s]));
+
+  // Returns school/level prefix and whether the guidance segment is implicit (single-
+  // guidance level — skip it in URL). Returns null if any join fails.
+  function chainPrefix(levelId: string): { schoolSlug: string; levelSlug: string; implicitGuidance: boolean } | null {
+    const level = levelById.get(String(levelId));
+    if (!level) return null;
+    const siblings = guidancesByLevel.get(String(levelId)) ?? [];
+    return { schoolSlug: level.schoolSlug, levelSlug: level.levelSlug, implicitGuidance: siblings.length === 1 };
+  }
+
+  function guidancePath(g: { slug: string; levelId: string }): string | null {
+    const p = chainPrefix(g.levelId);
+    if (!p) return null;
+    // Single-guidance levels collapse to /courses/<school>/<level>/<subject>; the
+    // guidance landing itself isn't a useful sitemap target there.
+    if (p.implicitGuidance) return null;
+    return `/courses/${p.schoolSlug}/${p.levelSlug}/${g.slug}`;
+  }
+
+  function subjectPath(s: { slug: string; guidanceId: string }): string | null {
+    const g = guidanceById.get(String(s.guidanceId));
+    if (!g) return null;
+    const p = chainPrefix(g.levelId);
+    if (!p) return null;
+    const segs = [p.schoolSlug, p.levelSlug];
+    if (!p.implicitGuidance) segs.push(g.slug);
+    segs.push(s.slug);
+    return `/courses/${segs.join('/')}`;
+  }
+
+  function lessonPath(l: { slug: string; subjectId: string }): string | null {
+    const s = subjectById.get(String(l.subjectId));
+    if (!s) return null;
+    const subjUrl = subjectPath(s);
+    if (!subjUrl) return null;
+    return `${subjUrl}/${l.slug}`;
+  }
+
+  const enc = (u: string) => u.split('/').map(p => p.startsWith('http') ? p : encodeURIComponent(p)).join('/').replace(`${encodeURIComponent('https')}%3A`, 'https:').replace(`${encodeURIComponent('http')}%3A`, 'http:');
 
   const newsRoutes: MetadataRoute.Sitemap = newsList.map((n) => ({
     url: `${SITE_URL}/news/${n.slug || n._id}`,
@@ -106,22 +158,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.75,
   }));
 
-  const guidanceRoutes: MetadataRoute.Sitemap = guidanceList.map((g) => ({
-    url: `${SITE_URL}/courses/${g.slug}`,
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
+  // Hierarchical URLs joined from the parent chains. Single-guidance levels skip the
+  // guidance segment (no "/general/" in Primaire/Collège URLs). Title-only slug
+  // collisions don't matter here because each level/guidance/subject scope is unique
+  // within its parent (verified by find-same-parent-twins.ts).
+  const guidanceRoutes: MetadataRoute.Sitemap = guidanceList
+    .map(g => guidancePath(g))
+    .filter((u): u is string => !!u)
+    .map(u => ({ url: `${SITE_URL}${enc(u)}`, changeFrequency: "weekly" as const, priority: 0.8 }));
 
-  const subjectRoutes: MetadataRoute.Sitemap = subjectList.map((s) => ({
-    url: `${SITE_URL}/courses/subject/${s.slug}`,
-    changeFrequency: "weekly",
-    priority: 0.75,
-  }));
+  const subjectRoutes: MetadataRoute.Sitemap = subjectList
+    .map(s => subjectPath(s))
+    .filter((u): u is string => !!u)
+    .map(u => ({ url: `${SITE_URL}${enc(u)}`, changeFrequency: "weekly" as const, priority: 0.75 }));
 
-  const lessonRoutes: MetadataRoute.Sitemap = lessonList.flatMap((l) => [
-    { url: `${SITE_URL}/lesson/${l.slug || l._id}`, changeFrequency: "monthly" as const, priority: 0.7 },
-    { url: `${SITE_URL}/lesson/${l.slug || l._id}/preview`, changeFrequency: "monthly" as const, priority: 0.5 },
-  ]);
+  const lessonRoutes: MetadataRoute.Sitemap = lessonList.flatMap(l => {
+    const u = lessonPath(l);
+    if (!u) return [];
+    const full = `${SITE_URL}${enc(u)}`;
+    // /preview pages live at the legacy /lesson/<_id>/preview path (no hierarchical
+    // equivalent yet); the lesson player URL itself uses the pretty hierarchical form.
+    return [
+      { url: full, changeFrequency: "monthly" as const, priority: 0.7 },
+      { url: `${SITE_URL}/lesson/${l._id}/preview`, changeFrequency: "monthly" as const, priority: 0.5 },
+    ];
+  });
 
   const teacherRoutes: MetadataRoute.Sitemap = teacherList.map((t) => ({
     url: `${SITE_URL}/teacher/${t._id}`,

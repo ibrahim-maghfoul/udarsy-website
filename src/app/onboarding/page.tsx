@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
     ChevronRight, ChevronLeft, GraduationCap, School, BookOpen,
     User, ChevronDown, MapPin, Phone, Check, Camera, Upload,
 } from "lucide-react";
 import Image from "next/image";
 import DatePicker from "@/components/ui/DatePicker";
-import { getSchools, getLevels, getGuidances, guidanceSlug } from "@/services/data";
+import { getSchools, getLevels, getGuidances, subjectSlug, curriculumPath } from "@/services/data";
 import api from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSnackbar } from "@/contexts/SnackbarContext";
@@ -41,8 +41,12 @@ export default function OnboardingPage() {
     const { user, forceRefreshUser } = useAuth();
     const { showSnackbar } = useSnackbar();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    // ?pathOnly=1 — user already onboarded; they're only re-picking their study path
+    // (school -> level -> guidance) and skipping personal info + photo.
+    const pathOnly = searchParams.get('pathOnly') === '1';
 
-    const [currentStep, setCurrentStep] = useState(0);
+    const [currentStep, setCurrentStep] = useState(pathOnly ? 2 : 0);
     const [showGenderDropdown, setShowGenderDropdown] = useState(false);
     const [showCitySuggestions, setShowCitySuggestions] = useState(false);
     const genderRef = useRef<HTMLDivElement>(null);
@@ -248,22 +252,38 @@ export default function OnboardingPage() {
             const selectedSchool   = (await getSchools()).find(s => s.id === final.schoolId);
             const selectedLevel    = (await getLevels(final.schoolId)).find(l => l.id === final.levelId);
             const selectedGuidance = (await getGuidances(final.levelId)).find(g => g.id === final.guidanceId);
-            await api.patch("/user/profile", {
-                birthday: final.birthday,
-                gender:   final.gender,
-                city:       final.city   || undefined,
-                schoolName: final.school || undefined,
-                phone:      final.phone  || undefined,
+            // Path-only re-onboarding only touches selectedPath + level (display titles).
+            // First-time onboarding additionally persists the personal fields collected in step 0.
+            const payload: Record<string, any> = {
                 selectedPath: { schoolId: final.schoolId, levelId: final.levelId, guidanceId: final.guidanceId },
                 level: {
                     school:   selectedSchool?.title   || "",
                     level:    selectedLevel?.title    || "",
                     guidance: selectedGuidance?.title || "",
                 },
-            });
+            };
+            if (!pathOnly) {
+                payload.birthday = final.birthday;
+                payload.gender   = final.gender;
+                payload.city       = final.city   || undefined;
+                payload.schoolName = final.school || undefined;
+                payload.phone      = final.phone  || undefined;
+            }
+            await api.patch("/user/profile", payload);
             // Load the user into global state for the first time now that onboarding is done
             await forceRefreshUser();
-            router.push(selectedGuidance ? `/courses/${guidanceSlug(selectedGuidance.title)}` : "/courses");
+            // Hierarchical pretty URL: /courses/<school>/<level>[/<guidance>] — guidance
+            // segment is omitted when the level has only one guidance.
+            const levelGuidances = await getGuidances(final.levelId);
+            const implicit = levelGuidances.length === 1;
+            const target = selectedSchool && selectedLevel && selectedGuidance
+                ? curriculumPath({
+                    school:   { _id: selectedSchool.id,   title: selectedSchool.title,   slug: subjectSlug(selectedSchool.title) },
+                    level:    { _id: selectedLevel.id,    title: selectedLevel.title,    slug: subjectSlug(selectedLevel.title) },
+                    guidance: { _id: selectedGuidance.id, title: selectedGuidance.title, slug: subjectSlug(selectedGuidance.title), implicit },
+                })
+                : "/courses";
+            router.push(target);
         } catch (e) {
             console.error("Failed to save profile:", e);
             showSnackbar(t("save_error"), "error");
@@ -717,12 +737,15 @@ export default function OnboardingPage() {
                                         )}
                                     </div>
 
-                                    <div className="px-4 pb-4">
-                                        <button onClick={() => setCurrentStep(currentStep - 1)} className="btn-back">
-                                            <ChevronLeft size={14} className="btn-back-arrow" />
-                                            {t("back")}
-                                        </button>
-                                    </div>
+                                    {/* In path-only mode the user has no personal/photo steps to return to. */}
+                                    {!(pathOnly && currentStep <= 2) && (
+                                        <div className="px-4 pb-4">
+                                            <button onClick={() => setCurrentStep(currentStep - 1)} className="btn-back">
+                                                <ChevronLeft size={14} className="btn-back-arrow" />
+                                                {t("back")}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}

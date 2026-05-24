@@ -337,6 +337,17 @@ body {
 .continue-card:hover::before { clip-path: inset(0 50% 0% 0); }
 .continue-card:hover::after  { clip-path: inset(0 0 0% 50%); }
 
+/* ─── News card skeleton shimmer ─── */
+@keyframes news-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.news-shimmer {
+  animation: news-shimmer 1.6s ease-in-out infinite;
+  background: linear-gradient(90deg, #f3f4f3 0%, #eaf2ed 50%, #f3f4f3 100%);
+  background-size: 200% 100%;
+}
+
 /* ─── Reduce motion — sitewide components ─── */
 @media (prefers-reduced-motion: reduce) {
   .floating,

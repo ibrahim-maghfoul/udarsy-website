@@ -30,12 +30,12 @@ import {
     Trophy,
     FileText,
     X,
-    School,
+    RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import api from "@/lib/api";
-import { getLessonById, getSubjects, getSchools, getLevels, getGuidances } from "@/services/data";
+import { getLessonById, getSubjects, getGuidances } from "@/services/data";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import dynamic from "next/dynamic";
@@ -50,14 +50,13 @@ export default function ProfilePage() {
     const tc = useTranslations("Common");
     const locale = useLocale();
     const isAr = locale === 'ar';
-    const { user, logout, loading: authLoading, checkAuth, getPhotoURL, getResourceURL } = useAuth();
+    const { user, logout, loading: authLoading, checkAuth, forceRefreshUser, getPhotoURL, getResourceURL } = useAuth();
     const [lastLesson, setLastLesson] = useState<any>(null);
     const [photoUploadStatus, setPhotoUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
     const [uploadProgress, setUploadProgress] = useState(0);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [isCropping, setIsCropping] = useState(false);
     const [cropImage, setCropImage] = useState<string | null>(null);
-    const [isChangingPath, setIsChangingPath] = useState(false);
     const [guidanceTotalResources, setGuidanceTotalResources] = useState<number>(0);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [savingSettings, setSavingSettings] = useState(false);
@@ -72,6 +71,7 @@ export default function ProfilePage() {
     const [rewardRequesting, setRewardRequesting] = useState(false);
     const [myRewardRequests, setMyRewardRequests] = useState<any[]>([]);
     const [previewOpen, setPreviewOpen] = useState(false);
+    const [resettingPath, setResettingPath] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
@@ -163,6 +163,27 @@ export default function ProfilePage() {
             showSnackbar(err.response?.data?.error || t('reward_request_failed'), 'error');
         } finally {
             setRewardRequesting(false);
+        }
+    };
+
+    // Wipe every lesson/resource the user has touched AND drop their study path,
+    // then send them through onboarding to pick again. Destructive — gated by a confirm.
+    const handleResetAndChoosePath = async () => {
+        if (resettingPath) return;
+        const ok = window.confirm(
+            'This will permanently delete all your learning progress and your selected path. You will be asked to choose a new path. Continue?'
+        );
+        if (!ok) return;
+        setResettingPath(true);
+        try {
+            await api.post('/progress/reset', { clearPath: true });
+            await forceRefreshUser();
+            showSnackbar('Progress cleared. Pick your new path.', 'success');
+            router.push('/onboarding?pathOnly=1');
+        } catch {
+            showSnackbar('Failed to reset. Please try again.', 'error');
+        } finally {
+            setResettingPath(false);
         }
     };
 
@@ -269,11 +290,15 @@ export default function ProfilePage() {
         { label: t("points"), value: String(user?.points || 0), icon: Star, color: "text-yellow-500", bg: "bg-yellow-50" },
     ];
 
-    // Data for charts
+    // Data for charts — derived from lesson entries (a lesson counts as completed
+    // once every one of its resources is done).
     const timeHistory = user?.progress?.timeSpentHistory || [];
-    const completedLessons = user?.progress?.completedLessons || 0;
-    const viewedLessons = Math.max(0, (user?.progress?.lessons?.length || 0) - completedLessons);
-    const totalLessons = user?.progress?.totalLessons || 0;
+    const progressLessons = user?.progress?.lessons || [];
+    const completedLessons = progressLessons.filter(
+        (l: any) => (l.totalResourcesCount || 0) > 0 && (l.completedResources?.length || 0) >= l.totalResourcesCount
+    ).length;
+    const viewedLessons = Math.max(0, progressLessons.length - completedLessons);
+    const totalLessons = progressLessons.length;
 
     const calculateCompletion = () => {
         if (!user) return 0;
@@ -327,20 +352,6 @@ export default function ProfilePage() {
             animate={{ opacity: 1, y: 0 }}
             className="min-h-screen bg-[#F8F9FA] pb-24 md:pb-0 pt-10 md:pt-32 px-0 md:px-8"
         >
-            <AnimatePresence>
-                {isChangingPath && (
-                    <PathSelectionModal
-                        userId={user?.id}
-                        onClose={() => setIsChangingPath(false)}
-                        onSuccess={() => {
-                            setIsChangingPath(false);
-                            checkAuth();
-                            showSnackbar(t("path_updated_success"), "success");
-                        }}
-                        t={t}
-                    />
-                )}
-            </AnimatePresence>
             <div className="max-w-5xl mx-auto px-4 md:px-6 relative z-10 space-y-6">
 
                 {/* ── Role Banners (Instructor / Teacher) ── */}
@@ -582,13 +593,6 @@ export default function ProfilePage() {
                                         <GraduationCap size={13} className="text-green" />
                                         {user?.level?.guidance || t("new_student")} • {user?.level?.level || t("onboarding_status")}
                                     </p>
-                                    <button
-                                        onClick={() => setIsChangingPath(true)}
-                                        className="text-xs font-bold text-green hover:underline flex items-center gap-1"
-                                    >
-                                        <ChevronRight size={14} className={isAr ? 'rotate-180' : ''} />
-                                        {t("change_path") || "Change Path"}
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1058,16 +1062,30 @@ export default function ProfilePage() {
 
                     <div className="pt-8 border-t border-green/6 flex flex-col items-center gap-3">
                         <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'rgba(26,58,42,0.25)' }}>Account</p>
-                        <button
-                            onClick={logout}
-                            className="group flex items-center gap-2.5 px-7 py-2.5 rounded-full border bg-white font-bold text-sm transition-all"
-                            style={{ borderColor: 'rgba(239,68,68,0.2)', color: 'rgba(239,68,68,0.7)' }}
-                            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.04)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.35)'; (e.currentTarget as HTMLButtonElement).style.color = '#ef4444'; }}
-                            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fff'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.2)'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(239,68,68,0.7)'; }}
-                        >
-                            <LogOut size={15} className="group-hover:-translate-x-0.5 transition-transform" />
-                            {tc("sign_out")}
-                        </button>
+                        <div className="flex flex-wrap items-center justify-center gap-3">
+                            <button
+                                onClick={handleResetAndChoosePath}
+                                disabled={resettingPath}
+                                className="group flex items-center gap-2.5 px-7 py-2.5 rounded-full border bg-white font-bold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                                style={{ borderColor: 'rgba(58,170,106,0.25)', color: 'rgba(58,170,106,0.85)' }}
+                                onMouseEnter={e => { if (resettingPath) return; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(58,170,106,0.06)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(58,170,106,0.5)'; (e.currentTarget as HTMLButtonElement).style.color = '#3aaa6a'; }}
+                                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fff'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(58,170,106,0.25)'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(58,170,106,0.85)'; }}
+                                title="Delete all progress and choose a new study path"
+                            >
+                                <RefreshCw size={15} className={`${resettingPath ? 'animate-spin' : 'group-hover:rotate-180'} transition-transform`} />
+                                {resettingPath ? 'Resetting…' : 'Reset & choose new path'}
+                            </button>
+                            <button
+                                onClick={logout}
+                                className="group flex items-center gap-2.5 px-7 py-2.5 rounded-full border bg-white font-bold text-sm transition-all"
+                                style={{ borderColor: 'rgba(239,68,68,0.2)', color: 'rgba(239,68,68,0.7)' }}
+                                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.04)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.35)'; (e.currentTarget as HTMLButtonElement).style.color = '#ef4444'; }}
+                                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fff'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.2)'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(239,68,68,0.7)'; }}
+                            >
+                                <LogOut size={15} className="group-hover:-translate-x-0.5 transition-transform" />
+                                {tc("sign_out")}
+                            </button>
+                        </div>
                     </div>
                 </div>
                 </div>{/* end Student Profile Card wrapper */}
@@ -1218,199 +1236,5 @@ export default function ProfilePage() {
                 )}
             </AnimatePresence>
         </motion.div>
-    );
-}
-
-
-interface PathSelectionModalProps {
-    userId?: string;
-    onClose: () => void;
-    onSuccess: () => void;
-    t: any;
-}
-
-function PathSelectionModal({ userId, onClose, onSuccess, t }: PathSelectionModalProps) {
-    const [step, setStep] = useState(1);
-    const [options, setOptions] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [selections, setSelections] = useState({
-        schoolId: "",
-        levelId: "",
-        guidanceId: "",
-    });
-
-    useEffect(() => {
-        fetchOptions();
-    }, [step, selections.schoolId, selections.levelId]);
-
-    const fetchOptions = async () => {
-        setLoading(true);
-        try {
-            let res: any[] = [];
-            if (step === 1) {
-                res = await getSchools();
-                // Priority Sort: Primaire -> Collège -> Lycée
-                res.sort((a, b) => {
-                    const priority = (t: string) => {
-                        const l = t.toLowerCase();
-                        if (l.includes('prim') || l.includes('ابتدا')) return 0;
-                        if (l.includes('coll') || l.includes('إعدا')) return 1;
-                        if (l.includes('lyc') || l.includes('ثانو')) return 2;
-                        return 3;
-                    };
-                    return priority(a.title) - priority(b.title);
-                });
-            } else if (step === 2) {
-                res = await getLevels(selections.schoolId);
-            } else if (step === 3) {
-                res = await getGuidances(selections.levelId);
-            }
-            setOptions(res);
-        } catch (error) {
-            console.error("Failed to fetch path options:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleSelect = async (id: string, title: string) => {
-        if (step === 1) {
-            setSelections(prev => ({ ...prev, schoolId: id, levelId: "", guidanceId: "" }));
-            setStep(2);
-        } else if (step === 2) {
-            setSelections(prev => ({ ...prev, levelId: id, guidanceId: "" }));
-            setStep(3);
-        } else {
-            setLoading(true);
-            try {
-                // Fetch full objects to get titles
-                const allSchools = await getSchools();
-                const school = allSchools.find((s: any) => s.id === selections.schoolId);
-                const levels = await getLevels(selections.schoolId);
-                const level = levels.find((l: any) => l.id === selections.levelId);
-                const guidances = await getGuidances(selections.levelId);
-                const guidance = guidances.find((g: any) => g.id === id);
-
-                await api.patch('/user/profile', {
-                    selectedPath: {
-                        schoolId: selections.schoolId,
-                        levelId: selections.levelId,
-                        guidanceId: id
-                    },
-                    level: {
-                        school: school?.title || "",
-                        level: level?.title || "",
-                        guidance: guidance?.title || ""
-                    }
-                });
-                onSuccess();
-            } catch (error) {
-                console.error("Failed to update path:", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-    };
-
-    const stepTitles = [t("path_select_school"), t("path_select_level"), t("path_select_guidance")];
-    const stepDescs = [t("path_school_desc"), t("path_level_desc"), t("path_guidance_desc")];
-    const stepIcons = [School, GraduationCap, Book];
-    const StepIcon = stepIcons[step - 1];
-
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={onClose}
-                className="absolute inset-0 bg-dark/50 backdrop-blur-sm"
-            />
-            <motion.div
-                initial={{ opacity: 0, scale: 0.92, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.92, y: 20 }}
-                transition={{ type: "spring", stiffness: 300, damping: 26 }}
-                className="relative w-full max-w-md bg-white rounded-[40px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.12),_0_4px_16px_rgba(0,0,0,0.06)]"
-            >
-                {/* Green header */}
-                <div
-                    className="relative overflow-hidden px-8 pt-8 pb-6"
-                    style={{ background: "linear-gradient(135deg, #1e7a46 0%, #0f4428 100%)" }}
-                >
-                    <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)", backgroundSize: "18px 18px", opacity: 0.35 }} />
-                    <div className="relative z-10 flex items-start justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-[16px] bg-white/15 border border-white/20 flex items-center justify-center shrink-0">
-                                <StepIcon size={22} className="text-white" />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black tracking-[0.18em] text-white/50 uppercase mb-1">
-                                    {t("path_step").replace("{current}", String(step)).replace("{total}", "3")}
-                                </p>
-                                <h2 className="text-xl font-black text-white leading-tight">{stepTitles[step - 1]}</h2>
-                                <p className="text-sm text-white/55 font-medium mt-0.5">{stepDescs[step - 1]}</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className="w-9 h-9 rounded-[12px] bg-white/10 border border-white/15 flex items-center justify-center text-white/60 hover:bg-white/20 hover:text-white transition-all shrink-0 mt-0.5"
-                        >
-                            <X size={16} />
-                        </button>
-                    </div>
-
-                    {/* Step indicator */}
-                    <div className="relative z-10 flex gap-2 mt-5">
-                        {[1, 2, 3].map(i => (
-                            <div
-                                key={i}
-                                className="h-1 rounded-full transition-all duration-300"
-                                style={{
-                                    flex: i === step ? 2 : 1,
-                                    background: i <= step ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)',
-                                }}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                {/* Options list */}
-                <div className="p-6 space-y-2.5 max-h-[360px] overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(58,170,106,0.3) transparent" }}>
-                    {loading ? (
-                        Array(3).fill(0).map((_, i) => (
-                            <div key={i} className="h-[62px] bg-green/5 animate-pulse rounded-[18px]" />
-                        ))
-                    ) : (
-                        options.map((item: any) => (
-                            <motion.button
-                                key={item.id}
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => handleSelect(item.id, item.title)}
-                                className="w-full flex items-center justify-between px-5 py-4 rounded-[18px] border-[1.5px] border-green/12 hover:border-green hover:bg-green/5 transition-all text-left group shadow-sm hover:shadow-md hover:shadow-green/8"
-                            >
-                                <span className="font-bold text-dark/75 group-hover:text-green text-sm transition-colors">{item.title}</span>
-                                <ChevronRight size={16} className="text-green/25 group-hover:text-green group-hover:translate-x-1 transition-all shrink-0" />
-                            </motion.button>
-                        ))
-                    )}
-                </div>
-
-                {/* Footer */}
-                <div className="px-6 pb-6 pt-2 flex items-center justify-between border-t border-green/8">
-                    <button
-                        onClick={step === 1 ? onClose : () => setStep(step - 1)}
-                        className="flex items-center gap-1.5 text-sm font-bold text-dark/40 hover:text-dark transition-colors py-2 px-3 rounded-[10px] hover:bg-green/5"
-                    >
-                        <ChevronRight size={14} className="rotate-180" />
-                        {step === 1 ? t("path_cancel") : t("path_back")}
-                    </button>
-                    <span className="text-[11px] font-bold text-dark/25">
-                        {step} / 3
-                    </span>
-                </div>
-            </motion.div>
-        </div>
     );
 }
