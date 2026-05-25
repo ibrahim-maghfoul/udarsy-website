@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
     Play,
     Pause,
@@ -72,10 +72,15 @@ export default function LessonPageClient({ lessonId: lessonIdProp }: { lessonId?
     const locale = useLocale();
     const isRTL = locale === 'ar';
     const params = useParams();
+    const searchParams = useSearchParams();
     // The lesson identifier is either passed in as a prop (when the catch-all curriculum
     // route mounts us directly) or read from the [lessonId] URL segment of the legacy
     // /lesson/:id route. Both are the canonical _id; slug fallback is for old bookmarks.
     const lessonParam = (lessonIdProp ?? (params.lessonId as string)) || '';
+    // Optional ?doc=<safeId>&type=<bucket> — preselect a specific resource (used by the
+    // profile page's "Last visited" cards so the user lands back on the doc they left off on)
+    const requestedDocId = searchParams?.get('doc') || '';
+    const requestedDocType = searchParams?.get('type') || '';
     const router = useRouter();
     const { user, refreshUser, forceRefreshUser, getResourceURL } = useAuth();
     const [lesson, setLesson] = useState<any>(null);
@@ -186,14 +191,32 @@ export default function LessonPageClient({ lessonId: lessonIdProp }: { lessonId?
             if (res) {
                 trackEvent({ event: 'lesson_view', category: 'Content', label: res.title, lesson_id: lessonId });
 
-                // Auto-select first doc on desktop
+                // Auto-select a doc on desktop. If the caller provided ?doc=<safeId>
+                // (used by the profile "Last visited" cards), preselect that one so the
+                // user lands back where they left off. Otherwise fall back to the first doc.
                 const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
                 if (isDesktop) {
-                    const firstType = res.coursesPdf?.length ? 'coursesPdf' : res.resourses?.length ? 'resourses' : res.exercices?.length ? 'exercices' : res.exams?.length ? 'exams' : res.videos?.length ? 'videos' : null;
-                    const firstDoc = firstType ? res[firstType as keyof typeof res]?.[0] : null;
-                    if (firstDoc && typeof firstDoc === 'object') {
+                    const BUCKETS = ['coursesPdf', 'resourses', 'exercices', 'exams', 'videos'] as const;
+                    let picked: { doc: any; type: string } | null = null;
+                    if (requestedDocId) {
+                        const searchOrder = requestedDocType && (BUCKETS as readonly string[]).includes(requestedDocType)
+                            ? [requestedDocType, ...BUCKETS.filter(b => b !== requestedDocType)]
+                            : [...BUCKETS];
+                        for (const type of searchOrder) {
+                            const arr = (res as any)[type] as any[] | undefined;
+                            if (!arr?.length) continue;
+                            const match = arr.find((r: any) => safeId(r) === requestedDocId);
+                            if (match) { picked = { doc: match, type }; break; }
+                        }
+                    }
+                    if (!picked) {
+                        const firstType = res.coursesPdf?.length ? 'coursesPdf' : res.resourses?.length ? 'resourses' : res.exercices?.length ? 'exercices' : res.exams?.length ? 'exams' : res.videos?.length ? 'videos' : null;
+                        const firstDoc = firstType ? res[firstType as keyof typeof res]?.[0] : null;
+                        if (firstDoc && typeof firstDoc === 'object' && firstType) picked = { doc: firstDoc, type: firstType };
+                    }
+                    if (picked) {
                         setIframeLoading(true);
-                        setActiveResource({ ...(firstDoc as any), type: firstType });
+                        setActiveResource({ ...picked.doc, type: picked.type });
                     }
                 }
 
@@ -212,7 +235,8 @@ export default function LessonPageClient({ lessonId: lessonIdProp }: { lessonId?
         })();
 
         return () => { cancelled = true; };
-    }, [lessonParam]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [lessonParam, requestedDocId, requestedDocType]);
 
     // Progress save on unmount / resource switch — using refs to avoid re-renders
     const lastSavedRef = useRef(Date.now());
@@ -233,6 +257,7 @@ export default function LessonPageClient({ lessonId: lessonIdProp }: { lessonId?
                         lessonId,
                         subjectId: lesson?.subjectId || '',
                         resourceId: safeId(resource),
+                        resourceType: resource.type,
                         additionalTimeSpent: timeToSave,
                         completionPercentage: 0
                     });
@@ -253,6 +278,7 @@ export default function LessonPageClient({ lessonId: lessonIdProp }: { lessonId?
                         lessonId,
                         subjectId: lesson?.subjectId || '',
                         resourceId: safeId(resource),
+                        resourceType: resource.type,
                         additionalTimeSpent: timeToSave,
                         completionPercentage: 0
                     });

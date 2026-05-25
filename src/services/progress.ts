@@ -33,6 +33,7 @@ export const updateResourceProgress = (params: {
     lessonId: string;
     subjectId?: string;
     resourceId: string;
+    resourceType?: string;
     additionalTimeSpent: number;
     completionPercentage: number;
 }) => {

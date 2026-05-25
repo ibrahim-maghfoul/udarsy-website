@@ -73,7 +73,7 @@ export default function RankingsPage() {
                     initial={{ opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                    className="relative overflow-hidden rounded-[28px] p-6 md:p-8"
+                    className="relative overflow-hidden rounded-[10px] p-6 md:p-8"
                     style={{ background: DARK_STRIPE }}
                 >
                     <div className="absolute inset-0 pointer-events-none" style={DOT_TEXTURE} />
@@ -109,7 +109,7 @@ export default function RankingsPage() {
                 {loading ? (
                     <div className="space-y-3">
                         {Array(8).fill(0).map((_, i) => (
-                            <div key={i} className="h-16 rounded-[18px] bg-white border border-green/10 animate-pulse" style={{ animationDelay: `${i * 60}ms` }} />
+                            <div key={i} className="h-16 rounded-[10px] bg-white border border-green/10 animate-pulse" style={{ animationDelay: `${i * 60}ms` }} />
                         ))}
                     </div>
                 ) : rankings.length === 0 ? (
@@ -148,7 +148,7 @@ export default function RankingsPage() {
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.05 + idx * 0.04, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                                            className={`flex items-center gap-3.5 p-3.5 rounded-[18px] border transition-all ${isMe ? "bg-green/5 border-green/25 shadow-md shadow-green/8" : "bg-white border-green/10 hover:border-green/25 hover:shadow-md hover:shadow-green/5"}`}
+                                            className={`flex items-center gap-3.5 p-3.5 rounded-[10px] border transition-all ${isMe ? "bg-green/5 border-green/25 shadow-md shadow-green/8" : "bg-white border-green/10 hover:border-green/25 hover:shadow-md hover:shadow-green/5"}`}
                                         >
                                             {/* Rank */}
                                             <div className="w-8 flex items-center justify-center shrink-0">

@@ -10,7 +10,7 @@
   --border:    rgba(22,163,74,0.14);
   --shadow:    0 4px 24px rgba(22,163,74,0.10);
   --shadow-lg: 0 16px 48px rgba(22,163,74,0.18);
-  --radius:    20px;
+  --radius:    10px;
   --radius-sm: 12px;
 }
 .shell{
@@ -650,7 +650,7 @@
 
 /* ── Year ── */
 .year-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
-.mini-month{background:rgba(255,255,255,.75);border:1px solid var(--border);border-radius:14px;padding:12px;transition:all .25s ease;cursor:pointer;}
+.mini-month{background:rgba(255,255,255,.75);border:1px solid var(--border);border-radius:10px;padding:12px;transition:all .25s ease;cursor:pointer;}
 .mini-month:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
 .mini-title{font-size:11px;font-weight:800;color:var(--dark);text-align:center;margin-bottom:6px;}
 .mini-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;}

@@ -171,10 +171,10 @@ function StudyTimeBarChart({ resetKey = 0, weekData, locale }: { resetKey: numbe
   const dir = locale === 'ar' ? "rtl" : "ltr";
 
   return (
-    <div style={{
-      background: "#ffffff", borderRadius: 28,
+    <div className="chart-card" style={{
+      background: "#ffffff", borderRadius: 10,
       padding: "28px 28px 24px 28px",
-      fontFamily: "'DM Sans','Helvetica Neue',sans-serif",
+      fontFamily: "inherit",
       flex: 1, minWidth: 0, boxSizing: "border-box",
       opacity: mounted ? 1 : 0,
       transform: mounted ? "translateY(0)" : "translateY(20px)",
@@ -262,7 +262,7 @@ function StudyTimeBarChart({ resetKey = 0, weekData, locale }: { resetKey: numbe
           {/* Y labels */}
           {yLabels.map((h, idx) => (
             <text key={h} x={LEFT_PAD - 10} y={toY(h) + 4}
-              textAnchor="end" fontSize={12} fill="#c0c0bb" fontFamily="DM Sans, sans-serif"
+              textAnchor="end" fontSize={12} fill="#c0c0bb" fontFamily="inherit"
               style={{ animation: "fadeIn 0.35s ease-out both", animationDelay: `${0.08 + idx * 0.05}s` }}>
               {h}
             </text>
@@ -305,7 +305,7 @@ function StudyTimeBarChart({ resetKey = 0, weekData, locale }: { resetKey: numbe
                   }}
                 />
                 <text x={bCx} y={CHART_H + 24} textAnchor="middle" fontSize={13}
-                  fill={isHov ? "#009E60" : "#bbb"} fontFamily="DM Sans, sans-serif"
+                  fill={isHov ? "#009E60" : "#bbb"} fontFamily="inherit"
                   style={{ transition: "fill 0.3s ease", fontWeight: isHov ? 700 : 400 }}
                   direction="ltr"
                 >
@@ -345,7 +345,7 @@ function StudyTimeBarChart({ resetKey = 0, weekData, locale }: { resetKey: numbe
                 <rect x={peakPt.x - 28} y={peakPt.y - 52} width={56} height={24} rx={12} fill="white" opacity="0.96" />
                 <rect x={peakPt.x - 28} y={peakPt.y - 52} width={56} height={24} rx={12} fill="none" stroke="rgba(0,158,96,0.15)" strokeWidth="1" />
                 <text x={peakPt.x} y={peakPt.y - 35} textAnchor="middle"
-                  fontSize={12} fontWeight="700" fill="#009E60" fontFamily="DM Sans, sans-serif" direction="ltr">
+                  fontSize={12} fontWeight="700" fill="#009E60" fontFamily="inherit" direction="ltr">
                   {Math.round(maxVal)}
                 </text>
               </g>
@@ -366,7 +366,7 @@ function StudyTimeBarChart({ resetKey = 0, weekData, locale }: { resetKey: numbe
                 width={52} height={22} rx={11} fill="white" 
                 style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }} />
               <text x={centerX(hovered)} y={finalPts[hovered].y - 28}
-                textAnchor="middle" fontSize={11.5} fontWeight="700" fill="#1a1a1a" fontFamily="DM Sans, sans-serif" direction="ltr">
+                textAnchor="middle" fontSize={11.5} fontWeight="700" fill="#1a1a1a" fontFamily="inherit" direction="ltr">
                 {Math.round(weekData[hovered].progress)}
               </text>
             </g>
@@ -465,13 +465,13 @@ function ContentDonutChart({
 
   return (
     <div style={{
-      background: "#ffffff", borderRadius: 28, padding: "28px 24px 20px 24px",
-      flexShrink: 0, fontFamily: "'DM Sans',sans-serif", boxSizing: "border-box",
+      background: "#ffffff", borderRadius: 10, padding: "28px 24px 20px 24px",
+      flexShrink: 0, fontFamily: "inherit", boxSizing: "border-box",
       opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(20px)",
       transition: "opacity 0.5s ease 0.12s, transform 0.5s ease 0.12s",
       border: "1px solid rgba(0,158,96,0.1)", boxShadow: "0 4px 20px rgba(0,80,40,0.04)",
       display: "flex", flexDirection: "column", alignItems: "center"
-    }} className="w-full lg:w-[320px]" dir={dir}>
+    }} className="chart-card w-full lg:w-[320px]" dir={dir}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 22, width: "100%" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 48, height: 48, borderRadius: 14, background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -598,7 +598,7 @@ export default function ProgressCharts({
       display: "flex",
       flexDirection: "column",
       gap: 16,
-      fontFamily: "'DM Sans','Helvetica Neue',sans-serif",
+      fontFamily: "inherit",
     }}>
       <style dangerouslySetInnerHTML={{ __html: ANIMATION_CSS }} />
 

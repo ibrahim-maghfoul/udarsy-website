@@ -74,7 +74,7 @@ export default function FavoriteNewsPage() {
                     <motion.div
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-white rounded-3xl border border-dashed border-gray-200 p-16 text-center"
+                        className="bg-white rounded-[10px] border border-dashed border-gray-200 p-16 text-center"
                     >
                         <div className="w-16 h-16 bg-sky-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <Bookmark size={28} className="text-sky-300" />

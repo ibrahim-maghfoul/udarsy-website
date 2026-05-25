@@ -65,7 +65,7 @@ export default function FavoriteCoursesPage() {
                     <motion.div
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-white rounded-3xl border border-dashed border-gray-200 p-16 text-center"
+                        className="bg-white rounded-[10px] border border-dashed border-gray-200 p-16 text-center"
                     >
                         <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <Bookmark size={28} className="text-red-300" />
@@ -88,7 +88,7 @@ export default function FavoriteCoursesPage() {
                             >
                                 <Link
                                     href={`/lesson/${lesson.lessonId}`}
-                                    className="group flex items-center gap-4 p-5 rounded-3xl bg-white border border-gray-100 shadow-sm hover:border-green/30 hover:shadow-xl hover:shadow-green/5 hover:-translate-y-0.5 transition-all"
+                                    className="group flex items-center gap-4 p-5 rounded-[10px] bg-white border border-gray-100 shadow-sm hover:border-green/30 hover:shadow-xl hover:shadow-green/5 hover:-translate-y-0.5 transition-all"
                                 >
                                     <div className="w-12 h-12 rounded-2xl bg-green/8 flex items-center justify-center text-green group-hover:bg-green group-hover:text-white flex-shrink-0 transition-all">
                                         <BookOpen size={22} />

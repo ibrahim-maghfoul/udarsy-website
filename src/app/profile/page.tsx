@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useTransition } from "react";
+import { setUserLocaleAction } from "@/app/actions/locale";
+import type { Locale } from "@/lib/localeConfig";
 import { UdarsyLoader } from "@/components/UdarsyLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -10,37 +12,34 @@ import {
     LogOut,
     ShieldAlert,
     ChevronRight,
+    ChevronLeft,
     Heart,
     Camera,
-    MessageCircle,
     CircleDashed,
     Loader2,
     CheckCircle,
     XCircle,
     Star,
     Plus,
-    Calculator,
-    Newspaper,
-    CalendarDays,
-    Share2,
     GraduationCap,
-    Sparkles,
-    UserPlus,
     MessageSquare,
-    Trophy,
     FileText,
     X,
     RefreshCw,
+    Languages,
+    ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import api from "@/lib/api";
-import { getLessonById, getSubjects, getGuidances } from "@/services/data";
+import { getLessonById, getSubjects, getGuidances, getSubjectById } from "@/services/data";
+import { getSubjectImage } from "@/lib/subjectImages";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import dynamic from "next/dynamic";
 import { useSnackbar } from "@/contexts/SnackbarContext";
 import ProgressCharts from "@/components/profile/ProgressCharts";
+import { SERVICE_CARD_IMAGES } from "@/lib/serviceCardImages";
 
 const ImageCropper = dynamic(() => import("@/components/ImageCropper"), { ssr: false });
 
@@ -51,7 +50,7 @@ export default function ProfilePage() {
     const locale = useLocale();
     const isAr = locale === 'ar';
     const { user, logout, loading: authLoading, checkAuth, forceRefreshUser, getPhotoURL, getResourceURL } = useAuth();
-    const [lastLesson, setLastLesson] = useState<any>(null);
+    const [lastLessons, setLastLessons] = useState<any[]>([]);
     const [photoUploadStatus, setPhotoUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
     const [uploadProgress, setUploadProgress] = useState(0);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -60,6 +59,8 @@ export default function ProfilePage() {
     const [guidanceTotalResources, setGuidanceTotalResources] = useState<number>(0);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [savingSettings, setSavingSettings] = useState(false);
+    const [langOpen, setLangOpen] = useState(false);
+    const [langPending, startLangTransition] = useTransition();
     const [localSettings, setLocalSettings] = useState({ notifications: true, theme: 'system' as 'light' | 'dark' | 'system' });
     const [approvedApplication, setApprovedApplication] = useState<any>(null);
     const [instructorNames, setInstructorNames] = useState<{ guidance: string; subject: string }>({ guidance: '', subject: '' });
@@ -83,7 +84,7 @@ export default function ProfilePage() {
         } else if (user) {
             setProfileDataLoading(true);
             Promise.all([
-                fetchLastVisitedLesson(),
+                fetchLastVisitedLessons(),
                 fetchApprovedApplication(),
                 fetchTeacherVerification(),
             ]).finally(() => setProfileDataLoading(false));
@@ -101,17 +102,20 @@ export default function ProfilePage() {
         }
     }, [authLoading, user, router]);
 
-    const fetchLastVisitedLesson = async () => {
+    const fetchLastVisitedLessons = async () => {
         if (!user?.progress?.lessons?.length) return;
-        const sorted = [...user.progress.lessons]
-            .filter((l: any) => l.lastAccessed)
-            .sort((a: any, b: any) => new Date(b.lastAccessed).getTime() - new Date(a.lastAccessed).getTime());
-        const latest = sorted[0];
-        if (!latest?.lessonId) return;
-        const lesson = await getLessonById(latest.lessonId);
-        if (lesson) {
-            setLastLesson({ ...lesson, progress: latest });
-        }
+        const top = [...user.progress.lessons]
+            .filter((l: any) => l.lastAccessed && l.lessonId)
+            .sort((a: any, b: any) => new Date(b.lastAccessed).getTime() - new Date(a.lastAccessed).getTime())
+            .slice(0, 4);
+        if (!top.length) return;
+        const enriched = await Promise.all(top.map(async (prog: any) => {
+            const lesson = await getLessonById(prog.lessonId);
+            if (!lesson) return null;
+            const subject = lesson.subjectId ? await getSubjectById(lesson.subjectId) : null;
+            return { ...lesson, progress: prog, subject };
+        }));
+        setLastLessons(enriched.filter(Boolean) as any[]);
     };
 
     const fetchApprovedApplication = async () => {
@@ -170,18 +174,16 @@ export default function ProfilePage() {
     // then send them through onboarding to pick again. Destructive — gated by a confirm.
     const handleResetAndChoosePath = async () => {
         if (resettingPath) return;
-        const ok = window.confirm(
-            'This will permanently delete all your learning progress and your selected path. You will be asked to choose a new path. Continue?'
-        );
+        const ok = window.confirm(t('reset_confirm'));
         if (!ok) return;
         setResettingPath(true);
         try {
             await api.post('/progress/reset', { clearPath: true });
             await forceRefreshUser();
-            showSnackbar('Progress cleared. Pick your new path.', 'success');
+            showSnackbar(t('reset_success'), 'success');
             router.push('/onboarding?pathOnly=1');
         } catch {
-            showSnackbar('Failed to reset. Please try again.', 'error');
+            showSnackbar(t('reset_failed'), 'error');
         } finally {
             setResettingPath(false);
         }
@@ -260,7 +262,7 @@ export default function ProfilePage() {
             });
             await checkAuth(); // Refresh user data
             setPhotoUploadStatus("success");
-            showSnackbar(t("photo_updated_success") || "Profile picture updated!", "success");
+            showSnackbar(t("photo_updated_success"), "success");
             setTimeout(() => {
                 setPhotoUploadStatus("idle");
                 setUploadProgress(0);
@@ -269,7 +271,7 @@ export default function ProfilePage() {
             console.error("Photo upload failed:", err);
             setPhotoPreview(null);
             setPhotoUploadStatus("error");
-            showSnackbar(t("photo_updated_error") || "Failed to upload photo", "error");
+            showSnackbar(t("photo_updated_error"), "error");
             setTimeout(() => {
                 setPhotoUploadStatus("idle");
                 setUploadProgress(0);
@@ -369,13 +371,13 @@ export default function ProfilePage() {
                                     onClick={() => setActiveRoleTab('instructor')}
                                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black transition-all ${activeRoleTab === 'instructor' ? 'bg-green text-white shadow-md shadow-green/20' : 'text-dark/50 hover:text-dark/80'}`}
                                 >
-                                    <GraduationCap size={14} /> Instructor
+                                    <GraduationCap size={14} /> {t("instructor_tab")}
                                 </button>
                                 <button
                                     onClick={() => setActiveRoleTab('teacher')}
                                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black transition-all ${activeRoleTab === 'teacher' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' : 'text-dark/50 hover:text-dark/80'}`}
                                 >
-                                    <MessageSquare size={14} /> Teacher
+                                    <MessageSquare size={14} /> {t("teacher_tab")}
                                 </button>
                             </div>
                         )}
@@ -389,7 +391,7 @@ export default function ProfilePage() {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -6 }}
                                     transition={{ duration: 0.22 }}
-                                    className="relative overflow-hidden rounded-[28px]"
+                                    className="relative overflow-hidden rounded-[10px]"
                                     style={{ background: 'repeating-linear-gradient(45deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 2px,transparent 2px,transparent 8px),linear-gradient(135deg,#1e7a46 0%,#0f4428 100%)' }}
                                 >
                                     <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)', backgroundSize: '18px 18px', opacity: 0.35 }} />
@@ -403,7 +405,7 @@ export default function ProfilePage() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <span className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.14em] text-green-300 bg-white/10 border border-white/15 rounded-full px-2.5 py-1 mb-1.5">
-                                                    <GraduationCap size={10} /> INSTRUCTOR
+                                                    <GraduationCap size={10} /> {t("instructor_badge")}
                                                 </span>
                                                 <h2 className="text-lg font-black text-white leading-tight">{user?.displayName}</h2>
                                                 {approvedApplication && (
@@ -414,7 +416,7 @@ export default function ProfilePage() {
                                             </div>
                                         </div>
                                         <Link href="/instructor-dashboard" className="inline-flex items-center gap-1.5 px-6 py-3 bg-white text-green font-black rounded-[14px] text-sm hover:bg-green/5 transition-colors shadow-md">
-                                            <GraduationCap size={15} /> Go to Instructor Dashboard
+                                            <GraduationCap size={15} /> {t("go_to_instructor_dashboard")}
                                         </Link>
                                     </div>
                                 </motion.div>
@@ -428,7 +430,7 @@ export default function ProfilePage() {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -6 }}
                                     transition={{ duration: 0.22 }}
-                                    className="relative overflow-hidden rounded-[28px]"
+                                    className="relative overflow-hidden rounded-[10px]"
                                     style={{ background: 'repeating-linear-gradient(45deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 2px,transparent 2px,transparent 8px),linear-gradient(135deg,#1e3a8a 0%,#0f2260 100%)' }}
                                 >
                                     <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)', backgroundSize: '18px 18px', opacity: 0.35 }} />
@@ -442,7 +444,7 @@ export default function ProfilePage() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <span className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.14em] text-indigo-300 bg-white/10 border border-white/15 rounded-full px-2.5 py-1 mb-1.5">
-                                                    <MessageSquare size={10} /> TEACHER
+                                                    <MessageSquare size={10} /> {t("teacher_badge")}
                                                 </span>
                                                 <h2 className="text-lg font-black text-white leading-tight">{user?.displayName}</h2>
                                                 {teacherVerification && (
@@ -453,7 +455,7 @@ export default function ProfilePage() {
                                             </div>
                                         </div>
                                         <Link href="/teacher/dashboard" className="inline-flex items-center gap-1.5 px-6 py-3 bg-white text-indigo-700 font-black rounded-[14px] text-sm hover:bg-indigo-50 transition-colors shadow-md">
-                                            <MessageSquare size={15} /> Go to Teacher Dashboard
+                                            <MessageSquare size={15} /> {t("go_to_teacher_dashboard")}
                                         </Link>
                                     </div>
                                 </motion.div>
@@ -465,7 +467,7 @@ export default function ProfilePage() {
                 {/* ── Student Profile Card ── */}
                 <div>
                 {/* Hero Section — desktop only */}
-                <div className="md:bg-white md:rounded-[40px] md:border md:border-green/10 md:p-10 md:shadow-2xl md:shadow-green/5 p-0 space-y-8">
+                <div className="md:bg-white md:rounded-[10px] md:border md:border-green/10 md:p-10 md:shadow-2xl md:shadow-green/5 p-0 space-y-8">
                     {/* Header */}
                     <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
                         <div className="flex flex-row md:flex-row items-center md:items-start gap-4 md:gap-8 w-full md:w-auto">
@@ -499,7 +501,7 @@ export default function ProfilePage() {
 
                                     {/* Premium Badge — top-left on mobile, top-right on desktop */}
                                     {(user?.subscription?.plan === 'premium' || user?.subscription?.plan === 'pro') && (
-                                        <div className="absolute -top-1 -left-1 md:-left-auto md:-right-1 w-8 h-8 md:w-10 md:h-10 rounded-full bg-amber-400 border-[3px] border-white flex items-center justify-center shadow-lg pointer-events-none z-10" title="Premium Member">
+                                        <div className="absolute -top-1 -left-1 md:-left-auto md:-right-1 w-8 h-8 md:w-10 md:h-10 rounded-full bg-amber-400 border-[3px] border-white flex items-center justify-center shadow-lg pointer-events-none z-10" title={t("premium_member")}>
                                             <Star size={16} className="text-white fill-current md:hidden" />
                                             <Star size={20} className="text-white fill-current hidden md:block" />
                                         </div>
@@ -564,17 +566,17 @@ export default function ProfilePage() {
                                         const plan = user?.subscription?.plan;
                                         if (plan === 'premium') return (
                                             <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase bg-amber-400 text-white shadow-md shadow-amber-200 shrink-0">
-                                                <Star size={9} className="fill-white" /> Premium
+                                                <Star size={9} className="fill-white" /> {t("plan_premium")}
                                             </span>
                                         );
                                         if (plan === 'pro') return (
                                             <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase bg-green text-white shadow-md shadow-green/30 shrink-0">
-                                                <Star size={9} className="fill-white" /> Pro
+                                                <Star size={9} className="fill-white" /> {t("plan_pro")}
                                             </span>
                                         );
                                         return (
                                             <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border border-green/20 text-green/60 shrink-0">
-                                                Free
+                                                {t("plan_free")}
                                             </span>
                                         );
                                     })()}
@@ -583,7 +585,7 @@ export default function ProfilePage() {
                                 <div className="flex flex-row flex-wrap items-center gap-x-3 gap-y-1 md:flex-col md:items-start md:gap-2">
                                     {(user?.age || user?.gender) && (
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            {user?.age && <span className="flex items-center gap-1"><User size={13} className="text-green" />{user.age} yrs</span>}
+                                            {user?.age && <span className="flex items-center gap-1"><User size={13} className="text-green" />{user.age} {t("years_short")}</span>}
                                             {user?.age && user?.gender && <span className="text-dark/20">·</span>}
                                             {user?.gender && <span className="text-green font-bold text-base">{user.gender.toLowerCase() === 'male' ? '♂' : user.gender.toLowerCase() === 'female' ? '♀' : '⚧'}</span>}
                                             {user?.gender && <span className="hidden md:inline text-muted-foreground">{ts(user.gender.toLowerCase()) || user.gender}</span>}
@@ -596,20 +598,6 @@ export default function ProfilePage() {
                                 </div>
                             </div>
                         </div>
-                        <div className="flex flex-col gap-3 w-full md:w-auto mt-6 md:mt-0">
-                            <Link href="/profile/chat" className="px-6 py-3 rounded-2xl bg-dark border border-gray-100/10 hover:border-green hover:shadow-lg hover:shadow-dark/20 transition-all text-white hover:text-green flex items-center justify-center gap-2 relative group font-bold">
-                                <MessageCircle size={20} className="group-hover:scale-110 transition-transform" />
-                                {t("chat_room") || "Class Chat"}
-                                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
-                            </Link>
-                            <Link
-                                href="/settings"
-                                className="px-6 py-3 rounded-2xl border border-gray-100/10 bg-dark hover:border-green hover:shadow-lg transition-all flex items-center justify-center gap-2 font-bold text-white hover:text-green group"
-                            >
-                                <SettingsIcon size={20} className="transition-transform duration-300 group-hover:rotate-45" />
-                                {t("settings") || "Settings"}
-                            </Link>
-                        </div>
                     </div>
 
 
@@ -621,7 +609,7 @@ export default function ProfilePage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                         dir={isAr ? "rtl" : "ltr"}
-                        className="rounded-[28px] relative overflow-hidden"
+                        className="rounded-[10px] relative overflow-hidden"
                         style={{ background: 'repeating-linear-gradient(45deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 2px,transparent 2px,transparent 8px),linear-gradient(135deg,#1e7a46 0%,#0f4428 100%)' }}
                     >
                         {/* Dot grid texture — matches instructor banner */}
@@ -719,152 +707,185 @@ export default function ProfilePage() {
                         />
                     </div>
 
-                    {/* Continue Learning Card */}
-                    {lastLesson && (
+                    {/* Last Visited Courses — 16:9 grid (up to 4) */}
+                    {lastLessons.length > 0 && (
                         <div className="space-y-3">
                             <h2 className="text-2xl font-black text-dark">{t("last_visited")}</h2>
-                            {(() => {
-                                const lessons = lastLesson;
-                                const prog = lastLesson.progress;
-                                const totalResources = (lessons.coursesPdf?.length ?? 0) + (lessons.videos?.length ?? 0) + (lessons.exercices?.length ?? 0) + (lessons.exams?.length ?? 0) + (lessons.resourses?.length ?? 0);
-                                const completedCount = prog?.completedResources?.length ?? 0;
-                                const progressPct = totalResources > 0 ? Math.min(100, Math.round((completedCount / totalResources) * 100)) : 0;
-                                const lastDate = prog?.lastAccessed ? new Date(prog.lastAccessed).toLocaleDateString(locale, { month: 'short', day: 'numeric' }) : '';
-                                return (
-                                    <Link href={`/lesson/${prog.lessonId}`} className="continue-card group">
-                                        {/* Icon header with dot texture */}
-                                        <div
-                                            className="relative overflow-hidden px-5 pt-5 pb-4 flex items-center justify-between gap-3"
-                                            style={{ background: 'linear-gradient(135deg, #f0faf5 0%, #e8f5ee 100%)' }}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                {lastLessons.map((lesson: any) => {
+                                    const prog = lesson.progress;
+                                    const subjectTitle = lesson.subject?.title || '';
+                                    const subjectImage = subjectTitle ? getSubjectImage(subjectTitle) : undefined;
+                                    const totalResources = (lesson.coursesPdf?.length ?? 0) + (lesson.videos?.length ?? 0) + (lesson.exercices?.length ?? 0) + (lesson.exams?.length ?? 0) + (lesson.resourses?.length ?? 0);
+                                    const completedCount = prog?.completedResources?.length ?? 0;
+                                    const progressPct = totalResources > 0 ? Math.min(100, Math.round((completedCount / totalResources) * 100)) : 0;
+                                    const lastDate = prog?.lastAccessed ? new Date(prog.lastAccessed).toLocaleDateString(locale, { month: 'short', day: 'numeric' }) : '';
+                                    return (
+                                        <Link
+                                            key={prog.lessonId}
+                                            href={(() => { const r = prog?.lastResourceId || prog?.completedResources?.[prog.completedResources.length - 1] || ''; const tp = prog?.lastResourceType || ''; const qs = r ? `?doc=${encodeURIComponent(r)}${tp ? `&type=${encodeURIComponent(tp)}` : ''}` : ''; return `/lesson/${lesson.slug || prog.lessonId}${qs}`; })()}
+                                            className={`last-visited-card group${subjectImage ? '' : ' last-visited-card-fallback'}`}
+                                            style={subjectImage ? { backgroundImage: `url('${subjectImage}')` } : undefined}
                                         >
-                                            <div
-                                                className="absolute inset-0 pointer-events-none"
-                                                style={{ backgroundImage: 'radial-gradient(circle, rgba(58,170,106,0.15) 1px, transparent 1px)', backgroundSize: '14px 14px' }}
-                                            />
-                                            <div className="relative z-10 flex items-center gap-3 min-w-0">
-                                                <div
-                                                    className="w-11 h-11 rounded-[14px] flex items-center justify-center flex-shrink-0 text-green group-hover:scale-105 transition-transform"
-                                                    style={{ background: 'rgba(58,170,106,0.1)' }}
-                                                >
-                                                    <Book size={22} />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-[10px] font-black uppercase tracking-widest mb-0.5" style={{ color: 'rgba(58,170,106,0.5)' }}>{t("continue_learning")}</p>
-                                                    <h3 className="font-bold text-dark text-base leading-tight line-clamp-1">{lessons.title}</h3>
-                                                </div>
+                                            <div className="last-visited-card-scrim" />
+                                            <div className="last-visited-card-top">
+                                                <span className="last-visited-card-eyebrow">{t("continue_learning")}</span>
+                                                <h3 className="last-visited-card-title">{lesson.title}</h3>
+                                                {subjectTitle && <p className="last-visited-card-subject">{subjectTitle}</p>}
                                             </div>
-                                            <div className="relative z-10 flex items-center gap-1.5 flex-shrink-0">
-                                                {lastDate && <span className="text-[11px] font-semibold hidden sm:block" style={{ color: 'rgba(58,170,106,0.4)' }}>{lastDate}</span>}
-                                                <ChevronRight size={15} className={`text-green/25 group-hover:text-green transition-colors ${isAr ? 'rotate-180' : ''}`} />
+                                            <div className="last-visited-card-bottom">
+                                                {totalResources > 0 ? (
+                                                    <div className="last-visited-card-progress">
+                                                        <div className="last-visited-card-progress-track">
+                                                            <div
+                                                                className="last-visited-card-progress-fill"
+                                                                style={{ width: `${progressPct}%` }}
+                                                            />
+                                                        </div>
+                                                        <span className="last-visited-card-progress-label">{completedCount}/{totalResources}</span>
+                                                    </div>
+                                                ) : <span />}
+                                                {lastDate && <span className="last-visited-card-date">{lastDate}</span>}
                                             </div>
-                                        </div>
-                                        {/* Progress footer */}
-                                        {totalResources > 0 && (
-                                            <div className="px-5 py-3 flex items-center gap-3">
-                                                <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: 'rgba(58,170,106,0.08)' }}>
-                                                    <div
-                                                        className="h-full rounded-full"
-                                                        style={{ width: `${progressPct}%`, background: 'linear-gradient(90deg, #3aaa6a, #5dc98a)', transition: 'width 0.7s cubic-bezier(0.34, 1.2, 0.64, 1)' }}
-                                                    />
-                                                </div>
-                                                <span className="text-[11px] font-bold whitespace-nowrap" style={{ color: 'rgba(58,170,106,0.5)' }}>{completedCount}/{totalResources}</span>
-                                                {progressPct > 0 && <span className="text-[11px] font-black text-green">{progressPct}%</span>}
+                                            <div className="last-visited-card-arrow">
+                                                <ChevronRight size={14} />
                                             </div>
-                                        )}
-                                    </Link>
-                                );
-                            })()}
+                                        </Link>
+                                    );
+                                })}
+                            </div>
                         </div>
                     )}
 
                     {/* ── Services Grid ── */}
                     <div className="space-y-4 pt-10 border-t border-green/8">
                         <div>
-                            <h2 className="text-2xl font-black text-dark">Services</h2>
-                            <p className="text-sm mt-1" style={{ color: 'rgba(26,58,42,0.4)' }}>Access useful tools and services quickly.</p>
+                            <h2 className="text-2xl font-black text-dark">{t("services_title")}</h2>
+                            <p className="text-sm mt-1" style={{ color: 'rgba(26,58,42,0.4)' }}>{t("services_subtitle")}</p>
                         </div>
 
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+
+                            {/* 0. Class Chat */}
+                            <Link
+                                href="/profile/chat"
+                                className="profile-svc-card"
+                                style={{ backgroundImage: `url('${SERVICE_CARD_IMAGES.chatroom}')` }}
+                            >
+                                <div className="profile-svc-card-title-wrap">
+                                    <h4 className="profile-svc-card-title">{t("chat_room")}</h4>
+                                    <p className="profile-svc-card-subtitle">{t("chat_room_subtitle")}</p>
+                                </div>
+                                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse z-[3]" />
+                                <div className="profile-svc-card-arrow">
+                                    {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
+                                </div>
+                            </Link>
 
                             {/* 1. Points System */}
                             <button
-                                className="svc-card text-left w-full"
+                                className="profile-svc-card"
+                                style={{ backgroundImage: `url('${SERVICE_CARD_IMAGES.points}')` }}
                                 onClick={() => { setShowRewardDialog(true); fetchMyRewardRequests(); }}
                             >
-                                <div className="svc-icon" style={{ background: 'rgba(251,191,36,0.1)', color: '#f59e0b' }}>
-                                    <Star size={22} className="fill-amber-400" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-dark text-sm leading-tight">
-                                        {(user?.points || 0).toLocaleString()}<span className="text-[11px] text-amber-500 ml-1">pts</span>
+                                <div className="profile-svc-card-title-wrap">
+                                    <h4 className="profile-svc-card-title">
+                                        {(user?.points || 0).toLocaleString()}<span className="text-[11px] ml-1 opacity-90">{t("pts")}</span>
                                     </h4>
-                                    <p className="text-xs mt-1" style={{ color: 'rgba(26,58,42,0.38)' }}>Points System</p>
+                                    <p className="profile-svc-card-subtitle">{t("points_system")}</p>
+                                </div>
+                                <div className="profile-svc-card-arrow">
+                                    {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                                 </div>
                             </button>
 
                             {/* Rankings */}
-                            <Link href="/rankings" className="svc-card">
-                                <div className="svc-icon" style={{ background: 'rgba(251,191,36,0.1)', color: '#f59e0b' }}>
-                                    <Trophy size={22} />
+                            <Link
+                                href="/rankings"
+                                className="profile-svc-card"
+                                style={{ backgroundImage: `url('${SERVICE_CARD_IMAGES.rankings}')` }}
+                            >
+                                <div className="profile-svc-card-title-wrap">
+                                    <h4 className="profile-svc-card-title">{t("rankings")}</h4>
+                                    <p className="profile-svc-card-subtitle">{t("rankings_subtitle")}</p>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-dark text-sm leading-tight">Rankings</h4>
-                                    <p className="text-xs mt-1" style={{ color: 'rgba(26,58,42,0.38)' }}>Top students</p>
+                                <div className="profile-svc-card-arrow">
+                                    {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                                 </div>
                             </Link>
 
                             {/* 2. Calendar */}
-                            <Link href="/calendar" className="svc-card">
-                                <div className="svc-icon" style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6' }}>
-                                    <CalendarDays size={22} />
+                            <Link
+                                href="/calendar"
+                                className="profile-svc-card"
+                                style={{ backgroundImage: `url('${SERVICE_CARD_IMAGES.calendar}')` }}
+                            >
+                                <div className="profile-svc-card-title-wrap">
+                                    <h4 className="profile-svc-card-title">{t("calendar")}</h4>
+                                    <p className="profile-svc-card-subtitle">{t("calendar_subtitle")}</p>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-dark text-sm leading-tight">Calendar</h4>
-                                    <p className="text-xs mt-1" style={{ color: 'rgba(26,58,42,0.38)' }}>Schedule & events</p>
+                                <div className="profile-svc-card-arrow">
+                                    {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                                 </div>
                             </Link>
 
                             {/* 3. Contributions Hub */}
-                            <Link href="/contributions" className="svc-card">
-                                <div className="svc-icon" style={{ background: 'rgba(168,85,247,0.1)', color: '#a855f7' }}>
-                                    <Sparkles size={22} />
+                            <Link
+                                href="/contributions"
+                                className="profile-svc-card"
+                                style={{ backgroundImage: `url('${SERVICE_CARD_IMAGES.contributions}')` }}
+                            >
+                                <div className="profile-svc-card-title-wrap">
+                                    <h4 className="profile-svc-card-title">{t("contributions")}</h4>
+                                    <p className="profile-svc-card-subtitle">{t("contributions_subtitle")}</p>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-dark text-sm leading-tight">Contributions</h4>
-                                    <p className="text-xs mt-1" style={{ color: 'rgba(26,58,42,0.38)' }}>Help the community</p>
+                                <div className="profile-svc-card-arrow">
+                                    {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                                 </div>
                             </Link>
 
                             {/* 4. Favorite Courses */}
-                            <Link href="/favorites/courses" className="svc-card">
-                                <div className="svc-icon" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
-                                    <Heart size={22} />
+                            <Link
+                                href="/favorites/courses"
+                                className="profile-svc-card"
+                                style={{ backgroundImage: `url('${SERVICE_CARD_IMAGES.favorites}')` }}
+                            >
+                                <div className="profile-svc-card-title-wrap">
+                                    <h4 className="profile-svc-card-title">{t("favorites")}</h4>
+                                    <p className="profile-svc-card-subtitle">{t("favorites_subtitle")}</p>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-dark text-sm leading-tight">Favorites</h4>
-                                    <p className="text-xs mt-1" style={{ color: 'rgba(26,58,42,0.38)' }}>Your saved lessons</p>
+                                <div className="profile-svc-card-arrow">
+                                    {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                                 </div>
                             </Link>
 
                             {/* 7. Saved News */}
-                            <Link href="/favorites/news" className="svc-card">
-                                <div className="svc-icon" style={{ background: 'rgba(14,165,233,0.1)', color: '#0ea5e9' }}>
-                                    <Newspaper size={22} />
+                            <Link
+                                href="/favorites/news"
+                                className="profile-svc-card"
+                                style={{ backgroundImage: `url('${SERVICE_CARD_IMAGES.savedNews}')` }}
+                            >
+                                <div className="profile-svc-card-title-wrap">
+                                    <h4 className="profile-svc-card-title">{t("saved_news")}</h4>
+                                    <p className="profile-svc-card-subtitle">{t("saved_news_subtitle")}</p>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-dark text-sm leading-tight">Saved News</h4>
-                                    <p className="text-xs mt-1" style={{ color: 'rgba(26,58,42,0.38)' }}>Bookmarked articles</p>
+                                <div className="profile-svc-card-arrow">
+                                    {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                                 </div>
                             </Link>
 
                             {/* 8. Grades Calculator */}
-                            <Link href="/grades-calculator" className="svc-card">
-                                <div className="svc-icon" style={{ background: 'rgba(251,191,36,0.1)', color: '#f59e0b' }}>
-                                    <Calculator size={22} />
+                            <Link
+                                href="/grades-calculator"
+                                className="profile-svc-card"
+                                style={{ backgroundImage: `url('${SERVICE_CARD_IMAGES.gradesCalc}')` }}
+                            >
+                                <div className="profile-svc-card-title-wrap">
+                                    <h4 className="profile-svc-card-title">{t("grades_calc")}</h4>
+                                    <p className="profile-svc-card-subtitle">{t("grades_calc_subtitle")}</p>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-dark text-sm leading-tight">Grades Calc</h4>
-                                    <p className="text-xs mt-1" style={{ color: 'rgba(26,58,42,0.38)' }}>Calculate your GPA</p>
+                                <div className="profile-svc-card-arrow">
+                                    {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                                 </div>
                             </Link>
 
@@ -881,14 +902,15 @@ export default function ProfilePage() {
                                         showSnackbar(t('invite_link_failed'), "error");
                                     }
                                 }}
-                                className="svc-card"
+                                className="profile-svc-card"
+                                style={{ backgroundImage: `url('${SERVICE_CARD_IMAGES.invite}')` }}
                             >
-                                <div className="svc-icon" style={{ background: 'rgba(58,170,106,0.1)', color: '#3aaa6a' }}>
-                                    <UserPlus size={22} />
+                                <div className="profile-svc-card-title-wrap">
+                                    <h4 className="profile-svc-card-title">{t("invite_friends")}</h4>
+                                    <p className="profile-svc-card-subtitle">{t("invite_friends_subtitle")}</p>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-dark text-sm leading-tight">Invite Friends</h4>
-                                    <p className="text-xs mt-1" style={{ color: 'rgba(26,58,42,0.38)' }}>+100 pts/signup</p>
+                                <div className="profile-svc-card-arrow">
+                                    {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                                 </div>
                             </button>
 
@@ -896,30 +918,35 @@ export default function ProfilePage() {
                             <button
                                 onClick={() => {
                                     if (navigator.share) {
-                                        navigator.share({ title: 'Udarsy', text: 'Check out Udarsy — the ultimate education platform!', url: window.location.origin });
+                                        navigator.share({ title: 'Udarsy', text: t('share_app_text'), url: window.location.origin });
                                     } else {
                                         showSnackbar(t('sharing_not_supported'), "info");
                                     }
                                 }}
-                                className="svc-card"
+                                className="profile-svc-card"
+                                style={{ backgroundImage: `url('${SERVICE_CARD_IMAGES.share}')` }}
                             >
-                                <div className="svc-icon" style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6' }}>
-                                    <Share2 size={22} />
+                                <div className="profile-svc-card-title-wrap">
+                                    <h4 className="profile-svc-card-title">{t("share_app")}</h4>
+                                    <p className="profile-svc-card-subtitle">{t("share_app_subtitle")}</p>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-dark text-sm leading-tight">Share Udarsy</h4>
-                                    <p className="text-xs mt-1" style={{ color: 'rgba(26,58,42,0.38)' }}>Spread the word</p>
+                                <div className="profile-svc-card-arrow">
+                                    {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                                 </div>
                             </button>
 
                             {/* 11. Report Issue */}
-                            <Link href="/report" className="svc-card">
-                                <div className="svc-icon" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
-                                    <ShieldAlert size={22} />
+                            <Link
+                                href="/report"
+                                className="profile-svc-card"
+                                style={{ backgroundImage: `url('${SERVICE_CARD_IMAGES.report}')` }}
+                            >
+                                <div className="profile-svc-card-title-wrap">
+                                    <h4 className="profile-svc-card-title">{t("report_issue")}</h4>
+                                    <p className="profile-svc-card-subtitle">{t("report_issue_subtitle")}</p>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-dark text-sm leading-tight">Report Issue</h4>
-                                    <p className="text-xs mt-1" style={{ color: 'rgba(26,58,42,0.38)' }}>Help us improve</p>
+                                <div className="profile-svc-card-arrow">
+                                    {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
                                 </div>
                             </Link>
 
@@ -929,64 +956,64 @@ export default function ProfilePage() {
                     {/* ── Udarsy Programs (separated section) ── */}
                     {user?.role !== 'admin' && <div className="pt-10 border-t border-green/8 space-y-4">
                         <div>
-                            <h2 className="text-2xl font-black text-dark">Udarsy Programs</h2>
-                            <p className="text-sm mt-1" style={{ color: 'rgba(26,58,42,0.4)' }}>Two ways to share your knowledge with students.</p>
+                            <h2 className="text-2xl font-black text-dark">{t("programs_title")}</h2>
+                            <p className="text-sm mt-1" style={{ color: 'rgba(26,58,42,0.4)' }}>{t("programs_subtitle")}</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {/* Teacher Program */}
-                            <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-4 flex flex-col gap-3">
+                            <div className="rounded-[10px] border border-indigo-100 bg-indigo-50/50 p-4 flex flex-col gap-3">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
                                         <MessageSquare size={20} className="text-indigo-500" />
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-dark text-sm">Teacher</h4>
-                                        <p className="text-[11px] text-indigo-500 font-bold">Real-time classroom chat</p>
+                                        <h4 className="font-black text-dark text-sm">{t("program_teacher")}</h4>
+                                        <p className="text-[11px] text-indigo-500 font-bold">{t("program_teacher_tagline")}</p>
                                     </div>
                                 </div>
                                 <p className="text-xs text-dark/50 leading-relaxed">
-                                    Create private chat rooms for your students. Share files, answer questions live, and manage up to 50 students per room — all in real time.
+                                    {t("program_teacher_desc")}
                                 </p>
                                 {user?.role === 'teacher' ? (
                                     <Link href="/teacher/dashboard" className="w-full py-2 bg-indigo-500 text-white font-bold rounded-xl text-xs text-center hover:bg-indigo-600 transition-colors">
-                                        Go to Dashboard
+                                        {t("go_to_dashboard")}
                                     </Link>
                                 ) : profileCompletion < 100 ? (
                                     <div className="w-full py-2 bg-indigo-100 text-indigo-300 font-bold rounded-xl text-xs text-center cursor-not-allowed">
-                                        Complete profile first ({profileCompletion}%)
+                                        {t("complete_profile_first", { percent: profileCompletion })}
                                     </div>
                                 ) : (
                                     <Link href="/apply-teacher" className="w-full py-2 bg-indigo-100 text-indigo-600 font-bold rounded-xl text-xs text-center hover:bg-indigo-200 transition-colors">
-                                        Apply as Teacher
+                                        {t("apply_as_teacher")}
                                     </Link>
                                 )}
                             </div>
 
                             {/* Instructor Program */}
-                            <div className="rounded-2xl border border-green/20 bg-green/5 p-4 flex flex-col gap-3">
+                            <div className="rounded-[10px] border border-green/20 bg-green/5 p-4 flex flex-col gap-3">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-green/15 flex items-center justify-center shrink-0">
                                         <GraduationCap size={20} className="text-green" />
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-dark text-sm">Instructor</h4>
-                                        <p className="text-[11px] text-green font-bold">On-demand video courses</p>
+                                        <h4 className="font-black text-dark text-sm">{t("program_instructor")}</h4>
+                                        <p className="text-[11px] text-green font-bold">{t("program_instructor_tagline")}</p>
                                     </div>
                                 </div>
                                 <p className="text-xs text-dark/50 leading-relaxed">
-                                    Upload recorded video lessons and PDF documents. Students discover and watch your courses anytime. Best for structured, self-paced learning.
+                                    {t("program_instructor_desc")}
                                 </p>
                                 {user?.role === 'instructor' ? (
                                     <Link href="/instructor-dashboard" className="w-full py-2 bg-green text-white font-bold rounded-xl text-xs text-center hover:bg-green/90 transition-colors">
-                                        Go to Dashboard
+                                        {t("go_to_dashboard")}
                                     </Link>
                                 ) : profileCompletion < 100 ? (
                                     <div className="w-full py-2 bg-green/10 text-green/40 font-bold rounded-xl text-xs text-center cursor-not-allowed">
-                                        Complete profile first ({profileCompletion}%)
+                                        {t("complete_profile_first", { percent: profileCompletion })}
                                     </div>
                                 ) : (
                                     <Link href="/apply-instructor" className="w-full py-2 bg-green/10 text-green font-bold rounded-xl text-xs text-center hover:bg-green/20 transition-colors">
-                                        Apply as Instructor
+                                        {t("apply_as_instructor")}
                                     </Link>
                                 )}
                             </div>
@@ -1005,15 +1032,15 @@ export default function ProfilePage() {
                                 className="border-t border-green/8 pt-8 space-y-4"
                             >
                                 <div>
-                                    <h2 className="text-2xl font-black text-dark">Settings</h2>
-                                    <p className="text-sm mt-1" style={{ color: 'rgba(26,58,42,0.4)' }}>Manage your account preferences.</p>
+                                    <h2 className="text-2xl font-black text-dark">{t("settings_title")}</h2>
+                                    <p className="text-sm mt-1" style={{ color: 'rgba(26,58,42,0.4)' }}>{t("settings_subtitle")}</p>
                                 </div>
-                                <div className="rounded-[20px] border border-green/10 divide-y divide-green/8 overflow-hidden bg-white shadow-sm">
+                                <div className="rounded-[10px] border border-green/10 divide-y divide-green/8 overflow-hidden bg-white shadow-sm">
                                     {/* Notifications toggle */}
                                     <div className="flex items-center justify-between px-5 py-4">
                                         <div>
-                                            <p className="text-sm font-bold text-dark">Notifications</p>
-                                            <p className="text-xs mt-0.5" style={{ color: 'rgba(26,58,42,0.4)' }}>Receive learning reminders and updates</p>
+                                            <p className="text-sm font-bold text-dark">{t("notifications_setting")}</p>
+                                            <p className="text-xs mt-0.5" style={{ color: 'rgba(26,58,42,0.4)' }}>{t("notifications_setting_desc")}</p>
                                         </div>
                                         <button
                                             disabled={savingSettings}
@@ -1025,16 +1052,16 @@ export default function ProfilePage() {
                                     </div>
                                     {/* Theme selector */}
                                     <div className="px-5 py-4">
-                                        <p className="text-sm font-bold text-dark mb-3">Theme</p>
+                                        <p className="text-sm font-bold text-dark mb-3">{t("theme")}</p>
                                         <div className="flex gap-2">
-                                            {(['light', 'system', 'dark'] as const).map(t => (
+                                            {(['light', 'system', 'dark'] as const).map(themeKey => (
                                                 <button
-                                                    key={t}
+                                                    key={themeKey}
                                                     disabled={savingSettings}
-                                                    onClick={() => saveSettings({ theme: t })}
-                                                    className={`flex-1 py-2 rounded-[12px] text-xs font-black capitalize transition-all border disabled:opacity-50 ${localSettings.theme === t ? 'bg-green text-white border-green shadow-md shadow-green/20' : 'text-dark/50 border-green/15 hover:border-green/30'}`}
+                                                    onClick={() => saveSettings({ theme: themeKey })}
+                                                    className={`flex-1 py-2 rounded-[12px] text-xs font-black capitalize transition-all border disabled:opacity-50 ${localSettings.theme === themeKey ? 'bg-green text-white border-green shadow-md shadow-green/20' : 'text-dark/50 border-green/15 hover:border-green/30'}`}
                                                 >
-                                                    {t}
+                                                    {ts(themeKey)}
                                                 </button>
                                             ))}
                                         </div>
@@ -1042,16 +1069,16 @@ export default function ProfilePage() {
                                     {/* Change password link */}
                                     <Link href="/settings/password" className="flex items-center justify-between px-5 py-4 hover:bg-green/3 transition-colors group">
                                         <div>
-                                            <p className="text-sm font-bold text-dark">Change Password</p>
-                                            <p className="text-xs mt-0.5" style={{ color: 'rgba(26,58,42,0.4)' }}>Update your account password</p>
+                                            <p className="text-sm font-bold text-dark">{t("change_password")}</p>
+                                            <p className="text-xs mt-0.5" style={{ color: 'rgba(26,58,42,0.4)' }}>{t("change_password_desc")}</p>
                                         </div>
                                         <ChevronRight size={16} className="text-green/30 group-hover:text-green transition-colors" />
                                     </Link>
                                     {/* Delete account link */}
                                     <Link href="/settings/delete-account" className="flex items-center justify-between px-5 py-4 hover:bg-red-50/50 transition-colors group">
                                         <div>
-                                            <p className="text-sm font-bold text-red-500">Delete Account</p>
-                                            <p className="text-xs mt-0.5 text-red-400/70">Permanently remove your data</p>
+                                            <p className="text-sm font-bold text-red-500">{t("delete_account")}</p>
+                                            <p className="text-xs mt-0.5 text-red-400/70">{t("delete_account_short_desc")}</p>
                                         </div>
                                         <ChevronRight size={16} className="text-red-300 group-hover:text-red-500 transition-colors" />
                                     </Link>
@@ -1060,24 +1087,97 @@ export default function ProfilePage() {
                         )}
                     </AnimatePresence>
 
-                    <div className="pt-8 border-t border-green/6 flex flex-col items-center gap-3">
-                        <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'rgba(26,58,42,0.25)' }}>Account</p>
-                        <div className="flex flex-wrap items-center justify-center gap-3">
+                    <div className="pt-8 border-t border-green/6 flex flex-col items-center gap-4">
+                        <div className="self-start flex items-center gap-2.5">
+                            <h2 className="text-2xl font-black text-dark">{t("settings_privacy")}</h2>
+                            <span className="inline-flex items-center justify-center min-w-[26px] h-[26px] px-2 rounded-full bg-green/10 text-green text-xs font-black tabular-nums">4</span>
+                        </div>
+                        <div className="flex flex-col items-stretch w-full max-w-xs gap-3">
+                            <Link
+                                href="/settings"
+                                className="group flex items-center justify-center gap-2.5 px-7 py-2.5 rounded-full border bg-white font-bold text-sm transition-all"
+                                style={{ borderColor: 'rgba(58,170,106,0.25)', color: 'rgba(58,170,106,0.85)' }}
+                                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(58,170,106,0.06)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(58,170,106,0.5)'; (e.currentTarget as HTMLAnchorElement).style.color = '#3aaa6a'; }}
+                                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#fff'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(58,170,106,0.25)'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(58,170,106,0.85)'; }}
+                            >
+                                <SettingsIcon size={15} className="transition-transform duration-300 group-hover:rotate-45" />
+                                {t("settings")}
+                            </Link>
+                            <div className="flex flex-col gap-2">
+                                <button
+                                    onClick={() => setLangOpen(o => !o)}
+                                    disabled={langPending}
+                                    className="group flex items-center justify-center gap-2.5 px-7 py-2.5 rounded-full border bg-white font-bold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                                    style={{ borderColor: 'rgba(58,170,106,0.25)', color: 'rgba(58,170,106,0.85)' }}
+                                    onMouseEnter={e => { if (langPending) return; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(58,170,106,0.06)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(58,170,106,0.5)'; (e.currentTarget as HTMLButtonElement).style.color = '#3aaa6a'; }}
+                                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fff'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(58,170,106,0.25)'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(58,170,106,0.85)'; }}
+                                >
+                                    <Languages size={15} className="transition-transform duration-300 group-hover:scale-110" />
+                                    {tc("change_language")}
+                                    <ChevronDown size={14} className={`transition-transform duration-300 ${langOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                <AnimatePresence initial={false}>
+                                    {langOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div className="flex flex-col gap-1.5 pt-1">
+                                                {[
+                                                    { code: 'en', label: 'English', flag: 'EN' },
+                                                    { code: 'fr', label: 'Français', flag: 'FR' },
+                                                    { code: 'ar', label: 'العربية', flag: 'AR' },
+                                                ].map((lang) => {
+                                                    const isActive = lang.code === locale;
+                                                    return (
+                                                        <button
+                                                            key={lang.code}
+                                                            disabled={langPending || isActive}
+                                                            onClick={() => {
+                                                                if (isActive) { setLangOpen(false); return; }
+                                                                startLangTransition(async () => {
+                                                                    await setUserLocaleAction(lang.code as Locale);
+                                                                    window.location.reload();
+                                                                });
+                                                            }}
+                                                            className="flex items-center justify-between gap-3 px-5 py-2 rounded-full border bg-white text-sm font-bold transition-all disabled:cursor-default"
+                                                            style={{
+                                                                borderColor: isActive ? 'rgba(58,170,106,0.5)' : 'rgba(58,170,106,0.18)',
+                                                                color: isActive ? '#3aaa6a' : 'rgba(58,170,106,0.75)',
+                                                                background: isActive ? 'rgba(58,170,106,0.06)' : '#fff',
+                                                            }}
+                                                        >
+                                                            <span className="flex items-center gap-2.5">
+                                                                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green/10 text-green text-[10px] font-black">{lang.flag}</span>
+                                                                {lang.label}
+                                                            </span>
+                                                            {isActive && <CheckCircle size={14} className="text-green" />}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
                             <button
                                 onClick={handleResetAndChoosePath}
                                 disabled={resettingPath}
-                                className="group flex items-center gap-2.5 px-7 py-2.5 rounded-full border bg-white font-bold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                                className="group flex items-center justify-center gap-2.5 px-7 py-2.5 rounded-full border bg-white font-bold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                                 style={{ borderColor: 'rgba(58,170,106,0.25)', color: 'rgba(58,170,106,0.85)' }}
                                 onMouseEnter={e => { if (resettingPath) return; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(58,170,106,0.06)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(58,170,106,0.5)'; (e.currentTarget as HTMLButtonElement).style.color = '#3aaa6a'; }}
                                 onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fff'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(58,170,106,0.25)'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(58,170,106,0.85)'; }}
-                                title="Delete all progress and choose a new study path"
+                                title={t("reset_path_title")}
                             >
                                 <RefreshCw size={15} className={`${resettingPath ? 'animate-spin' : 'group-hover:rotate-180'} transition-transform`} />
-                                {resettingPath ? 'Resetting…' : 'Reset & choose new path'}
+                                {resettingPath ? t("resetting") : t("reset_and_choose_path")}
                             </button>
                             <button
                                 onClick={logout}
-                                className="group flex items-center gap-2.5 px-7 py-2.5 rounded-full border bg-white font-bold text-sm transition-all"
+                                className="group flex items-center justify-center gap-2.5 px-7 py-2.5 rounded-full border bg-white font-bold text-sm transition-all"
                                 style={{ borderColor: 'rgba(239,68,68,0.2)', color: 'rgba(239,68,68,0.7)' }}
                                 onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.04)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.35)'; (e.currentTarget as HTMLButtonElement).style.color = '#ef4444'; }}
                                 onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fff'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.2)'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(239,68,68,0.7)'; }}
@@ -1130,7 +1230,7 @@ export default function ProfilePage() {
                                 <X size={18} />
                             </button>
                             <div onClick={handleCameraClick} className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-green text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg cursor-pointer hover:bg-green/90 transition-all">
-                                <Camera size={14} /> {t("change_photo") || "Change photo"}
+                                <Camera size={14} /> {t("change_photo")}
                             </div>
                         </motion.div>
                     </motion.div>
@@ -1162,8 +1262,8 @@ export default function ProfilePage() {
                                         <Star size={22} className="fill-amber-400 text-amber-400" />
                                     </div>
                                     <div>
-                                        <h3 className="font-black text-dark text-lg leading-tight">Points Reward</h3>
-                                        <p className="text-[12px] text-dark/40 font-medium">Redeem your points for Pro access</p>
+                                        <h3 className="font-black text-dark text-lg leading-tight">{t("reward_dialog_title")}</h3>
+                                        <p className="text-[12px] text-dark/40 font-medium">{t("reward_dialog_subtitle")}</p>
                                     </div>
                                 </div>
                                 <button onClick={() => setShowRewardDialog(false)} className="w-8 h-8 rounded-full bg-dark/5 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors">
@@ -1173,8 +1273,8 @@ export default function ProfilePage() {
 
                             <div className="rounded-[18px] p-4 mb-5" style={{ background: 'rgba(251,191,36,0.07)', border: '1.5px solid rgba(251,191,36,0.2)' }}>
                                 <div className="flex items-center justify-between mb-3">
-                                    <span className="text-sm font-bold text-dark/60">Your Points</span>
-                                    <span className="text-2xl font-black text-amber-500">{(user?.points || 0).toLocaleString()} <span className="text-sm">pts</span></span>
+                                    <span className="text-sm font-bold text-dark/60">{t("your_points")}</span>
+                                    <span className="text-2xl font-black text-amber-500">{(user?.points || 0).toLocaleString()} <span className="text-sm">{t("pts")}</span></span>
                                 </div>
                                 <div className="h-2 rounded-full bg-amber-100 overflow-hidden">
                                     <div
@@ -1182,16 +1282,16 @@ export default function ProfilePage() {
                                         style={{ width: `${Math.min(100, ((user?.points || 0) / 10000) * 100)}%` }}
                                     />
                                 </div>
-                                <p className="text-[11px] text-dark/40 mt-1.5 font-medium">{Math.max(0, 10000 - (user?.points || 0)).toLocaleString()} pts until reward eligibility</p>
+                                <p className="text-[11px] text-dark/40 mt-1.5 font-medium">{t("pts_until_eligibility", { count: Math.max(0, 10000 - (user?.points || 0)).toLocaleString() })}</p>
                             </div>
 
                             <div className="space-y-2.5 mb-5">
-                                <p className="text-xs font-black text-dark/40 uppercase tracking-widest">How to earn points</p>
+                                <p className="text-xs font-black text-dark/40 uppercase tracking-widest">{t("how_to_earn")}</p>
                                 {[
-                                    { icon: '📄', text: 'Open a lesson resource', pts: '+2 pts' },
-                                    { icon: '✅', text: 'Complete a lesson resource', pts: '+5 pts' },
-                                    { icon: '🤝', text: 'Submit an approved contribution', pts: '+10 pts' },
-                                    { icon: '📅', text: 'Daily login streak', pts: '+1 pt/day' },
+                                    { icon: '📄', text: t("earn_open_resource"), pts: t("earn_open_pts") },
+                                    { icon: '✅', text: t("earn_complete_resource"), pts: t("earn_complete_pts") },
+                                    { icon: '🤝', text: t("earn_contribution"), pts: t("earn_contribution_pts") },
+                                    { icon: '📅', text: t("earn_daily_login"), pts: t("earn_login_pts") },
                                 ].map(({ icon, text, pts }) => (
                                     <div key={text} className="flex items-center justify-between py-2 px-3 rounded-[12px]" style={{ background: 'rgba(58,170,106,0.04)' }}>
                                         <span className="text-sm text-dark/70 font-medium flex items-center gap-2"><span>{icon}</span>{text}</span>
@@ -1202,7 +1302,7 @@ export default function ProfilePage() {
 
                             {myRewardRequests.length > 0 && (
                                 <div className="mb-4 rounded-[14px] p-3" style={{ background: 'rgba(58,170,106,0.05)', border: '1px solid rgba(58,170,106,0.12)' }}>
-                                    <p className="text-[11px] font-black text-dark/40 uppercase tracking-widest mb-2">Your Requests</p>
+                                    <p className="text-[11px] font-black text-dark/40 uppercase tracking-widest mb-2">{t("your_requests")}</p>
                                     {myRewardRequests.slice(0, 2).map((r: any) => (
                                         <div key={r._id} className="flex items-center justify-between text-sm py-1">
                                             <span className="text-dark/60 font-medium">{new Date(r.createdAt).toLocaleDateString()}</span>
@@ -1225,10 +1325,10 @@ export default function ProfilePage() {
                             >
                                 {rewardRequesting ? <Loader2 size={16} className="animate-spin" /> : <Star size={16} />}
                                 {myRewardRequests.some((r: any) => r.status === 'pending')
-                                    ? 'Request Pending Review'
+                                    ? t("request_pending")
                                     : (user?.points || 0) >= 10000
-                                        ? 'Request 1 Month Free Pro'
-                                        : `Need ${(10000 - (user?.points || 0)).toLocaleString()} more pts`
+                                        ? t("request_pro")
+                                        : t("need_more_pts", { count: (10000 - (user?.points || 0)).toLocaleString() })
                                 }
                             </button>
                         </motion.div>

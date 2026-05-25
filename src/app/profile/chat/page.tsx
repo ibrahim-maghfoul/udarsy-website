@@ -587,7 +587,7 @@ export default function ChatPage() {
                     className="w-full max-w-sm"
                 >
                     <div
-                        className="bg-white rounded-[32px] border border-green/8 overflow-hidden"
+                        className="bg-white rounded-[10px] border border-green/8 overflow-hidden"
                         style={{ boxShadow: "0 8px 32px rgba(58,170,106,0.10), 0 2px 8px rgba(0,0,0,0.04)" }}
                     >
                         {/* Header */}
@@ -701,7 +701,7 @@ export default function ChatPage() {
                 </motion.button>
 
                 {/* Room info card */}
-                <div className="relative z-10 rounded-[18px] overflow-hidden" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" }}>
+                <div className="relative z-10 rounded-[10px] overflow-hidden" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" }}>
                     {/* Icon header with dot texture */}
                     <div className="relative px-4 pt-4 pb-3" style={{ background: "rgba(255,255,255,0.05)" }}>
                         <div className="absolute inset-0" style={{ backgroundImage: DOT_TEXTURE, backgroundSize: "18px 18px", opacity: 0.35 }} />
@@ -761,7 +761,7 @@ export default function ChatPage() {
                         key={activeTab}
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="relative z-10 rounded-[14px] p-3 space-y-2"
+                        className="relative z-10 rounded-[10px] p-3 space-y-2"
                         style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}
                     >
                         <p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/30">{t("chat_rate_room")}</p>
@@ -796,7 +796,7 @@ export default function ChatPage() {
                 {/* Room Info — creation date + creator */}
                 {activeRoomObj && (
                     <div
-                        className="relative z-10 rounded-[14px] p-3 space-y-1.5"
+                        className="relative z-10 rounded-[10px] p-3 space-y-1.5"
                         style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.10)" }}
                     >
                         <p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/30">{t("chat_room_info")}</p>
@@ -871,7 +871,7 @@ export default function ChatPage() {
                         // Count-only view for students and general chat
                         <div className="flex flex-col gap-3 px-1">
                             <p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/30 mb-1">{t("chat_participants_label")}</p>
-                            <div className="flex items-center gap-2.5 px-3 py-3 rounded-[14px] bg-white/6 border border-white/8">
+                            <div className="flex items-center gap-2.5 px-3 py-3 rounded-[10px] bg-white/6 border border-white/8">
                                 <span className="relative flex w-2.5 h-2.5 shrink-0">
                                     <span className="w-2.5 h-2.5 rounded-full bg-green" />
                                     <span className="absolute inset-0 rounded-full bg-green animate-ping opacity-50" />
@@ -880,7 +880,7 @@ export default function ChatPage() {
                                 <span className="text-xs text-white/40 font-semibold">{t("chat_online_now")}</span>
                             </div>
                             {allParticipants.length > 0 && (
-                                <div className="flex items-center gap-2.5 px-3 py-3 rounded-[14px] bg-white/4 border border-white/5">
+                                <div className="flex items-center gap-2.5 px-3 py-3 rounded-[10px] bg-white/4 border border-white/5">
                                     <Users size={13} className="text-white/35 shrink-0" />
                                     <span className="text-sm font-black text-white/60">{allParticipants.length}</span>
                                     <span className="text-xs text-white/30 font-semibold">{t("chat_total_members")}</span>
@@ -892,7 +892,7 @@ export default function ChatPage() {
             </div>
 
             {/* ── Chat panel (floating white card) ── */}
-            <div className="flex-1 flex flex-col min-w-0 md:m-3 md:rounded-[24px] bg-white overflow-hidden md:shadow-[0_20px_60px_rgba(0,0,0,0.08),_0_4px_16px_rgba(0,0,0,0.04)] md:border md:border-green/8">
+            <div className="flex-1 flex flex-col min-w-0 md:m-3 md:rounded-[10px] bg-white overflow-hidden md:shadow-[0_20px_60px_rgba(0,0,0,0.08),_0_4px_16px_rgba(0,0,0,0.04)] md:border md:border-green/8">
 
                 {/* Mobile room tabs */}
                 <div className="md:hidden flex gap-1.5 px-3 pt-3 pb-2 overflow-x-auto shrink-0 scrollbar-none bg-white border-b border-green/8">

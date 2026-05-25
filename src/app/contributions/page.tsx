@@ -284,7 +284,7 @@ export default function ContributionsPage() {
 
                     {/* Recent Contributions Feed (Right Side - 6/12) */}
                     <div className="lg:col-span-6 space-y-6">
-                        <div className="bg-[#fdfdfd] rounded-[48px] border border-green/5 shadow-2xl shadow-green/5 overflow-hidden flex flex-col md:min-h-[700px] h-full">
+                        <div className="bg-[#fdfdfd] rounded-[10px] border border-green/5 shadow-2xl shadow-green/5 overflow-hidden flex flex-col md:min-h-[700px] h-full">
                             <div className="p-6 border-b border-green/5 bg-white/50 backdrop-blur-md sticky top-0 z-10">
                                 <h2 className="text-2xl font-black text-[#112A46]">{t("recent_activity")}</h2>
                                 <p className="text-sm text-muted-foreground font-medium mb-4">{t("latest_shared")}</p>
@@ -300,7 +300,7 @@ export default function ContributionsPage() {
                             <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 custom-scrollbar">
                                 {loading ? (
                                     Array(5).fill(0).map((_, i) => (
-                                        <div key={i} className="bg-white rounded-[18px] border border-green/[0.11] p-4 flex items-center gap-3"
+                                        <div key={i} className="bg-white rounded-[10px] border border-green/[0.11] p-4 flex items-center gap-3"
                                             style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.05)', animation: 'shimmer 1.5s ease-in-out infinite', background: 'linear-gradient(90deg,#f3f4f3 0%,#eaf2ed 40%,#f3f4f3 80%)', backgroundSize: '200% 100%', animationDelay: `${i * 0.1}s` }}>
                                             <div className="w-10 h-10 bg-green/5 rounded-[11px] shrink-0" />
                                             <div className="flex-1 space-y-2">
@@ -311,7 +311,7 @@ export default function ContributionsPage() {
                                         </div>
                                     ))
                                 ) : recent.length === 0 ? (
-                                    <div className="text-center py-12 px-6 rounded-[18px] border border-dashed border-green/[0.11] m-2">
+                                    <div className="text-center py-12 px-6 rounded-[10px] border border-dashed border-green/[0.11] m-2">
                                         <FileText className="mx-auto text-green/20 w-10 h-10 mb-3" />
                                         <p className="text-sm text-dark/30 font-bold">{t("no_recent")}</p>
                                     </div>
@@ -327,7 +327,7 @@ export default function ContributionsPage() {
                                                 whileInView={{ opacity: 1, y: 0 }}
                                                 viewport={{ once: true, margin: "-20px" }}
                                                 transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1], delay: index * 0.06 }}
-                                                className="group bg-white rounded-[18px] border border-green/[0.11] p-4 flex items-center gap-3 transition-all duration-[280ms] cursor-default"
+                                                className="group bg-white rounded-[10px] border border-green/[0.11] p-4 flex items-center gap-3 transition-all duration-[280ms] cursor-default"
                                                 style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}
                                                 whileHover={{ y: -3, boxShadow: '0 10px 28px rgba(58,170,106,0.14), 0 3px 10px rgba(58,170,106,0.08)', borderColor: 'rgba(58,170,106,0.35)' } as any}
                                             >

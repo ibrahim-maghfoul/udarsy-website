@@ -141,7 +141,7 @@ export default function GradesCalculatorPage() {
                 </div>
 
                 {/* GPA card */}
-                <div className="bg-white rounded-3xl border border-green/10 shadow-sm p-6 mb-6 flex items-center justify-between">
+                <div className="bg-white rounded-[10px] border border-green/10 shadow-sm p-6 mb-6 flex items-center justify-between">
                     <div>
                         <p className="text-xs font-bold text-dark/40 uppercase tracking-widest mb-1">Your Average (GPA)</p>
                         <p className={`text-4xl md:text-6xl font-extrabold ${gpa === '—' ? 'text-dark/15' : 'text-green'}`}>{gpa}</p>
@@ -159,7 +159,7 @@ export default function GradesCalculatorPage() {
                     {subjects.map((s, si) => {
                         const avg = getAvg(s);
                         return (
-                            <div key={si} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 space-y-4 hover:border-green/20 transition-all">
+                            <div key={si} className="bg-white rounded-[10px] border border-gray-100 shadow-sm p-5 space-y-4 hover:border-green/20 transition-all">
                                 <div className="flex flex-col sm:flex-row gap-3 items-end">
                                     <div className="flex-1 space-y-1.5">
                                         <label className="text-xs font-bold text-dark/40 uppercase ml-1">Subject</label>

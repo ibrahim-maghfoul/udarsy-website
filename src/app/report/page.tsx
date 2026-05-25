@@ -54,7 +54,7 @@ export default function ReportPage() {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="max-w-md w-full text-center space-y-8 p-12 rounded-[48px] bg-white border border-green/10 shadow-2xl shadow-green/5"
+                    className="max-w-md w-full text-center space-y-8 p-12 rounded-[10px] bg-white border border-green/10 shadow-2xl shadow-green/5"
                 >
                     <div className="w-24 h-24 rounded-full bg-green text-white flex items-center justify-center mx-auto shadow-xl shadow-green/20">
                         <CheckCircle2 size={48} />
@@ -88,7 +88,7 @@ export default function ReportPage() {
                     <p className="text-xl text-muted-foreground">Your feedback helps us build a better learning platform for everyone.</p>
                 </div>
 
-                <div className="bg-white p-8 md:p-12 rounded-[48px] border border-green/10 shadow-2xl shadow-green/5 space-y-12">
+                <div className="bg-white p-8 md:p-12 rounded-[10px] border border-green/10 shadow-2xl shadow-green/5 space-y-12">
                     {/* Step 1: Type Selection */}
                     <div className="space-y-6">
                         <h2 className="text-xl font-bold text-dark flex items-center gap-3">
@@ -100,7 +100,7 @@ export default function ReportPage() {
                                 <button
                                     key={t.id}
                                     onClick={() => setType(t.id)}
-                                    className={`flex flex-col items-center gap-4 p-6 rounded-[32px] border transition-all ${type === t.id
+                                    className={`flex flex-col items-center gap-4 p-6 rounded-[10px] border transition-all ${type === t.id
                                         ? `bg-white border-green ring-4 ring-green/5 shadow-xl`
                                         : `bg-white border-green/10 hover:border-green/30`
                                         }`}
@@ -164,7 +164,7 @@ export default function ReportPage() {
                     </form>
                 </div>
 
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-10 rounded-[40px] bg-dark text-white overflow-hidden relative">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-10 rounded-[10px] bg-dark text-white overflow-hidden relative">
                     <div className="relative z-10 space-y-2 text-center md:text-left">
                         <h3 className="text-2xl font-bold">Contact Support</h3>
                         <p className="text-white/60">Prefer to speak with us directly? Reach out anytime.</p>

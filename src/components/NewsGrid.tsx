@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion, AnimatePresence, useReducedMotion, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import NewsCard from '@/components/NewsCard';
 import { useTranslations } from 'next-intl';
 import { BookOpen, GraduationCap, Users, LayoutGrid } from 'lucide-react';
@@ -59,23 +59,6 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
     const simplifyMotion = prefersReducedMotion || isLowEnd;
     const [activeCategory, setActiveCategory] = React.useState('All');
     const [currentPage, setCurrentPage] = React.useState(1);
-    const controls = useAnimation();
-
-    // Re-fire the entrance animation on mount and whenever the tab regains focus
-    // (fixes a browser quirk where stagger animations get stuck after a tab switch)
-    React.useEffect(() => {
-        let raf: ReturnType<typeof requestAnimationFrame>;
-        const trigger = () => {
-            raf = requestAnimationFrame(() => { controls.start('show'); });
-        };
-        trigger();
-        const onVisible = () => { if (document.visibilityState === 'visible') trigger(); };
-        document.addEventListener('visibilitychange', onVisible);
-        return () => {
-            cancelAnimationFrame(raf);
-            document.removeEventListener('visibilitychange', onVisible);
-        };
-    }, [activeCategory, currentPage, controls]);
 
     const categories = CATEGORIES;
 
@@ -157,7 +140,7 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
                     key={`${activeCategory}-${currentPage}`}
                     variants={simplifyMotion ? containerVariantsReduced : containerVariants}
                     initial="hidden"
-                    animate={controls}
+                    animate="show"
                     exit="hidden"
                     className="flex flex-wrap justify-center gap-8 gap-y-14 sm:gap-y-8"
                 >

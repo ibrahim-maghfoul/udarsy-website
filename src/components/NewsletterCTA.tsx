@@ -45,42 +45,42 @@ export default function NewsletterCTA({ ft }: NewsletterCTAProps) {
     };
 
     return (
-        <div className="bg-green py-12 px-8 md:px-16 rounded-[40px] text-center space-y-6 relative overflow-hidden max-w-4xl mx-auto">
-            {/* Dot texture */}
+        <div className="bg-green py-8 px-6 md:px-10 rounded-[10px] text-center space-y-4 relative overflow-hidden max-w-2xl mx-auto">
+            {/* Dot texture — extends past edges so overflow-hidden crops cleanly */}
             <div
-                className="absolute inset-0 pointer-events-none"
+                className="absolute -inset-4 pointer-events-none"
                 style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.22) 1px, transparent 1px)', backgroundSize: '18px 18px', opacity: 0.5 }}
             />
             {/* Circled transparent accents */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full" style={{ border: '30px solid rgba(255,255,255,0.22)' }} />
-                <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full" style={{ border: '40px solid rgba(255,255,255,0.18)' }} />
-                <div className="absolute top-1/2 -translate-y-1/2 -left-32 w-48 h-48 rounded-full" style={{ border: '20px solid rgba(255,255,255,0.10)' }} />
+            <div className="absolute -inset-4 pointer-events-none">
+                <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full" style={{ border: '20px solid rgba(255,255,255,0.22)' }} />
+                <div className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full" style={{ border: '22px solid rgba(255,255,255,0.18)' }} />
+                <div className="absolute top-1/2 -translate-y-1/2 -right-20 w-28 h-28 rounded-full" style={{ border: '14px solid rgba(255,255,255,0.10)' }} />
             </div>
 
-            <div className="relative z-10 space-y-2">
-                <h2 className="text-3xl font-bold text-white">{ft.loop}</h2>
-                <p className="text-white/80 text-base max-w-md mx-auto">{ft.loop_desc}</p>
+            <div className="relative z-10 space-y-1.5">
+                <h2 className="text-2xl font-bold text-white">{ft.loop}</h2>
+                <p className="text-white/80 text-sm max-w-md mx-auto">{ft.loop_desc}</p>
             </div>
 
             <form onSubmit={handleSubscribe} className="relative z-10 flex flex-col gap-3 max-w-md mx-auto">
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-2.5">
                     <div className="flex-1 relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" size={16} />
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder={ft.subscribe_placeholder}
                             disabled={status === 'success'}
-                            className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:outline-none focus:bg-white focus:text-dark transition-all text-sm"
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/10 text-white placeholder:text-white/40 border border-white/20 focus:outline-none focus:bg-white focus:text-dark transition-all text-sm"
                             required
                         />
                     </div>
                     <button
                         type="submit"
                         disabled={status === 'loading' || status === 'success' || !turnstileToken}
-                        className="px-8 py-3.5 rounded-2xl bg-white text-green font-bold hover:scale-105 transition-all shadow-lg active:scale-95 disabled:scale-100 disabled:opacity-70 flex items-center justify-center gap-2 min-w-[140px]"
+                        className="px-6 py-2.5 rounded-xl bg-white text-green font-bold text-sm hover:scale-105 transition-all shadow-lg active:scale-95 disabled:scale-100 disabled:opacity-70 flex items-center justify-center gap-2 min-w-[120px]"
                     >
                         {status === 'loading' ? <Loader2 className="animate-spin" size={20} /> :
                             status === 'success' ? <CheckCircle2 size={20} /> :
