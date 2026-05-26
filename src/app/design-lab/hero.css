@@ -1,0 +1,411 @@
+/* ───────────────────────────────────────────────
+   Hero — fan-deck composition
+   6 portrait cards arranged as a curved arc at the
+   bottom of the hero, centered text floating above.
+   ─────────────────────────────────────────────── */
+
+.lab-root {
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: var(--font-sans, "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  color: #1b1d1c;
+}
+
+/* tiny floating chip — design lab marker */
+.lab-chip {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 200;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 20px rgba(20, 30, 40, 0.06);
+}
+.lab-chip__label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(20, 20, 20, 0.55);
+}
+.lab-chip__sep {
+  width: 1px;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.12);
+}
+.lab-chip__link {
+  font-size: 11px;
+  color: rgba(20, 20, 20, 0.55);
+  text-decoration: none;
+}
+.lab-chip__link:hover { color: #1b1d1c; }
+
+/* ── hero shell ─────────────────────────────── */
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  /* Self-contained typography so the hero looks the same regardless of
+     parent font (lab page uses Inter; home page <main> forces Roboto). */
+  font-family: var(--font-sans, "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  color: #1b1d1c;
+}
+
+/* flowing curve-line decoration — sits behind everything */
+.hero__curves {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* soft green wash behind the deck — keeps depth without warm pastels */
+.hero__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 1;
+}
+.hero__blob--a {
+  width: 720px;
+  height: 380px;
+  left: 50%;
+  bottom: -120px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(58, 170, 106, 0.07) 0%, rgba(58, 170, 106, 0) 70%);
+}
+.hero__blob--b {
+  display: none;
+}
+
+/* ── text column ────────────────────────────── */
+.hero__inner {
+  position: relative;
+  z-index: 10;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 120px 24px 0;
+  text-align: center;
+}
+
+.hero__eyebrow {
+  margin: 0 0 22px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(20, 30, 25, 0.55);
+}
+
+.hero__headline {
+  margin: 0;
+  font-size: clamp(48px, 7vw, 84px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  color: #131613;
+}
+.hero__headline > span {
+  display: block;
+}
+
+.hero__headline-accent {
+  font-style: italic;
+  font-weight: 500;
+  background: linear-gradient(95deg, #2d8a52 0%, #3aaa6a 55%, #5cc88a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero__lead {
+  margin: 26px auto 0;
+  max-width: 540px;
+  font-size: 17px;
+  line-height: 1.65;
+  color: rgba(35, 40, 38, 0.65);
+}
+
+.hero__ctas {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 36px;
+}
+
+.hero__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 54px;
+  padding: 0 28px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.hero__cta--primary {
+  background: linear-gradient(180deg, #3aaa6a 0%, #2d8a52 100%);
+  color: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(58, 170, 106, 0.4),
+    0 10px 28px -6px rgba(58, 170, 106, 0.55),
+    0 22px 60px -12px rgba(58, 170, 106, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.hero__cta--primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 1px rgba(58, 170, 106, 0.5),
+    0 14px 36px -6px rgba(58, 170, 106, 0.7),
+    0 30px 80px -10px rgba(58, 170, 106, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ── card deck (fan) ────────────────────────── */
+.hero__deck {
+  position: relative;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 340px;
+  margin-top: 32px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* the cards themselves are hoverable even though the deck isn't */
+.deck-card { pointer-events: auto; }
+
+.deck-card {
+  --w: 220px;
+  --tx: 0px;
+  --ty: 0px;
+  --rot: 0deg;
+  --sc: 1;
+  position: absolute;
+  left: 50%;
+  bottom: -120px;
+  width: var(--w);
+  aspect-ratio: 971 / 1619;
+  border-radius: 22px;
+  overflow: hidden;
+  transform-origin: 50% 100%;
+  transform: translateX(-50%) translateX(var(--tx)) translateY(var(--ty)) rotate(var(--rot)) scale(var(--sc));
+  background: #fff;
+  border: 1.5px solid rgba(58, 170, 106, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  will-change: transform;
+  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1), filter 0.85s ease;
+}
+
+.deck-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* subject title — sits at the top of each card, dark on the light artwork */
+.deck-card__title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 16px;
+  z-index: 2;
+  padding: 0 14px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #1f5a36;
+  line-height: 1.15;
+  pointer-events: none;
+}
+
+/* center pair — closer to viewer, slightly larger */
+.deck-card--2 .deck-card__title,
+.deck-card--3 .deck-card__title {
+  font-size: 16px;
+  top: 18px;
+}
+
+/* outer cards — smaller to match their scale */
+.deck-card--0 .deck-card__title,
+.deck-card--5 .deck-card__title {
+  font-size: 12.5px;
+  top: 14px;
+}
+
+/* per-card positioning — symmetrical 7-card arc
+   tx = horizontal offset from center
+   ty = vertical lift (negative = up)
+   r  = rotation
+   s  = scale (closeness to viewer)
+*/
+
+/* horizontal positions are viewport-based so the deck spans
+   ~75% of the screen width (outer cards at ±37.5vw, capped on
+   very wide screens). Inner side cards (2, 4) are pulled tight
+   to the center so they sit more under the focal card. */
+
+/* far-left  — pulled in tighter so it hugs the stack */
+.deck-card--0 {
+  --w: 215px;
+  --tx: max(-30vw, -560px);
+  --ty: 22px;
+  --rot: -13deg;
+  --sc: 0.96;
+  z-index: 2;
+  filter: drop-shadow(0 14px 24px rgba(20, 25, 40, 0.12));
+}
+
+/* mid-left */
+.deck-card--1 {
+  --w: 222px;
+  --tx: max(-19vw, -360px);
+  --ty: 4px;
+  --rot: -8deg;
+  --sc: 1.00;
+  z-index: 4;
+  filter: drop-shadow(0 18px 30px rgba(20, 25, 40, 0.15));
+}
+
+/* near-left — tucked behind the focal card */
+.deck-card--2 {
+  --w: 226px;
+  --tx: max(-9vw, -160px);
+  --ty: -12px;
+  --rot: -3deg;
+  --sc: 1.04;
+  z-index: 6;
+  filter: drop-shadow(0 22px 38px rgba(20, 25, 40, 0.18));
+}
+
+/* CENTER — tallest, straightest, closest */
+.deck-card--3 {
+  --w: 242px;
+  --tx: 0px;
+  --ty: -18px;
+  --rot: 0deg;
+  --sc: 1.10;
+  z-index: 8;
+  filter: drop-shadow(0 30px 48px rgba(20, 25, 40, 0.24));
+}
+
+/* near-right — tucked behind the focal card */
+.deck-card--4 {
+  --w: 226px;
+  --tx: min(9vw, 160px);
+  --ty: -12px;
+  --rot: 3deg;
+  --sc: 1.04;
+  z-index: 6;
+  filter: drop-shadow(0 22px 38px rgba(20, 25, 40, 0.18));
+}
+
+/* mid-right */
+.deck-card--5 {
+  --w: 222px;
+  --tx: min(19vw, 360px);
+  --ty: 4px;
+  --rot: 8deg;
+  --sc: 1.00;
+  z-index: 4;
+  filter: drop-shadow(0 18px 30px rgba(20, 25, 40, 0.15));
+}
+
+/* far-right  — pulled in tighter so it hugs the stack */
+.deck-card--6 {
+  --w: 215px;
+  --tx: min(30vw, 560px);
+  --ty: 22px;
+  --rot: 13deg;
+  --sc: 0.96;
+  z-index: 2;
+  filter: drop-shadow(0 14px 24px rgba(20, 25, 40, 0.12));
+}
+
+/* hover/tap any card — it pops to the front, straightens, lifts, and scales up.
+   --hover-sc is overridden per breakpoint so the lift stays proportional
+   to the card's natural size on smaller screens. */
+.deck-card {
+  --hover-sc: 1.14;
+}
+.deck-card:hover,
+.deck-card:focus-visible {
+  --ty: -42px;
+  --rot: 0deg;
+  --sc: var(--hover-sc);
+  z-index: 20;
+  filter: drop-shadow(0 32px 52px rgba(20, 25, 40, 0.28));
+  cursor: pointer;
+}
+
+/* ── tablet ─────────────────────────────────── */
+@media (max-width: 1100px) {
+  .hero { min-height: 100vh; }
+  .hero__inner { padding-top: 100px; }
+  .hero__deck { margin-top: 14px; }
+  /* horizontal (--tx) is vw-based — scales automatically.
+     Only the focal card needs softening + slight scale drop. */
+  .deck-card--0, .deck-card--6 { --sc: 0.92; --ty: 16px; }
+  .deck-card--1, .deck-card--5 { --sc: 0.95; }
+  .deck-card--2, .deck-card--4 { --sc: 0.99; --ty: -8px; }
+  .deck-card--3 { --sc: 1.04; --ty: -14px; }
+}
+
+@media (max-width: 820px) {
+  .hero { min-height: auto; }
+  .hero__inner { padding-top: 88px; }
+  .hero__headline { font-size: clamp(40px, 10vw, 56px); }
+  .hero__lead { font-size: 15px; }
+  .hero__deck { flex: 0 0 auto; min-height: 240px; margin-top: 0; }
+
+  .deck-card { --w: 160px; --hover-sc: 1.02; bottom: -90px; border-radius: 18px; }
+  .deck-card__title { font-size: 12px; top: 12px; padding: 0 8px; }
+  .deck-card--2 .deck-card__title,
+  .deck-card--3 .deck-card__title,
+  .deck-card--4 .deck-card__title { font-size: 13px; top: 14px; }
+  .deck-card--0 .deck-card__title,
+  .deck-card--6 .deck-card__title { font-size: 11px; top: 10px; }
+  .deck-card--0, .deck-card--6 { --sc: 0.86; --ty: 14px; }
+  .deck-card--1, .deck-card--5 { --sc: 0.88; --ty: 2px; }
+  .deck-card--2, .deck-card--4 { --sc: 0.92; --ty: -6px; }
+  .deck-card--3 { --sc: 0.96; --ty: -10px; }
+}
+
+@media (max-width: 540px) {
+  .hero { min-height: auto; }
+  .hero__inner { padding-top: 72px; }
+  .hero__deck { min-height: 190px; }
+  .hero__ctas { flex-direction: column; gap: 10px; }
+  .hero__cta { width: 220px; }
+
+  .deck-card { --w: 130px; --hover-sc: 0.98; bottom: -70px; border-radius: 14px; }
+  .deck-card__title { font-size: 10px; top: 10px; padding: 0 6px; }
+  .deck-card--2 .deck-card__title,
+  .deck-card--3 .deck-card__title,
+  .deck-card--4 .deck-card__title { font-size: 11px; top: 12px; }
+  .deck-card--0 .deck-card__title,
+  .deck-card--6 .deck-card__title { font-size: 9.5px; top: 9px; }
+  .deck-card--0, .deck-card--6 { --sc: 0.82; --ty: 12px; }
+  .deck-card--1, .deck-card--5 { --sc: 0.84; --ty: 2px; }
+  .deck-card--2, .deck-card--4 { --sc: 0.88; --ty: -4px; }
+  .deck-card--3 { --sc: 0.92; --ty: -8px; }
+}

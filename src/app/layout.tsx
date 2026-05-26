@@ -163,7 +163,7 @@ export default async function RootLayout({
                     "@type": "SearchAction",
                     "target": {
                       "@type": "EntryPoint",
-                      "urlTemplate": "https://www.udarsy.com/explore?q={search_term_string}",
+                      "urlTemplate": "https://www.udarsy.com/courses?q={search_term_string}",
                     },
                     "query-input": "required name=search_term_string",
                   },

@@ -1,6 +1,6 @@
 "use client";
 
-import { FuturisticHero } from "@/components/FuturisticHero";
+import { LabHero } from "@/components/LabHero";
 import { HeroSection } from "@/components/HeroSection";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -108,8 +108,8 @@ export default function Home() {
       <div className="absolute top-0 left-0 w-full h-[120vh] bg-gradient-to-b from-green/[0.03] to-transparent pointer-events-none" />
 
       <main className="flex flex-col pt-0 md:pt-[72px]">
-        {/* FuturisticHero: negative margin counteracts navbar top padding so it fills the viewport edge-to-edge */}
-        <div className="md:-mt-[72px]"><FuturisticHero /></div>
+        {/* LabHero: negative margin counteracts navbar top padding so it fills the viewport edge-to-edge */}
+        <div className="md:-mt-[72px]"><LabHero /></div>
         <HeroSection />
 
         {/* Trusted Strip */}

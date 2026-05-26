@@ -1,5 +1,6 @@
 "use client";
 
+import "../app/animations.css";
 import { useEffect, useRef, useState, useCallback, useMemo, memo } from "react";
 import { useTranslations } from 'next-intl';
 import { BookOpen, TrendingUp, Newspaper } from 'lucide-react';
@@ -86,10 +87,10 @@ const DesktopCard = memo(function DesktopCard({ card, phase, isActive, badgeVal 
     return (
         <div id={card.id}
             className={`relative overflow-hidden flex items-center gap-[10px]
-                transition-all duration-500 border-[1.5px]
+                transition-all duration-500 border-[1.5px] z-[5]
                 ${isLight
                     ? 'bg-green border-green shadow-[0_6px_28px_rgba(58,170,106,0.40),0_0_0_2.5px_#3aaa6a]'
-                    : 'bg-[#3aaa6a]/15 border-[#3aaa6a]/30 shadow-[0_2px_12px_rgba(58,170,106,0.12)]'
+                    : 'bg-[#e1f2e9] border-[#a8d4bb] shadow-[0_2px_12px_rgba(58,170,106,0.12)]'
                 }`}
             style={{
                 width: 'clamp(142px,15.5vw,192px)',
@@ -233,67 +234,6 @@ const MobileCardList = memo(function MobileCardList({ cards }: {
         </div>
     );
 });
-
-// ─── Flip text ────────────────────────────────────────────────────────────────
-type FlipPhase = 'visible' | 'exiting' | 'entering';
-
-function FlipText({ words, interval = 2800 }: { words: string[]; interval?: number }) {
-    const [idx, setIdx] = useState(0);
-    const [phase, setPhase] = useState<FlipPhase>('visible');
-    // Widest word used as an invisible spacer so surrounding text never shifts
-    const widest = words.reduce((a, b) => a.length >= b.length ? a : b, '');
-
-    useEffect(() => {
-        let t1: ReturnType<typeof setTimeout>;
-        const iv = setInterval(() => {
-            setPhase('exiting');
-            t1 = setTimeout(() => {
-                setIdx(i => (i + 1) % words.length);
-                setPhase('entering');
-                // Double RAF: first frame sets entering position (no transition),
-                // second frame triggers the slide-in transition to visible
-                requestAnimationFrame(() => requestAnimationFrame(() => setPhase('visible')));
-            }, 270);
-        }, interval);
-        return () => { clearInterval(iv); clearTimeout(t1); };
-    }, [words.length, interval]);
-
-    // GPU-composited only: transform + opacity (no filter:blur — animating blur forces repaint)
-    const phaseStyle: Record<FlipPhase, React.CSSProperties> = {
-        visible: {
-            transform: 'translateY(0) scale(1)',
-            opacity: 1,
-            transition: 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.38s ease-out',
-        },
-        exiting: {
-            transform: 'translateY(-60%) scale(0.88)',
-            opacity: 0,
-            transition: 'transform 0.27s ease-in, opacity 0.2s ease-in',
-        },
-        entering: {
-            transform: 'translateY(60%) scale(0.88)',
-            opacity: 0,
-            transition: 'none',
-        },
-    };
-
-    return (
-        <span className="relative inline-block" style={{ verticalAlign: 'baseline' }}>
-            {/* Invisible spacer — always reserves the width of the longest word */}
-            <em className="not-italic text-green invisible pointer-events-none select-none" aria-hidden="true">
-                {widest}
-            </em>
-            {/* Animated word — sits on top of the spacer, absolutely centered */}
-            <em
-                className="not-italic text-green absolute inset-0 flex items-center justify-start whitespace-nowrap"
-                aria-live="polite"
-                style={phaseStyle[phase]}
-            >
-                {words[idx]}
-            </em>
-        </span>
-    );
-}
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export function HeroSection() {
@@ -515,7 +455,7 @@ export function HeroSection() {
     return (
         <div
             id="hero-scene-container"
-            className="hidden md:flex relative flex-col items-stretch overflow-visible min-h-[600px] bg-green/[0.03]"
+            className="hidden md:flex relative flex-col items-stretch overflow-visible min-h-[600px] py-6"
             style={{ opacity: 1 }}
         >
             {/* Shared goo filter — one definition for all BlobWave cards */}
@@ -529,15 +469,6 @@ export function HeroSection() {
                 </defs>
             </svg>
 
-            {/* Checker texture overlay — matches PlatformFeatures "Quick Start" card */}
-            <div
-                aria-hidden="true"
-                style={{
-                    position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, opacity: 0.03,
-                    backgroundImage: `linear-gradient(45deg, #3aaa6a 25%, transparent 25%, transparent 75%, #3aaa6a 75%)`,
-                    backgroundSize: '10px 10px',
-                }}
-            />
             {/* Canvas for line animation */}
             <canvas
                 ref={canvasRef}
@@ -545,18 +476,11 @@ export function HeroSection() {
             />
 
             {/* Badge */}
-            <div className="relative z-[3] flex justify-center pt-[76px] md:pt-12 opacity-0 animate-[fadeSlideUp_0.5s_ease-out_0.05s_forwards]">
+            <div className="relative z-[3] flex justify-center pt-6 md:pt-4 pb-6 opacity-0 animate-[fadeSlideUp_0.5s_ease-out_0.05s_forwards]">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[13px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)]">
                     <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
                     {t('badge') ?? 'AI-Powered Education Platform'}
                 </div>
-            </div>
-
-            {/* Title */}
-            <div className="relative z-[3] pt-4 text-center pb-0 hero px-4">
-                <h1 className="text-[clamp(28px,5.5vw,52px)] md:text-[clamp(36px,5.5vw,52px)] font-bold text-dark leading-[1.1] tracking-[-0.04em] max-w-[680px] mx-auto hero-title whitespace-pre-wrap opacity-0 animate-[fadeSlideUp_0.6s_ease-out_0.25s_forwards]">
-                    {t('title1')} <FlipText words={[t('title_highlight'), t('title_flip_1'), t('title_flip_2'), t('title_flip_3')]} />{t('title2')}
-                </h1>
             </div>
 
             {/* Desktop cards + Diagram */}

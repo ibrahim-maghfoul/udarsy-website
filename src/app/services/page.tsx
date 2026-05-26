@@ -82,13 +82,13 @@ export default function ServicesPage() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         {service.category && (
-                                            <span className="inline-block mb-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest"
+                                            <span className="inline-block mb-2 md:mb-1.5 px-3 md:px-2.5 py-1 md:py-0.5 rounded-full text-[22px] md:text-[10px] font-black uppercase tracking-widest"
                                                 style={{ background: 'rgba(58,170,106,0.07)', color: 'rgba(58,170,106,0.75)' }}>
                                                 {service.category}
                                             </span>
                                         )}
-                                        <h3 className="text-sm font-bold text-dark truncate">{service.title}</h3>
-                                        <p className="text-xs mt-0.5 line-clamp-1" style={{ color: 'rgba(26,58,42,0.38)' }}>{service.description}</p>
+                                        <h3 className="text-4xl md:text-sm font-bold text-dark md:truncate leading-tight">{service.title}</h3>
+                                        <p className="text-[30px] md:text-xs mt-2 md:mt-0.5 md:line-clamp-1 leading-snug" style={{ color: 'rgba(26,58,42,0.55)' }}>{service.description}</p>
                                     </div>
                                 </Link>
                             </motion.div>
