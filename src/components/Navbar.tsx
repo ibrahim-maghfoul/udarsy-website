@@ -45,27 +45,46 @@ function NotificationBell() {
     if (!isAuthenticated || !user?.id) return;
     if (socketRef.current) return;
 
-    fetchNotifications();
-
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     const userId = user.id;
     let cancelled = false;
+    let started = false;
 
-    import('socket.io-client').then(({ io }) => {
-      if (cancelled || socketRef.current) return;
-      const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
-        auth: { token },
-        transports: ['websocket'],
+    // Defer notification fetch + socket connection until first interaction or
+    // 8s idle. Keeps socket.io-client (~40KB gz) and the notifs API call out
+    // of the critical path for INP/FCP measurement.
+    const start = () => {
+      if (started || cancelled) return;
+      started = true;
+      cleanup();
+
+      fetchNotifications();
+      import('socket.io-client').then(({ io }) => {
+        if (cancelled || socketRef.current) return;
+        const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
+          auth: { token },
+          transports: ['websocket'],
+        });
+        socketRef.current = socket;
+        socket.on('connect', () => { socket.emit('join_user_room', userId); });
+        socket.on('new_notification', (notif: Notification) => {
+          setNotifications(prev => [notif, ...prev]);
+        });
       });
-      socketRef.current = socket;
-      socket.on('connect', () => { socket.emit('join_user_room', userId); });
-      socket.on('new_notification', (notif: Notification) => {
-        setNotifications(prev => [notif, ...prev]);
-      });
-    });
+    };
+
+    const events: (keyof WindowEventMap)[] = ['scroll', 'pointerdown', 'keydown', 'touchstart'];
+    const opts = { once: true, passive: true } as AddEventListenerOptions;
+    events.forEach(e => window.addEventListener(e, start, opts));
+    const timer = window.setTimeout(start, 8000);
+    function cleanup() {
+      events.forEach(e => window.removeEventListener(e, start, opts));
+      window.clearTimeout(timer);
+    }
 
     return () => {
       cancelled = true;
+      cleanup();
       socketRef.current?.disconnect();
       socketRef.current = null;
     };

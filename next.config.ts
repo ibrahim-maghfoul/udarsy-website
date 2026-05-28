@@ -101,11 +101,19 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Public landing + browse pages: Cloudflare edge cache 1 h, browser 5 min
-        // s-maxage is read by Cloudflare; max-age is the browser fallback
+        // Public landing + browse pages: Cloudflare edge cache 1 h, browser 5 min.
+        // s-maxage is read by Cloudflare; max-age is the browser fallback.
+        //
+        // NOTE on locale: pages read NEXT_LOCALE cookie via i18n/request.ts.
+        // By default Cloudflare bypasses cache on any request with cookies, so
+        // until locale moves into the URL (app/[locale]/...) you MUST add a
+        // Cloudflare Cache Rule that ignores NEXT_LOCALE in the cache key
+        // OR strips it from forwarded requests. Vary: Cookie below is the
+        // honest declaration that responses differ per cookie value.
         source: '/(|ar|fr|en)(|/courses|/news|/contact|/teacher|/calendar|/contributions)',
         headers: [
           { key: 'Cache-Control', value: 'public, s-maxage=3600, stale-while-revalidate=300, max-age=300' },
+          { key: 'Vary', value: 'Cookie, Accept-Language' },
         ],
       },
       {
@@ -134,7 +142,7 @@ const nextConfig: NextConfig = {
   },
   // Reduce unused JavaScript sent to client
   experimental: {
-    optimizePackageImports: ['lucide-react', 'framer-motion', 'date-fns', 'd3-geo'],
+    optimizePackageImports: ['lucide-react', 'framer-motion', 'date-fns'],
     optimizeCss: !isDev,
   },
 };

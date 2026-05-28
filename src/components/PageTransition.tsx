@@ -1,22 +1,18 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 
+/**
+ * CSS-only page transition — fades + slides 12px on every pathname change.
+ * Was framer-motion (~50KB gz) for the same effect on every route.
+ * Drops the exit animation; the new page mounts immediately. Small UX trade
+ * for big bundle win on landing page.
+ */
 export function PageTransition({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-
     return (
-        <AnimatePresence mode="wait">
-            <motion.div
-                key={pathname}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            >
-                {children}
-            </motion.div>
-        </AnimatePresence>
+        <div key={pathname} className="page-transition">
+            {children}
+        </div>
     );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Calendar, School, Info, Database, ArrowLeft, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { getSchoolServices } from "@/services/services";
@@ -70,11 +69,10 @@ export default function ServicesPage() {
                 ) : services.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {services.map((service, i) => (
-                            <motion.div
+                            <div
                                 key={service._id}
-                                initial={{ opacity: 0, y: 18 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.05, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                                className="svc-fade-in"
+                                style={{ animationDelay: `${i * 50}ms` }}
                             >
                                 <Link href={`/services/${service._id}`} className="svc-card" style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <div className="svc-icon" style={{ background: 'rgba(58,170,106,0.10)', color: '#3aaa6a', flexShrink: 0 }}>
@@ -91,7 +89,7 @@ export default function ServicesPage() {
                                         <p className="text-[30px] md:text-xs mt-2 md:mt-0.5 md:line-clamp-1 leading-snug" style={{ color: 'rgba(26,58,42,0.55)' }}>{service.description}</p>
                                     </div>
                                 </Link>
-                            </motion.div>
+                            </div>
                         ))}
                     </div>
                 ) : (
