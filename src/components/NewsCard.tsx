@@ -94,6 +94,7 @@ interface NewsCardProps {
     rating?: number;
     viewCount?: number;
     href?: string;
+    articleId?: string; // Mongo _id — required for save/unsave to resolve back to an article
     icon?: LucideIcon;
     children?: React.ReactNode;
     subtitle?: string;
@@ -116,6 +117,7 @@ export default function NewsCard({
     rating,
     viewCount,
     href,
+    articleId: articleIdProp,
     icon,
     children,
     status,
@@ -131,7 +133,7 @@ export default function NewsCard({
     const { showSnackbar } = useSnackbar();
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const articleId = href?.split('/').pop() || '';
+    const articleId = articleIdProp || href?.split('/').pop() || '';
 
     useEffect(() => {
         if (user?.progress?.savedNews && articleId) {

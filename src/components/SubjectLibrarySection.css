@@ -1,0 +1,556 @@
+/* ─────────────────────────────────────────────────────────────
+   Subject Library — homepage section.
+   Ported from /design-lab/discover with the .disc- → .sl- prefix
+   and the lab chip + full-screen shell removed.
+   ───────────────────────────────────────────────────────────── */
+
+.sl-root {
+  background: #ffffff;
+  color: #131613;
+  font-family: var(--font-cairo), "Cairo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+.sl-root,
+.sl-root * {
+  font-family: var(--font-cairo), "Cairo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.sl-shell {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 88px 64px 96px;
+  position: relative;
+}
+
+.sl-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 56px;
+  align-items: center;
+  position: relative;
+}
+
+.sl-rail {
+  position: absolute;
+  left: -28px;
+  top: 12%;
+  bottom: 14%;
+  width: 18px;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sl-rail__line {
+  flex: 1;
+  width: 1px;
+  background: linear-gradient(180deg,
+      rgba(58, 170, 106, 0) 0%,
+      rgba(58, 170, 106, 0.35) 18%,
+      rgba(58, 170, 106, 0.35) 82%,
+      rgba(58, 170, 106, 0) 100%);
+}
+
+.sl-rail__diamond {
+  width: 8px;
+  height: 8px;
+  margin: 8px 0;
+  background: #fff;
+  border: 1px solid #3aaa6a;
+  transform: rotate(45deg);
+}
+
+.sl-rail__dot {
+  width: 4px;
+  height: 4px;
+  margin: 8px 0;
+  border-radius: 50%;
+  background: #3aaa6a;
+  box-shadow: 0 0 12px rgba(58, 170, 106, 0.6);
+}
+
+.sl-left {
+  position: relative;
+  padding-left: 8px;
+}
+
+.sl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(58, 170, 106, 0.32);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 6px 18px -10px rgba(58, 170, 106, 0.45);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1f5a36;
+  margin-bottom: 32px;
+}
+
+.sl-badge__star {
+  width: 14px;
+  height: 14px;
+  color: #3aaa6a;
+}
+
+.sl-headline {
+  margin: 0;
+  font-size: clamp(48px, 6.4vw, 88px);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  color: #131613;
+}
+
+.sl-headline>span {
+  display: block;
+}
+
+.sl-headline__accent {
+  background: linear-gradient(95deg, #2d8a52 0%, #3aaa6a 55%, #5cc88a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.sl-lead {
+  margin: 24px 0 0;
+  max-width: 460px;
+  font-size: 17px;
+  line-height: 1.7;
+  color: rgba(35, 50, 42, 0.62);
+}
+
+.sl-right {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sl-illu {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  height: 100%;
+  z-index: 2;
+}
+
+.sl-illu img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  -webkit-mask-image: radial-gradient(ellipse 78% 80% at 50% 46%,
+      #000 55%,
+      rgba(0, 0, 0, 0.7) 75%,
+      rgba(0, 0, 0, 0) 100%);
+  mask-image: radial-gradient(ellipse 78% 80% at 50% 46%,
+      #000 55%,
+      rgba(0, 0, 0, 0.7) 75%,
+      rgba(0, 0, 0, 0) 100%);
+}
+
+.sl-right::before {
+  content: '';
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  left: 10%;
+  top: 10%;
+  background: radial-gradient(circle at 50% 45%,
+      rgba(58, 170, 106, 0.10) 0%,
+      rgba(58, 170, 106, 0.04) 40%,
+      rgba(58, 170, 106, 0) 70%);
+  filter: blur(40px);
+  z-index: 0;
+}
+
+/* ── Feature grid (half-out circle icons) ────────────────── */
+.sl-grid {
+  margin: 96px 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 40px;
+}
+
+.sl-card {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  padding: 16px 48px 16px 56px;
+  min-height: 96px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(247, 252, 249, 0.9) 100%);
+  border: 1px solid rgba(58, 170, 106, 0.14);
+  border-radius: 10px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 10px 28px -22px rgba(20, 40, 30, 0.18);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.sl-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  border: 1.5px solid #3aaa6a;
+  pointer-events: none;
+  z-index: 2;
+  /* Trace originates at the card's left edge (where the icon's center
+     sits). Paired with the delay below, this makes the outline appear
+     to spill out of the icon and run around the card. */
+  clip-path: circle(0% at 0% 50%);
+  /* Default (un-hovered) transition has NO delay — the trace retracts
+     immediately on mouse leave. */
+  transition: clip-path 0.55s cubic-bezier(0.34, 1.2, 0.64, 1) 0s;
+}
+
+.sl-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 22px 44px -24px rgba(20, 60, 35, 0.28);
+}
+
+.sl-card:hover::before {
+  clip-path: circle(140% at 0% 50%);
+  /* The hover-in trace lags the icon ring just enough to feel like a
+     handoff — short enough to stay snappy. */
+  transition: clip-path 1s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+.sl-card__index {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(58, 170, 106, 0.55);
+  z-index: 3;
+}
+
+.sl-card__icon-wrap {
+  position: absolute;
+  left: -32px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid rgba(58, 170, 106, 0.18);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    0 12px 24px -12px rgba(58, 170, 106, 0.45);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sl-card:hover .sl-card__icon-wrap {
+  transform: translateY(-50%) scale(1.06) rotate(-2deg);
+}
+
+/* SVG ring that traces around the icon circle on card hover.
+   Stroke-dasharray = circumference (2 * π * 48 ≈ 301.6).
+   Starts fully offset (invisible), animates to 0 (revealed) clockwise from top. */
+.sl-card__icon-trace {
+  position: absolute;
+  inset: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* RTL flips the icon to the right of the card, so rotate 180° to put
+   the trace start point on that side too. */
+[dir="rtl"] .sl-card__icon-trace {
+  transform: rotate(180deg);
+}
+
+/* Each path is a half-circle of radius 48 → length = π × 48 ≈ 150.8.
+   Both start at 9 o'clock and animate to fully visible — one paints
+   the bottom half, the other paints the top half. */
+.sl-card__icon-trace__path {
+  fill: none;
+  stroke: #3aaa6a;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 150.8;
+  stroke-dashoffset: 150.8;
+  transition: stroke-dashoffset 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sl-card:hover .sl-card__icon-trace__path {
+  stroke-dashoffset: 0;
+}
+
+.sl-card__text {
+  min-width: 0;
+  flex: 1;
+}
+
+/* the icon image sits centered inside the circle with breathing room
+   from the green ring. Its own border-radius keeps it perfectly round. */
+.sl-card__icon-img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.sl-card__title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #131e17;
+  letter-spacing: -0.005em;
+}
+
+.sl-card__desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(35, 50, 42, 0.62);
+}
+
+.sl-card__arrow {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #3aaa6a 0%, #2d8a52 100%);
+  color: #ffffff;
+  opacity: 0;
+  transform: translate(-6px, 6px);
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 3;
+  box-shadow: 0 8px 18px -10px rgba(58, 170, 106, 0.6);
+}
+
+.sl-card__arrow svg {
+  width: 14px;
+  height: 14px;
+}
+
+.sl-card:hover .sl-card__arrow {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* RTL — flip header layout, pill row direction, card icon to the right */
+[dir="rtl"] .sl-hero {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+}
+
+[dir="rtl"] .sl-rail {
+  left: auto;
+  right: -28px;
+}
+
+[dir="rtl"] .sl-left {
+  padding-left: 0;
+  padding-right: 8px;
+  text-align: right;
+}
+
+[dir="rtl"] .sl-card {
+  padding: 16px 56px 16px 48px;
+}
+
+[dir="rtl"] .sl-card__icon-wrap {
+  left: auto;
+  right: -32px;
+}
+
+[dir="rtl"] .sl-card::before {
+  clip-path: circle(0% at 100% 50%);
+}
+
+[dir="rtl"] .sl-card:hover::before {
+  clip-path: circle(140% at 100% 50%);
+}
+
+[dir="rtl"] .sl-card__index {
+  right: auto;
+  left: 18px;
+}
+
+[dir="rtl"] .sl-card__arrow {
+  right: auto;
+  left: 18px;
+}
+
+[dir="rtl"] .sl-card__arrow svg {
+  transform: scaleX(-1);
+}
+
+/* ── Entry animation — staggered fade-up when scrolled into view ─── */
+.sl-badge,
+.sl-headline>span,
+.sl-lead,
+.sl-illu,
+.sl-grid {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sl-illu {
+  transform: translateY(0) scale(0.96);
+}
+
+.sl-grid {
+  transform: translateY(28px);
+}
+
+.sl-root.is-in-view .sl-badge {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.00s;
+}
+
+.sl-root.is-in-view .sl-headline>span:nth-child(1) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.10s;
+}
+
+.sl-root.is-in-view .sl-headline>span:nth-child(2) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.20s;
+}
+
+.sl-root.is-in-view .sl-headline>span:nth-child(3) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.30s;
+}
+
+.sl-root.is-in-view .sl-lead {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.42s;
+}
+
+.sl-root.is-in-view .sl-illu {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition-delay: 0.20s;
+  transition-duration: 0.95s;
+}
+
+.sl-root.is-in-view .sl-grid {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.55s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .sl-badge,
+  .sl-headline>span,
+  .sl-lead,
+  .sl-illu,
+  .sl-grid {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+/* Shell horizontal padding floors at 44px on small screens so the
+   half-out icon (which sticks 32px to the left of its card) stays at
+   least 12px clear of the viewport edge. */
+@media (max-width: 1100px) {
+  .sl-shell {
+    padding: 72px 48px 80px;
+  }
+
+  .sl-hero {
+    gap: 36px;
+  }
+
+  .sl-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .sl-shell {
+    padding: 64px 44px 72px;
+  }
+
+  .sl-hero {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .sl-rail {
+    display: none;
+  }
+
+  .sl-left {
+    padding-left: 0;
+    text-align: center;
+  }
+
+  .sl-lead {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .sl-right {
+    aspect-ratio: 4 / 3;
+  }
+
+  .sl-grid {
+    margin-top: 64px;
+    gap: 40px;
+  }
+
+  .sl-card {
+    padding: 14px 46px 14px 52px;
+    min-height: 88px;
+  }
+}
+
+@media (max-width: 540px) {
+  .sl-shell {
+    padding: 56px 40px 64px;
+  }
+
+  .sl-grid {
+    grid-template-columns: 1fr;
+  }
+}

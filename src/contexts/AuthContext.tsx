@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useMemo, useCall
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { User } from '@/types';
+import { setGateUser } from '@/lib/verifyGate';
 
 interface AuthContextType {
     user: User | null;
@@ -109,6 +110,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
     }, [checkAuth]);
 
+    // Mirror current user into the module-level verifyGate so plain ES modules
+    // (services/progress.ts) can check verification without pulling React context.
+    useEffect(() => {
+        setGateUser(user ? { email: user.email, isVerified: user.isVerified } : null);
+    }, [user]);
+
     const login = useCallback(async (email: string, password: string, rememberMe: boolean = false) => {
         try {
             const res = await api.post('/auth/login', { email, password, rememberMe });
@@ -179,8 +186,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (isNewUser) {
                 router.push('/onboarding');
-            } else {
+            } else if (userData.role === 'teacher' || userData.role === 'instructor') {
                 router.push(getDashboardPath(userData.role));
+            } else {
+                router.push('/courses');
             }
         } catch (error: any) {
             const errorMsg = error.response?.data?.error || 'Google Login failed';

@@ -89,7 +89,7 @@ const DesktopCard = memo(function DesktopCard({ card, phase, isActive, badgeVal 
             className={`relative overflow-hidden flex items-center gap-[10px]
                 transition-all duration-500 border-[1.5px] z-[5]
                 ${isLight
-                    ? 'bg-green border-green shadow-[0_6px_28px_rgba(58,170,106,0.40),0_0_0_2.5px_#3aaa6a]'
+                    ? 'bg-green-deep border-green-deep shadow-[0_6px_28px_rgba(45,138,82,0.40),0_0_0_2.5px_#2d8a52]'
                     : 'bg-[#e1f2e9] border-[#a8d4bb] shadow-[0_2px_12px_rgba(58,170,106,0.12)]'
                 }`}
             style={{
@@ -123,7 +123,7 @@ const DesktopCard = memo(function DesktopCard({ card, phase, isActive, badgeVal 
                 <div className={`text-[12px] font-black leading-[1.2] truncate transition-colors duration-300 tracking-tight ${isLight ? 'text-white' : 'text-[#1a5c38]'}`}>
                     {card.title}
                 </div>
-                <div className={`text-[10px] font-medium leading-[1.4] truncate transition-colors duration-300 ${isLight ? 'text-white/80' : 'text-[#155028]'}`}>
+                <div className={`text-[10px] font-semibold leading-[1.4] truncate transition-colors duration-300 ${isLight ? 'text-white' : 'text-[#155028]'}`}>
                     {card.msg}
                 </div>
             </div>
@@ -217,7 +217,7 @@ const MobileCardList = memo(function MobileCardList({ cards }: {
                     <div key={card.id} id={`${card.id}-mobile`}
                         className={`rounded-2xl p-3 flex items-center gap-3 relative overflow-hidden
                             transition-[box-shadow,background] duration-500 border
-                            ${isLight ? 'bg-green border-green shadow-[0_4px_20px_rgba(58,170,106,0.3)]' : 'bg-white border-gray-100 shadow-sm'}`}>
+                            ${isLight ? 'bg-green-deep border-green-deep shadow-[0_4px_20px_rgba(45,138,82,0.3)]' : 'bg-white border-gray-100 shadow-sm'}`}>
                         <BlobWave phase={phase} />
                         <div className="w-9 h-9 flex-shrink-0 rounded-xl flex items-center justify-center relative z-10 transition-[background,color] duration-300"
                             style={isLight ? { background: 'rgba(255,255,255,0.25)', color: 'white' } : { background: 'rgba(58,170,106,0.1)', color: '#3aaa6a' }}>
@@ -225,7 +225,7 @@ const MobileCardList = memo(function MobileCardList({ cards }: {
                         </div>
                         <div className="flex flex-col gap-0.5 min-w-0 relative z-10">
                             <div className={`text-[12px] font-bold leading-snug truncate transition-colors duration-300 ${isLight ? 'text-white' : 'text-dark'}`}>{card.title}</div>
-                            <div className={`text-[10.5px] leading-snug truncate transition-colors duration-300 ${isLight ? 'text-white/75' : 'text-dark/50'}`}>{card.msg}</div>
+                            <div className={`text-[10.5px] leading-snug truncate transition-colors duration-300 ${isLight ? 'text-white' : 'text-dark/70'}`}>{card.msg}</div>
                         </div>
                         <div className={`ml-auto w-2 h-2 rounded-full bg-white flex-shrink-0 relative z-10 transition-opacity duration-300 ${(isLight || isLeaving) ? 'opacity-100' : 'opacity-0'}`} />
                     </div>
@@ -476,12 +476,17 @@ export function HeroSection() {
             />
 
             {/* Badge */}
-            <div className="relative z-[3] flex justify-center pt-6 md:pt-4 pb-6 opacity-0 animate-[fadeSlideUp_0.5s_ease-out_0.05s_forwards]">
+            <div className="relative z-[3] flex justify-center pt-6 md:pt-4 pb-3 opacity-0 animate-[fadeSlideUp_0.5s_ease-out_0.05s_forwards]">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[13px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)]">
                     <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
                     {t('badge') ?? 'AI-Powered Education Platform'}
                 </div>
             </div>
+
+            {/* Section title */}
+            <h2 className="relative z-[3] text-center px-4 mb-6 md:mb-4 text-[clamp(28px,5vw,52px)] font-bold text-dark leading-[1.1] tracking-[-0.03em] opacity-0 animate-[fadeSlideUp_0.6s_ease-out_0.25s_forwards]">
+                {t('section_title')}
+            </h2>
 
             {/* Desktop cards + Diagram */}
             <div className="hidden md:grid relative z-[3] flex-1 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch px-0 pt-3 pb-4 min-h-0 opacity-0 animate-[fadeSlideUp_0.7s_ease-out_0.55s_forwards]">

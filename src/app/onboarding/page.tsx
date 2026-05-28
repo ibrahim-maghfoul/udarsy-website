@@ -126,7 +126,6 @@ export default function OnboardingPage() {
     // wizard covers steps 2-4 (school/level/guidance), shown as 1-3
     const wizardStep = currentStep - 1; // 1, 2, 3
     const wizardStepLabels = [stepMeta[2].title, stepMeta[3].title, stepMeta[4].title];
-    const wizardStepIcons = [<School size={26} key="s" />, <GraduationCap size={26} key="g" />, <BookOpen size={26} key="b" />];
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -240,10 +239,9 @@ export default function OnboardingPage() {
     const handleSelect = (id: string) => {
         const stepId = stepMeta[currentStep].id;
         setSelections(prev => ({ ...prev, [`${stepId}Id`]: id }));
+        // School + Level auto-advance. Guidance (last step) requires explicit confirm.
         if (currentStep < stepMeta.length - 1) {
             setCurrentStep(currentStep + 1);
-        } else {
-            handleFinish({ ...selections, guidanceId: id });
         }
     };
 
@@ -292,30 +290,40 @@ export default function OnboardingPage() {
 
     const age = selections.birthday ? calculateAge(selections.birthday) : null;
     const labelClass = "text-xs font-black uppercase tracking-widest px-0.5 flex items-center gap-2 text-dark/50" as const;
-    const inputClass = "w-full pl-11 pr-4 py-[15px] rounded-2xl bg-green/5 border border-transparent focus:border-green focus:bg-white focus:ring-4 focus:ring-green/5 outline-none transition-all font-medium text-dark placeholder:text-dark/30 text-sm" as const;
+    const inputClass = "w-full pl-10 pr-3 py-3 rounded-[10px] bg-green/5 border border-transparent focus:border-green focus:bg-white focus:ring-4 focus:ring-green/5 outline-none transition-all font-medium text-dark placeholder:text-dark/30 text-sm" as const;
     const optionalBadge = (
         <span className="ml-auto text-[10px] font-semibold normal-case tracking-normal" style={{ color: "rgba(26,58,42,0.30)" }}>
             {t("optional")}
         </span>
     );
 
-    const cardStyle = { boxShadow: "0 4px 28px rgba(58,170,106,0.08), 0 1px 4px rgba(0,0,0,0.04)" };
-    const headerStyle = { background: "linear-gradient(135deg, #f0faf5 0%, #e8f5ee 100%)" };
-    const dotPattern = { backgroundImage: "radial-gradient(circle, rgba(58,170,106,0.15) 1px, transparent 1px)", backgroundSize: "14px 14px" };
-
     return (
         <div
-            className="min-h-screen flex flex-col items-center justify-start md:justify-center px-4 pt-20 md:pt-28 pb-16"
+            className="min-h-screen flex items-center justify-center px-4 pt-24 md:pt-32 pb-10"
             style={{ background: "linear-gradient(160deg, #ffffff 0%, #f4fbf7 55%, #eaf5ef 100%)" }}
         >
-            <div className="w-full max-w-md space-y-4">
+            <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 md:min-h-[640px] bg-white rounded-[10px] border border-green/10 shadow-2xl shadow-green/5 overflow-hidden">
 
-                {/* Global progress bar */}
-                <div className="flex gap-1.5 mb-2">
+                {/* Image side — fixed height so it doesn't grow with content */}
+                <div className="relative hidden md:block bg-green/5 border-r border-green/15 md:h-[640px] md:sticky md:top-0">
+                    <Image
+                        src="/Home page card/All subjects.webp"
+                        alt="Udarsy — learn everything"
+                        fill
+                        priority
+                        sizes="(max-width: 768px) 0px, 50vw"
+                        className="object-cover select-none pointer-events-none"
+                    />
+                </div>
+
+                <div className="p-5 sm:p-6 md:p-7 space-y-4">
+
+                {/* Global progress bar — flush with the top of the card */}
+                <div className="flex gap-0.5 -mx-5 sm:-mx-6 md:-mx-7 -mt-5 sm:-mt-6 md:-mt-7 mb-4">
                     {stepMeta.map((_, i) => (
                         <div
                             key={i}
-                            className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${i <= currentStep ? "bg-green" : "bg-green/10"}`}
+                            className={`h-1 flex-1 transition-all duration-500 ${i <= currentStep ? "bg-green" : "bg-green/10"}`}
                         />
                     ))}
                 </div>
@@ -333,19 +341,12 @@ export default function OnboardingPage() {
                             STEP 0 — Personal Information
                         ════════════════════════════════ */}
                         {currentStep === 0 && (
-                            <div className="bg-white rounded-[28px] border border-green/8" style={cardStyle}>
-                                <div className="relative px-6 pt-7 pb-6 border-b border-green/6 overflow-hidden rounded-t-[28px]" style={headerStyle}>
-                                    <div className="absolute inset-0 pointer-events-none" style={dotPattern} />
-                                    <div className="relative z-10 flex items-center gap-4">
-                                        <div className="step-icon-box"><User size={26} /></div>
-                                        <div>
-                                            <p className="text-[10px] font-bold text-green/50 uppercase tracking-widest mb-0.5">{t("personal_info_title")}</p>
-                                            <h2 className="text-xl font-black text-dark tracking-tight leading-tight">{stepMeta[0].desc}</h2>
-                                        </div>
-                                    </div>
+                            <div>
+                                <div className="mb-5">
+                                    <h1 className="text-2xl md:text-3xl font-black text-dark tracking-tight">{t("personal_info_title")}</h1>
                                 </div>
 
-                                <div className="p-6 space-y-4">
+                                <div className="space-y-4">
                                     {/* Row 1: Birthday | City */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="space-y-1.5">
@@ -376,10 +377,10 @@ export default function OnboardingPage() {
                                                     onBlur={() => setTimeout(() => setShowCitySuggestions(false), 150)}
                                                     placeholder="City…"
                                                     autoComplete="off"
-                                                    className="w-full pl-10 pr-4 py-[15px] rounded-2xl border border-transparent bg-green/5 focus:border-green focus:bg-white focus:ring-4 focus:ring-green/5 outline-none transition-all text-sm font-medium text-dark placeholder:text-dark/30"
+                                                    className="w-full pl-10 pr-3 py-3 rounded-[10px] border border-transparent bg-green/5 focus:border-green focus:bg-white focus:ring-4 focus:ring-green/5 outline-none transition-all text-sm font-medium text-dark placeholder:text-dark/30"
                                                 />
                                                 {showCitySuggestions && selections.city && moroccanCities.filter(c => c.toLowerCase().includes(selections.city.toLowerCase())).length > 0 && (
-                                                    <div className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-white border border-green/10 rounded-[20px] max-h-44 overflow-y-auto p-1.5" style={{ boxShadow: "0 16px 40px rgba(58,170,106,0.12), 0 4px 12px rgba(0,0,0,0.06)" }}>
+                                                    <div className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-white border border-green/10 rounded-[10px] max-h-44 overflow-y-auto p-1.5" style={{ boxShadow: "0 16px 40px rgba(58,170,106,0.12), 0 4px 12px rgba(0,0,0,0.06)" }}>
                                                         {moroccanCities
                                                             .filter(c => c.toLowerCase().includes(selections.city.toLowerCase()))
                                                             .map(city => (
@@ -388,7 +389,7 @@ export default function OnboardingPage() {
                                                                     type="button"
                                                                     onMouseDown={e => e.preventDefault()}
                                                                     onClick={() => { setSelections(p => ({ ...p, city })); setShowCitySuggestions(false); }}
-                                                                    className={`w-full px-3.5 py-2.5 text-left text-xs font-bold rounded-xl transition-all flex items-center justify-between ${selections.city === city ? "text-green bg-green/5" : "text-dark/70 hover:text-green hover:bg-green/5"}`}
+                                                                    className={`w-full px-3.5 py-2.5 text-left text-xs font-bold rounded-[10px] transition-all flex items-center justify-between ${selections.city === city ? "text-green bg-green/5" : "text-dark/70 hover:text-green hover:bg-green/5"}`}
                                                                 >
                                                                     <span className="flex items-center gap-2">
                                                                         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${selections.city === city ? "bg-green" : "bg-green/20"}`} />
@@ -412,7 +413,7 @@ export default function OnboardingPage() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowGenderDropdown(v => !v)}
-                                                    className={`w-full px-4 py-[15px] rounded-2xl border transition-all text-left flex items-center justify-between text-sm font-medium ${showGenderDropdown ? "border-green bg-white ring-4 ring-green/5" : "border-transparent bg-green/5"} ${!selections.gender ? "text-dark/30" : "text-dark"}`}
+                                                    className={`w-full px-3 py-3 rounded-[10px] border transition-all text-left flex items-center justify-between text-sm font-medium ${showGenderDropdown ? "border-green bg-white ring-4 ring-green/5" : "border-transparent bg-green/5"} ${!selections.gender ? "text-dark/30" : "text-dark"}`}
                                                 >
                                                     <span className="flex items-center gap-2.5">
                                                         {selections.gender ? (
@@ -439,7 +440,7 @@ export default function OnboardingPage() {
                                                             animate={{ opacity: 1, y: 0, scale: 1 }}
                                                             exit={{ opacity: 0, y: 4, scale: 0.97 }}
                                                             transition={{ duration: 0.16, ease: [0.34, 1.4, 0.64, 1] }}
-                                                            className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-white border border-green/10 rounded-[20px] overflow-hidden p-1.5"
+                                                            className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-white border border-green/10 rounded-[10px] overflow-hidden p-1.5"
                                                             style={{ boxShadow: "0 16px 40px rgba(58,170,106,0.12), 0 4px 12px rgba(0,0,0,0.06)" }}
                                                         >
                                                             {["male", "female"].map(g => (
@@ -447,7 +448,7 @@ export default function OnboardingPage() {
                                                                     key={g}
                                                                     type="button"
                                                                     onClick={() => { setSelections(p => ({ ...p, gender: g })); setShowGenderDropdown(false); }}
-                                                                    className="w-full px-3.5 py-2.5 text-left text-xs font-bold text-dark/70 hover:text-green hover:bg-green/5 rounded-xl transition-all flex items-center gap-2.5"
+                                                                    className="w-full px-3.5 py-2.5 text-left text-xs font-bold text-dark/70 hover:text-green hover:bg-green/5 rounded-[10px] transition-all flex items-center gap-2.5"
                                                                 >
                                                                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-lg text-xs font-black" style={{ background: "rgba(58,170,106,0.08)", color: "#3aaa6a" }}>
                                                                         {g === "male" ? "♂" : "♀"}
@@ -500,10 +501,14 @@ export default function OnboardingPage() {
                                     <button
                                         onClick={handleStep0Next}
                                         disabled={!selections.birthday || !selections.gender}
-                                        className="w-full py-4 bg-green text-white font-black rounded-2xl flex items-center justify-center gap-2 transition-all disabled:opacity-40 text-sm mt-1"
-                                        style={{ boxShadow: selections.birthday && selections.gender ? "0 8px 24px rgba(58,170,106,0.28)" : "none" }}
+                                        className="w-full py-3 bg-green text-white font-bold rounded-[10px] hover:shadow-xl hover:shadow-green/20 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-40 text-sm mt-1"
                                     >
                                         {t("next")} <ChevronRight size={18} />
+                                    </button>
+
+                                    <button onClick={() => router.back()} className="btn-back w-full">
+                                        <ChevronLeft size={14} className="btn-back-arrow" />
+                                        {t("back")}
                                     </button>
                                 </div>
                             </div>
@@ -513,27 +518,21 @@ export default function OnboardingPage() {
                             STEP 1 — Profile Picture
                         ════════════════════════════════ */}
                         {currentStep === 1 && (
-                            <div className="bg-white rounded-[28px] border border-green/8" style={cardStyle}>
-                                <div className="relative px-6 pt-7 pb-6 border-b border-green/6 overflow-hidden rounded-t-[28px]" style={headerStyle}>
-                                    <div className="absolute inset-0 pointer-events-none" style={dotPattern} />
-                                    <div className="relative z-10 flex items-center gap-4">
-                                        <div className="step-icon-box"><Camera size={26} /></div>
-                                        <div>
-                                            <p className="text-[10px] font-bold text-green/50 uppercase tracking-widest mb-0.5">Profile Picture</p>
-                                            <h2 className="text-xl font-black text-dark tracking-tight leading-tight">Choose your look</h2>
-                                        </div>
-                                    </div>
+                            <div>
+                                <div className="space-y-1 mb-5">
+                                    <h1 className="text-2xl md:text-3xl font-black text-dark tracking-tight">Profile Picture</h1>
+                                    <p className="text-sm text-muted-foreground">Choose your look</p>
                                 </div>
 
-                                <div className="p-6 space-y-5">
+                                <div className="space-y-5">
                                     {/* Mode tabs */}
-                                    <div className="flex gap-2 p-1 bg-green/5 rounded-2xl">
+                                    <div className="flex gap-2 p-1 bg-green/5 rounded-[10px]">
                                         {(["avatar", "upload"] as const).map((mode) => (
                                             <button
                                                 key={mode}
                                                 type="button"
                                                 onClick={() => setPhotoMode(mode)}
-                                                className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                                                className={`flex-1 py-2.5 rounded-[10px] text-sm font-bold transition-all ${
                                                     photoMode === mode
                                                         ? "bg-white text-green shadow-sm shadow-green/10"
                                                         : "text-dark/40 hover:text-dark/60"
@@ -636,8 +635,7 @@ export default function OnboardingPage() {
                                     <button
                                         onClick={handlePhotoStepNext}
                                         disabled={photoMode === "avatar" && !selections.gender}
-                                        className="w-full py-4 bg-green text-white font-black rounded-2xl flex items-center justify-center gap-2 transition-all disabled:opacity-40 text-sm"
-                                        style={{ boxShadow: "0 8px 24px rgba(58,170,106,0.28)" }}
+                                        className="w-full py-3 bg-green text-white font-bold rounded-[10px] hover:shadow-xl hover:shadow-green/20 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-40 text-sm"
                                     >
                                         {t("next")} <ChevronRight size={18} />
                                     </button>
@@ -658,15 +656,19 @@ export default function OnboardingPage() {
                         ════════════════════════════════ */}
                         {currentStep > 1 && (
                             <div className="space-y-3">
-                                <div
-                                    className="bg-white rounded-[28px] border border-green/8 overflow-hidden animate-slide-up"
-                                    style={{ boxShadow: "0 8px 28px rgba(58,170,106,0.08), 0 2px 8px rgba(0,0,0,0.04)" }}
-                                >
-                                    <div className="relative px-6 pt-7 pb-6 border-b border-green/6" style={headerStyle}>
-                                        <div className="absolute inset-0 pointer-events-none" style={dotPattern} />
+                                <div className="animate-slide-up">
+                                    <div className="mb-5 space-y-3">
+                                        <div className="space-y-1">
+                                            <h1 className="text-2xl md:text-3xl font-black text-dark tracking-tight">
+                                                {wizardStepLabels[wizardStep - 1]}
+                                            </h1>
+                                            <p className="text-sm text-muted-foreground">
+                                                Step {wizardStep} of 3
+                                            </p>
+                                        </div>
 
                                         {/* Step dots (1-3 for school/level/guidance) */}
-                                        <div className="relative z-10 flex items-center justify-center gap-2 mb-5">
+                                        <div className="flex items-center gap-2">
                                             {[1, 2, 3].map(s => (
                                                 <div key={s} className="flex items-center gap-2">
                                                     <div className={`step-dot ${s < wizardStep ? "step-dot-past" : s === wizardStep ? "step-dot-active" : "step-dot-future"}`}>
@@ -678,23 +680,9 @@ export default function OnboardingPage() {
                                                 </div>
                                             ))}
                                         </div>
-
-                                        <div className="relative z-10 flex items-center gap-4">
-                                            <div className="step-icon-box">
-                                                {wizardStepIcons[wizardStep - 1]}
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] font-bold text-green/50 uppercase tracking-widest mb-0.5">
-                                                    Step {wizardStep} of 3
-                                                </p>
-                                                <h2 className="text-xl font-black text-dark tracking-tight leading-tight">
-                                                    {wizardStepLabels[wizardStep - 1]}
-                                                </h2>
-                                            </div>
-                                        </div>
                                     </div>
 
-                                    <div className="p-4 space-y-2">
+                                    <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
                                         {loading ? (
                                             Array(3).fill(0).map((_, i) => (
                                                 <div key={i} className="selection-skeleton" style={{ animationDelay: `${i * 70}ms` }} />
@@ -737,9 +725,20 @@ export default function OnboardingPage() {
                                         )}
                                     </div>
 
+                                    {/* Confirm button — only on the final (guidance) step, after a selection */}
+                                    {currentStep === stepMeta.length - 1 && selections.guidanceId && (
+                                        <button
+                                            onClick={() => handleFinish(selections)}
+                                            className="w-full mt-4 py-3 bg-green text-white font-bold rounded-[10px] hover:shadow-xl hover:shadow-green/20 transition-all flex items-center justify-center gap-2 active:scale-95 text-sm"
+                                        >
+                                            <Check size={18} />
+                                            {t("confirm")}
+                                        </button>
+                                    )}
+
                                     {/* In path-only mode the user has no personal/photo steps to return to. */}
                                     {!(pathOnly && currentStep <= 2) && (
-                                        <div className="px-4 pb-4">
+                                        <div className="pt-3">
                                             <button onClick={() => setCurrentStep(currentStep - 1)} className="btn-back">
                                                 <ChevronLeft size={14} className="btn-back-arrow" />
                                                 {t("back")}
@@ -752,6 +751,7 @@ export default function OnboardingPage() {
 
                     </motion.div>
                 </AnimatePresence>
+                </div>
             </div>
 
             <AnimatePresence>

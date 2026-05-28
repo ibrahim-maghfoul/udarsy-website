@@ -129,22 +129,6 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── Subject cards float + tablet scaling (SubjectCardsSection) ─── */
-@keyframes subjectFloat {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-15px); }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .udarsy-cards-area {
-    transform: scale(0.88);
-    transform-origin: top center;
-    margin-bottom: -64px;
-  }
-}
-
-.udarsy-scroll-hide::-webkit-scrollbar { display: none; }
-
 /* ─── Pause diagram animations when section is off-screen ─── */
 .diagram-paused .anim-flow,
 .diagram-paused .anim-shape-pop,
@@ -195,8 +179,7 @@
   .anim-shape-pop,
   .hero-cell-lit,
   [class*="animate-[chipFloat"],
-  [class*="animate-[wFloat"],
-  [class*="animate-[subjectFloat"] {
+  [class*="animate-[wFloat"] {
     animation: none !important;
   }
 

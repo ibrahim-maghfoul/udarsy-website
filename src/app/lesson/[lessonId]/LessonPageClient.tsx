@@ -217,6 +217,18 @@ export default function LessonPageClient({ lessonId: lessonIdProp }: { lessonId?
                     if (picked) {
                         setIframeLoading(true);
                         setActiveResource({ ...picked.doc, type: picked.type });
+                        // Auto-selected doc bypasses handleSelectResource, so record the
+                        // view here — otherwise the first doc in every lesson is invisible
+                        // to /progress/track-view and the profile donut stays empty.
+                        if (userRef.current) {
+                            trackResourceView({
+                                lessonId,
+                                subjectId: res.subjectId || '',
+                                resourceId: safeId(picked.doc),
+                                resourceType: picked.type,
+                            });
+                            refreshUser();
+                        }
                     }
                 }
 
@@ -241,8 +253,12 @@ export default function LessonPageClient({ lessonId: lessonIdProp }: { lessonId?
     // Progress save on unmount / resource switch — using refs to avoid re-renders
     const lastSavedRef = useRef(Date.now());
     const activeResourceRef = useRef<any>(null);
+    // Mirrored so the lesson-fetch effect can check auth without re-running every time
+    // user state ticks (which would re-fetch the lesson on every refreshUser call).
+    const userRef = useRef(user);
 
     useEffect(() => { activeResourceRef.current = activeResource; }, [activeResource]);
+    useEffect(() => { userRef.current = user; }, [user]);
 
     // Save progress periodically (every 30s)
     useEffect(() => {
@@ -332,8 +348,9 @@ export default function LessonPageClient({ lessonId: lessonIdProp }: { lessonId?
             // when the user navigates back (the debounced refreshUser is too slow here).
             await forceRefreshUser();
         } catch (error: any) {
-            console.error('Failed to mark complete:', error);
             if (wasNew) setLocalCompletedResources(prev => prev.filter(x => x !== id));
+            if (error?.message === 'verification_required') return;
+            console.error('Failed to mark complete:', error);
             const status = error?.response?.status;
             showSnackbar(
                 status === 401
@@ -355,8 +372,9 @@ export default function LessonPageClient({ lessonId: lessonIdProp }: { lessonId?
             await markResourceComplete({ lessonId, subjectId: lesson?.subjectId || '', resourceId: id, resourceType: type, isCompleted: true });
             await forceRefreshUser();
         } catch (error: any) {
-            console.error('Failed to mark complete:', error);
             if (wasNew) setLocalCompletedResources(prev => prev.filter(x => x !== id));
+            if (error?.message === 'verification_required') return;
+            console.error('Failed to mark complete:', error);
             const status = error?.response?.status;
             showSnackbar(
                 status === 401
@@ -369,18 +387,20 @@ export default function LessonPageClient({ lessonId: lessonIdProp }: { lessonId?
 
     const handleToggleFavorite = useCallback(async () => {
         if (!user) return router.push('/signup');
+        const prevFav = isFavorite;
         try {
             const newFavStatus = !isFavorite;
             setIsFavorite(newFavStatus);
             await toggleFavorite(lessonId, lesson?.subjectId);
             showSnackbar(newFavStatus ? t('fav_added_snack') : t('fav_removed_snack'), "success");
             await forceRefreshUser();
-        } catch (error) {
+        } catch (error: any) {
+            setIsFavorite(prevFav);
+            if (error?.message === 'verification_required') return;
             console.error('Failed to toggle favorite:', error);
-            setIsFavorite(!isFavorite);
             showSnackbar(t('fav_failed'), "error");
         }
-    }, [user, isFavorite, lessonId, lesson?.subjectId, forceRefreshUser, showSnackbar, router]);
+    }, [user, isFavorite, lessonId, lesson?.subjectId, forceRefreshUser, showSnackbar, router, t]);
 
     // Reset AI answer + Q&A when switching to a different resource and auto-detect language
     useEffect(() => {

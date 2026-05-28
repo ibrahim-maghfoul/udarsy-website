@@ -1,4 +1,5 @@
 import api from "@/lib/api";
+import { isVerifiedOrGuest, requireVerified } from "@/lib/verifyGate";
 
 /**
  * Debounce helper — only fires after `delay` ms of inactivity per key.
@@ -14,13 +15,15 @@ function debouncedCall<T>(key: string, fn: () => Promise<T>, delay: number): voi
     }, delay));
 }
 
-/** Track a resource view — fire-and-forget, no debounce needed (one-time per view) */
+/** Track a resource view — fire-and-forget, no debounce needed (one-time per view).
+ *  Passive recording: silently skipped for unverified users (no dialog spam on navigation). */
 export const trackResourceView = (params: {
     lessonId: string;
     subjectId: string;
     resourceId: string;
     resourceType: string;
 }) => {
+    if (!isVerifiedOrGuest()) return;
     // Use sendBeacon-style: don't block UI, don't await
     api.post('/progress/track-view', params).catch(() => {});
 };
@@ -28,6 +31,7 @@ export const trackResourceView = (params: {
 /**
  * Update resource progress — debounced by 3s per resource.
  * Rapid timer ticks won't flood the server; only the last update is sent.
+ * Passive: silently skipped for unverified users.
  */
 export const updateResourceProgress = (params: {
     lessonId: string;
@@ -37,11 +41,13 @@ export const updateResourceProgress = (params: {
     additionalTimeSpent: number;
     completionPercentage: number;
 }) => {
+    if (!isVerifiedOrGuest()) return;
     const key = `progress:${params.lessonId}:${params.resourceId}`;
     debouncedCall(key, () => api.post('/progress/update-progress', params), 3000);
 };
 
-/** Mark resource complete — throws on failure so the caller can revert optimistic UI. */
+/** Mark resource complete — throws on failure so the caller can revert optimistic UI.
+ *  Explicit user action: opens the verification dialog and throws if unverified. */
 export const markResourceComplete = async (params: {
     lessonId: string;
     subjectId: string;
@@ -49,10 +55,14 @@ export const markResourceComplete = async (params: {
     resourceType: string;
     isCompleted: boolean;
 }) => {
+    if (!requireVerified()) throw new Error('verification_required');
     await api.post('/progress/mark-complete', params);
 };
 
+/** Explicit user action: throws 'verification_required' if unverified so
+ *  callers can revert optimistic UI and skip the generic error toast. */
 export const toggleFavorite = async (lessonId: string, subjectId: string) => {
+    if (!requireVerified()) throw new Error('verification_required');
     try {
         const res = await api.post('/progress/toggle-favorite', { lessonId, subjectId });
         return res.data.isFavorite;

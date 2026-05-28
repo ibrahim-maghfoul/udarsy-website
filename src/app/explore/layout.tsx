@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageTitle } from "@/lib/page-title";
+import { VerifyRequired } from "@/components/VerifyRequired";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -22,5 +23,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function ExploreLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return <VerifyRequired>{children}</VerifyRequired>;
 }

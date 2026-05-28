@@ -1,0 +1,486 @@
+/* ─────────────────────────────────────────────────────────────
+   Discover — premium editorial hero with right illustration,
+   category pills + search, and a floating features strip.
+   ───────────────────────────────────────────────────────────── */
+
+.disc-root {
+  min-height: 100vh;
+  background: #ffffff;
+  color: #131613;
+  font-family: var(--font-cairo), "Cairo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+.disc-root,
+.disc-root * {
+  font-family: var(--font-cairo), "Cairo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* tiny floating chip — design lab marker (back to lab index) */
+.lab-chip {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 200;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 20px rgba(20, 30, 40, 0.06);
+}
+.lab-chip__label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(20, 20, 20, 0.55);
+}
+.lab-chip__sep {
+  width: 1px;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.12);
+}
+.lab-chip__link {
+  font-size: 11px;
+  color: rgba(20, 20, 20, 0.55);
+  text-decoration: none;
+}
+.lab-chip__link:hover { color: #1b1d1c; }
+
+/* Outer container — wide centered with generous breathing space */
+.disc-shell {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 96px 64px 56px;
+  position: relative;
+}
+
+/* ── HERO ────────────────────────────────────────────────── */
+.disc-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 56px;
+  align-items: center;
+  position: relative;
+}
+
+/* decorative vertical line + diamonds on far left of left column */
+.disc-rail {
+  position: absolute;
+  left: -28px;
+  top: 12%;
+  bottom: 14%;
+  width: 18px;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.disc-rail__line {
+  flex: 1;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(58, 170, 106, 0) 0%,
+    rgba(58, 170, 106, 0.35) 18%,
+    rgba(58, 170, 106, 0.35) 82%,
+    rgba(58, 170, 106, 0) 100%
+  );
+}
+.disc-rail__diamond {
+  width: 8px;
+  height: 8px;
+  margin: 8px 0;
+  background: #fff;
+  border: 1px solid #3aaa6a;
+  transform: rotate(45deg);
+}
+.disc-rail__dot {
+  width: 4px;
+  height: 4px;
+  margin: 8px 0;
+  border-radius: 50%;
+  background: #3aaa6a;
+  box-shadow: 0 0 12px rgba(58, 170, 106, 0.6);
+}
+
+/* ── LEFT COLUMN ─────────────────────────────────────────── */
+.disc-left {
+  position: relative;
+  padding-left: 8px;
+}
+
+/* small floating badge pill */
+.disc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(58, 170, 106, 0.32);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 6px 18px -10px rgba(58, 170, 106, 0.45);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1f5a36;
+  margin-bottom: 32px;
+}
+.disc-badge__star {
+  width: 14px;
+  height: 14px;
+  color: #3aaa6a;
+}
+
+/* the huge editorial heading */
+.disc-headline {
+  margin: 0;
+  font-family: var(--font-serif, "Source Serif Pro", "Cormorant Garamond", "Georgia", serif);
+  font-size: clamp(56px, 7.4vw, 104px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+  color: #131613;
+}
+.disc-headline > span {
+  display: block;
+}
+.disc-headline__accent {
+  background: linear-gradient(95deg, #2d8a52 0%, #3aaa6a 55%, #5cc88a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.disc-lead {
+  margin: 28px 0 0;
+  max-width: 460px;
+  font-size: 17px;
+  line-height: 1.7;
+  color: rgba(35, 50, 42, 0.62);
+}
+
+/* ── RIGHT COLUMN — illustration ────────────────────────── */
+.disc-right {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* the subject illustration — no card, fades softly into white */
+.disc-illu {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  height: 100%;
+  z-index: 2;
+}
+.disc-illu img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* soft vignette fade — bottom dissolves into the page */
+  -webkit-mask-image: radial-gradient(
+    ellipse 78% 80% at 50% 46%,
+    #000 55%,
+    rgba(0, 0, 0, 0.7) 75%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 78% 80% at 50% 46%,
+    #000 55%,
+    rgba(0, 0, 0, 0.7) 75%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* soft green wash behind illustration */
+.disc-right::before {
+  content: '';
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  left: 10%;
+  top: 10%;
+  background: radial-gradient(
+    circle at 50% 45%,
+    rgba(58, 170, 106, 0.10) 0%,
+    rgba(58, 170, 106, 0.04) 40%,
+    rgba(58, 170, 106, 0) 70%
+  );
+  filter: blur(40px);
+  z-index: 0;
+}
+
+/* ── CATEGORY PILLS ROW ──────────────────────────────────── */
+.disc-pills-wrap {
+  margin: 80px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+/* sliding green indicator that lives behind the active pill —
+   x, y, width and height come from JS so it can slide diagonally
+   into a pill that wrapped onto the next row. */
+.disc-pill-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #3aaa6a 0%, #2d8a52 100%);
+  box-shadow:
+    0 0 0 1px rgba(58, 170, 106, 0.45),
+    0 12px 30px -10px rgba(58, 170, 106, 0.55);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.5s ease;
+  will-change: transform, width, height;
+}
+.disc-pill-indicator--ready { opacity: 1; }
+
+.disc-pill {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 4px 16px 4px 4px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  background: #ffffff;
+  border: 1px solid rgba(58, 170, 106, 0.32);
+  color: #1f5a36;
+  cursor: pointer;
+  transition: color 0.35s ease, border-color 0.35s ease,
+    background 0.35s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+.disc-pill:hover {
+  border-color: rgba(58, 170, 106, 0.55);
+  box-shadow: 0 6px 18px -8px rgba(58, 170, 106, 0.35);
+  transform: translateY(-1px);
+}
+.disc-pill__icon-wrap {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(58, 170, 106, 0.14) 0%,
+    rgba(58, 170, 106, 0.06) 60%,
+    rgba(58, 170, 106, 0.02) 100%
+  );
+  border: 1px solid rgba(58, 170, 106, 0.18);
+  overflow: hidden;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.disc-pill__icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+/* the indicator paints the green — pill itself goes transparent so the
+   shape can slide between buttons without a hard repaint. */
+.disc-pill--active {
+  background: transparent;
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: none;
+  transform: none;
+}
+.disc-pill--active:hover {
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+}
+.disc-pill--active .disc-pill__icon-wrap {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* ── FEATURES GRID — modern card system ──────────────────── */
+.disc-grid {
+  margin: 96px 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 40px;
+}
+
+.disc-card {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  padding: 16px 48px 16px 56px;
+  min-height: 96px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(247, 252, 249, 0.9) 100%);
+  border: 1px solid rgba(58, 170, 106, 0.14);
+  border-radius: 10px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 10px 28px -22px rgba(20, 40, 30, 0.18);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+/* contour-trace hover — single circular reveal originating from the
+   icon's center (left edge, vertical middle of the card). */
+.disc-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  border: 1.5px solid #3aaa6a;
+  pointer-events: none;
+  z-index: 2;
+  clip-path: circle(0% at 0% 50%);
+  transition: clip-path 0.55s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+.disc-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 22px 44px -24px rgba(20, 60, 35, 0.28);
+}
+.disc-card:hover::before { clip-path: circle(140% at 0% 50%); }
+
+/* tiny corner index — gives the grid a numbered, editorial rhythm */
+.disc-card__index {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(58, 170, 106, 0.55);
+  z-index: 3;
+}
+
+.disc-card__icon-wrap {
+  position: absolute;
+  left: -32px; /* half of the 64px circle is outside the card */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1.5px solid rgba(58, 170, 106, 0.32);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    0 12px 24px -12px rgba(58, 170, 106, 0.45);
+  z-index: 3;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.disc-card:hover .disc-card__icon-wrap {
+  transform: translateY(-50%) scale(1.06) rotate(-2deg);
+}
+
+.disc-card__text {
+  min-width: 0;
+  flex: 1;
+}
+.disc-card__icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.disc-card__title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #131e17;
+  letter-spacing: -0.005em;
+}
+.disc-card__desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(35, 50, 42, 0.62);
+}
+
+/* subtle arrow that fades in on hover (bottom-right) */
+.disc-card__arrow {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #3aaa6a 0%, #2d8a52 100%);
+  color: #ffffff;
+  opacity: 0;
+  transform: translate(-6px, 6px);
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 3;
+  box-shadow: 0 8px 18px -10px rgba(58, 170, 106, 0.6);
+}
+.disc-card__arrow svg { width: 14px; height: 14px; }
+.disc-card:hover .disc-card__arrow {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .disc-shell { padding: 80px 36px 48px; }
+  .disc-hero { gap: 36px; }
+  .disc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 820px) {
+  .disc-shell { padding: 88px 24px 40px; }
+  .disc-hero {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .disc-rail { display: none; }
+  .disc-left { padding-left: 0; text-align: center; }
+  .disc-lead { margin-left: auto; margin-right: auto; }
+  .disc-right { aspect-ratio: 4 / 3; }
+  .disc-pills-wrap { margin-top: 48px; }
+  .disc-grid { margin-top: 64px; gap: 40px; }
+  .disc-card { padding: 14px 46px 14px 52px; min-height: 88px; }
+}
+
+@media (max-width: 540px) {
+  .disc-pill { height: 34px; padding: 3px 13px 3px 3px; font-size: 12px; }
+  .disc-pill__icon-wrap { width: 26px; height: 26px; }
+  .disc-grid { grid-template-columns: 1fr; }
+}

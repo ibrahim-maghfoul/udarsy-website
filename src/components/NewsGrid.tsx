@@ -152,6 +152,7 @@ export default function NewsGrid({ items }: { items: NewsItem[] }) {
                                 category={item.category}
                                 image={item.image}
                                 href={item.slug ? `/news/${item.slug}` : `/news/${item.id}`}
+                                articleId={item.id}
                                 date={item.date}
                                 readTime={item.readTime}
                                 rating={item.rating}

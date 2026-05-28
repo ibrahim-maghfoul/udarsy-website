@@ -1,5 +1,6 @@
 "use client";
 
+import "./profile.css";
 import { useState, useEffect, useRef, useTransition } from "react";
 import { setUserLocaleAction } from "@/app/actions/locale";
 import type { Locale } from "@/lib/localeConfig";
@@ -10,7 +11,6 @@ import {
     Book,
     Settings as SettingsIcon,
     LogOut,
-    ShieldAlert,
     ChevronRight,
     ChevronLeft,
     Heart,
@@ -28,6 +28,7 @@ import {
     RefreshCw,
     Languages,
     ChevronDown,
+    Lock,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
@@ -40,6 +41,7 @@ import dynamic from "next/dynamic";
 import { useSnackbar } from "@/contexts/SnackbarContext";
 import ProgressCharts from "@/components/profile/ProgressCharts";
 import { SERVICE_CARD_IMAGES } from "@/lib/serviceCardImages";
+import { triggerVerifyDialog } from "@/lib/verifyGate";
 
 const ImageCropper = dynamic(() => import("@/components/ImageCropper"), { ssr: false });
 
@@ -47,6 +49,7 @@ export default function ProfilePage() {
     const t = useTranslations("Profile");
     const ts = useTranslations("Settings");
     const tc = useTranslations("Common");
+    const ta = useTranslations("Auth");
     const locale = useLocale();
     const isAr = locale === 'ar';
     const { user, logout, loading: authLoading, checkAuth, forceRefreshUser, getPhotoURL, getResourceURL } = useAuth();
@@ -335,6 +338,7 @@ export default function ProfilePage() {
 
     const isInstructor = user?.role === 'instructor';
     const isTeacher = user?.role === 'teacher';
+    const isUnverified = !!user && user.isVerified !== true;
     const showInstructorSection = isInstructor || (isTeacher && !!approvedApplication);
     const showTeacherSection = isTeacher || (isInstructor && !!teacherVerification);
     const hasBothRoles = showInstructorSection && showTeacherSection;
@@ -695,16 +699,42 @@ export default function ProfilePage() {
                     )}
 
                     {/* Progress Charts */}
-                    <div>
-                        <ProgressCharts
-                            timeHistory={timeHistory}
-                            completedLessons={completedLessons}
-                            viewedLessons={viewedLessons}
-                            totalLessons={totalLessons}
-                            documentsOpened={user?.progress?.documentsOpened || 0}
-                            completedResources={user?.progress?.lessons?.reduce((sum: number, l: any) => sum + (l.completedResources?.length || 0), 0) || 0}
-                            totalResources={guidanceTotalResources || user?.totalGuidanceResources || user?.progress?.lessons?.reduce((sum: number, l: any) => sum + (l.totalResourcesCount || 0), 0) || totalLessons}
-                        />
+                    <div className="relative">
+                        <div
+                            className={isUnverified ? "pointer-events-none select-none" : ""}
+                            style={isUnverified ? { filter: 'blur(4px)' } : undefined}
+                            aria-hidden={isUnverified}
+                        >
+                            <ProgressCharts
+                                timeHistory={timeHistory}
+                                completedLessons={completedLessons}
+                                viewedLessons={viewedLessons}
+                                totalLessons={totalLessons}
+                                documentsOpened={user?.progress?.documentsOpened || 0}
+                                completedResources={user?.progress?.lessons?.reduce((sum: number, l: any) => sum + (l.completedResources?.length || 0), 0) || 0}
+                                totalResources={guidanceTotalResources || user?.totalGuidanceResources || user?.progress?.lessons?.reduce((sum: number, l: any) => sum + (l.totalResourcesCount || 0), 0) || totalLessons}
+                            />
+                        </div>
+                        {isUnverified && (
+                            <button
+                                type="button"
+                                onClick={() => triggerVerifyDialog()}
+                                aria-label={ta("verify_required_title")}
+                                className="absolute inset-0 z-30 flex flex-wrap items-stretch"
+                                style={{ gap: 20 }}
+                            >
+                                <div style={{ flex: 1, minWidth: 0 }} className="group/cell flex items-center justify-center">
+                                    <div className="w-12 h-12 rounded-full bg-green shadow-lg shadow-green/30 flex items-center justify-center transition-transform duration-300 group-hover/cell:scale-110">
+                                        <Lock size={20} className="text-white" strokeWidth={2.3} />
+                                    </div>
+                                </div>
+                                <div className="group/cell w-full lg:w-[320px] flex items-center justify-center">
+                                    <div className="w-12 h-12 rounded-full bg-green shadow-lg shadow-green/30 flex items-center justify-center transition-transform duration-300 group-hover/cell:scale-110">
+                                        <Lock size={20} className="text-white" strokeWidth={2.3} />
+                                    </div>
+                                </div>
+                            </button>
+                        )}
                     </div>
 
                     {/* Last Visited Courses — 16:9 grid (up to 4) */}
@@ -764,7 +794,12 @@ export default function ProfilePage() {
                             <p className="text-sm mt-1" style={{ color: 'rgba(26,58,42,0.4)' }}>{t("services_subtitle")}</p>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                        <div className="relative">
+                        <div
+                            className={`grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3 ${isUnverified ? "pointer-events-none select-none" : ""}`}
+                            style={isUnverified ? { filter: 'blur(4px)' } : undefined}
+                            aria-hidden={isUnverified}
+                        >
 
                             {/* 0. Class Chat */}
                             <Link
@@ -950,6 +985,23 @@ export default function ProfilePage() {
                                 </div>
                             </Link>
 
+                        </div>
+                        {isUnverified && (
+                            <button
+                                type="button"
+                                onClick={() => triggerVerifyDialog()}
+                                aria-label={ta("verify_required_title")}
+                                className="absolute top-0 left-0 right-0 z-30 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3"
+                            >
+                                {Array.from({ length: 11 }).map((_, i) => (
+                                    <div key={i} className="group/cell aspect-[16/9] flex items-center justify-center">
+                                        <div className="w-12 h-12 rounded-full bg-green shadow-lg shadow-green/30 flex items-center justify-center transition-transform duration-300 group-hover/cell:scale-110">
+                                            <Lock size={20} className="text-white" strokeWidth={2.3} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </button>
+                        )}
                         </div>
                     </div>
 

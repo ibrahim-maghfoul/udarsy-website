@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useAnimationControls, type Variants } from "framer-motion";
 import { trackEvent } from "@/lib/analytics";
 import { Check, X, Crown, Zap, BookOpen, ArrowRight, CreditCard } from "lucide-react";
@@ -220,6 +220,10 @@ export default function PricingPage() {
   const [cycle, setCycle]               = useState<Cycle>("monthly");
   const [activePlan, setActivePlan]     = useState<PaidPlan | null>(null);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [activeIdx, setActiveIdx]       = useState<number>(1);
+  const lastBumpRef                      = useRef<number>(Date.now());
+  const isHeldRef                        = useRef<boolean>(false);
+  const bumpInteraction                  = () => { lastBumpRef.current = Date.now(); };
 
   const ctrl0 = useAnimationControls();
   const ctrl1 = useAnimationControls();
@@ -228,6 +232,33 @@ export default function PricingPage() {
 
   useEffect(() => {
     trackEvent({ event: 'pricing_view', category: 'Conversion' });
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (!isHeldRef.current && Date.now() - lastBumpRef.current >= 3500) {
+        setActiveIdx((i) => (i + 1) % 3);
+        lastBumpRef.current = Date.now();
+      }
+    }, 250);
+
+    const onScroll = () => { lastBumpRef.current = Date.now(); };
+    const releaseHold = () => {
+      if (isHeldRef.current) {
+        isHeldRef.current = false;
+        lastBumpRef.current = Date.now();
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("pointerup", releaseHold);
+    window.addEventListener("pointercancel", releaseHold);
+
+    return () => {
+      clearInterval(id);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pointerup", releaseHold);
+      window.removeEventListener("pointercancel", releaseHold);
+    };
   }, []);
 
   useEffect(() => {
@@ -291,6 +322,203 @@ export default function PricingPage() {
     },
     { q: t("faq4_q"), a: t("faq4_a"), action: null },
   ];
+
+  const renderPlanCardBody = (plan: (typeof plans)[number]) => (
+    <div
+      className={`relative rounded-3xl px-7 pb-7 pt-10 flex flex-col ${
+        plan.variant === "pro"
+          ? "bg-white border-2 border-green shadow-[0_10px_48px_rgba(58,170,106,0.22)]"
+          : plan.variant === "premium"
+          ? "bg-dark text-white shadow-[0_10px_48px_rgba(0,0,0,0.4)]"
+          : "bg-white border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)]"
+      }`}
+    >
+      {/* Card texture */}
+      <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+        {plan.variant === "free" && (
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: "radial-gradient(rgba(0,0,0,0.065) 1.5px, transparent 1.5px)",
+              backgroundSize: "20px 20px",
+            }}
+          />
+        )}
+        {plan.variant === "pro" && (
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(45deg, rgba(58,170,106,0.08) 0, rgba(58,170,106,0.08) 1px, transparent 0, transparent 50%), repeating-linear-gradient(-45deg, rgba(58,170,106,0.08) 0, rgba(58,170,106,0.08) 1px, transparent 0, transparent 50%)",
+              backgroundSize: "16px 16px",
+            }}
+          />
+        )}
+        {plan.variant === "premium" && (
+          <>
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle, rgba(255,255,255,0.1) 1.5px, transparent 1.5px), radial-gradient(circle, rgba(255,255,255,0.1) 1.5px, transparent 1.5px)",
+                backgroundSize: "22px 38px",
+                backgroundPosition: "0 0, 11px 19px",
+              }}
+            />
+            <div
+              className="absolute -top-10 left-1/2 -translate-x-1/2 w-80 h-52"
+              style={{
+                background: "radial-gradient(ellipse at 50% 20%, rgba(58,170,106,0.25) 0%, transparent 68%)",
+              }}
+            />
+          </>
+        )}
+      </div>
+
+      {/* Top circle icon badge */}
+      <div
+        className={`absolute -top-5 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full flex items-center justify-center z-10 ${
+          plan.variant === "pro"
+            ? "bg-green shadow-[0_4px_16px_rgba(58,170,106,0.55)]"
+            : plan.variant === "premium"
+            ? "bg-gradient-to-br from-amber-400 to-amber-600 shadow-[0_4px_16px_rgba(245,158,11,0.5)]"
+            : "bg-white border border-gray-200 shadow-[0_2px_10px_rgba(0,0,0,0.09)]"
+        }`}
+      >
+        {plan.variant === "pro"     && <Zap      size={17} className="text-white"    strokeWidth={2.5} />}
+        {plan.variant === "premium" && <Crown    size={17} className="text-white"    strokeWidth={2.5} />}
+        {plan.variant === "free"    && <BookOpen size={16} className="text-gray-400" strokeWidth={2}   />}
+      </div>
+
+      {/* Hanging side badge */}
+      {plan.badge && (
+        <div className={`absolute ${isRTL ? "-left-1" : "-right-1"} top-10 z-10 flex items-center`}>
+          <div
+            className={`pl-3.5 pr-4 py-1.5 text-white text-[10px] font-bold tracking-wide ${isRTL ? "rounded-r-full" : "rounded-l-full"} ${
+              plan.variant === "pro"
+                ? "bg-green shadow-[0_3px_14px_rgba(58,170,106,0.55)]"
+                : "bg-amber-500 shadow-[0_3px_14px_rgba(245,158,11,0.55)]"
+            }`}
+          >
+            {plan.badge}
+          </div>
+          <div
+            className={`w-0 h-0 border-y-[11px] border-y-transparent ${isRTL ? "border-r-[7px]" : "border-l-[7px]"} ${
+              plan.variant === "pro"
+                ? isRTL ? "border-r-green" : "border-l-green"
+                : isRTL ? "border-r-amber-500" : "border-l-amber-500"
+            }`}
+          />
+        </div>
+      )}
+
+      {/* Plan name + price */}
+      <div className="mb-5 mt-1">
+        <div
+          className={`text-[11px] font-bold uppercase tracking-widest mb-2 ${
+            plan.variant === "premium" ? "text-white/40" : "text-gray-400"
+          }`}
+        >
+          {plan.name}
+        </div>
+        <div className="flex items-baseline gap-1 overflow-hidden">
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.span
+              key={plan.price}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              style={{ display: "inline-block" }}
+              className={`text-[44px] font-bold leading-none tracking-tight ${
+                plan.variant === "premium" ? "text-white" : "text-dark"
+              }`}
+            >
+              {plan.price}
+            </motion.span>
+          </AnimatePresence>
+          <motion.span
+            key={plan.priceSuffix}
+            initial={false}
+            animate={{ opacity: 1 }}
+            className={`text-sm ml-1 ${
+              plan.variant === "premium" ? "text-white/50" : "text-gray-400"
+            }`}
+          >
+            {plan.priceSuffix}
+          </motion.span>
+        </div>
+        <p
+          className={`text-xs mt-2.5 leading-relaxed ${
+            plan.variant === "premium" ? "text-white/50" : "text-gray-500"
+          }`}
+        >
+          {plan.desc}
+        </p>
+      </div>
+
+      {/* Feature list */}
+      <ul className="space-y-2.5 mb-4 flex-1">
+        {plan.features.map((f, fi) => (
+          <li key={`${plan.key}-${fi}`} className="flex items-start gap-2.5 text-sm">
+            <Check
+              size={14}
+              className={`mt-0.5 flex-shrink-0 ${
+                plan.variant === "premium" || plan.variant === "pro"
+                  ? "text-green"
+                  : "text-gray-400"
+              }`}
+              strokeWidth={2.5}
+            />
+            <span className={plan.variant === "premium" ? "text-white/75" : "text-gray-600"}>
+              {f}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {/* AI chip */}
+      <div
+        className={`mb-5 flex items-center gap-2 px-3 py-2 rounded-xl ${
+          plan.variant === "premium"
+            ? "bg-white/10 border border-white/10"
+            : "bg-violet-50 border border-violet-100"
+        }`}
+      >
+        <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 flex-shrink-0">
+          <path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.2L12 16.5l-6.2 4.4 2.4-7.2L2 9.2h7.6z" fill="#8b5cf6"/>
+        </svg>
+        <span className={`text-xs font-semibold ${
+          plan.variant === "premium" ? "text-violet-300" : "text-violet-600"
+        }`}>
+          {plan.aiLabel}
+        </span>
+      </div>
+
+      {/* CTA */}
+      <div>
+        {plan.key === "free" ? (
+          <Link
+            href="/courses"
+            className="block text-center py-3.5 px-6 rounded-2xl font-semibold text-sm border border-gray-200 text-gray-600 hover:border-green hover:text-green transition-colors"
+          >
+            {plan.cta}
+          </Link>
+        ) : (
+          <button
+            onClick={() => setActivePlan(plan.key as PaidPlan)}
+            className={`w-full py-3.5 px-6 rounded-2xl font-semibold text-sm transition-all active:scale-[0.98] ${
+              plan.variant === "pro"
+                ? "bg-green text-white hover:bg-green/90 shadow-[0_4px_20px_rgba(58,170,106,0.35)]"
+                : "bg-white text-dark hover:bg-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.12)]"
+            }`}
+          >
+            {plan.cta}
+          </button>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-white pt-4 md:pt-32 pb-20 overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
@@ -387,8 +615,9 @@ export default function PricingPage() {
       </section>
 
       {/* Plan Cards — same design as home page PricingSection */}
-      <section className="px-[clamp(20px,6vw,80px)]">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 md:items-start py-6">
+      <section className="px-0 md:px-[clamp(20px,6vw,80px)]">
+        {/* Desktop grid (md+) */}
+        <div className="hidden md:grid max-w-6xl mx-auto md:grid-cols-3 gap-8 md:items-start py-6">
           {plans.map((plan, i) => {
             const rotation = i === 0 ? -4 : i === 2 ? 4 : 0;
             return (
@@ -399,202 +628,73 @@ export default function PricingPage() {
                   initial={false}
                   animate="visible"
                   style={{ rotate: rotation }}
-                  className={`relative rounded-3xl px-7 pb-7 pt-10 flex flex-col ${
-                    plan.variant === "pro"
-                      ? "bg-white border-2 border-green shadow-[0_10px_48px_rgba(58,170,106,0.22)]"
-                      : plan.variant === "premium"
-                      ? "bg-dark text-white shadow-[0_10px_48px_rgba(0,0,0,0.4)]"
-                      : "bg-white border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)]"
-                  }`}
                 >
-                  {/* Card texture */}
-                  <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
-                    {plan.variant === "free" && (
-                      <div
-                        className="absolute inset-0"
-                        style={{
-                          backgroundImage: "radial-gradient(rgba(0,0,0,0.065) 1.5px, transparent 1.5px)",
-                          backgroundSize: "20px 20px",
-                        }}
-                      />
-                    )}
-                    {plan.variant === "pro" && (
-                      <div
-                        className="absolute inset-0"
-                        style={{
-                          backgroundImage:
-                            "repeating-linear-gradient(45deg, rgba(58,170,106,0.08) 0, rgba(58,170,106,0.08) 1px, transparent 0, transparent 50%), repeating-linear-gradient(-45deg, rgba(58,170,106,0.08) 0, rgba(58,170,106,0.08) 1px, transparent 0, transparent 50%)",
-                          backgroundSize: "16px 16px",
-                        }}
-                      />
-                    )}
-                    {plan.variant === "premium" && (
-                      <>
-                        <div
-                          className="absolute inset-0"
-                          style={{
-                            backgroundImage:
-                              "radial-gradient(circle, rgba(255,255,255,0.1) 1.5px, transparent 1.5px), radial-gradient(circle, rgba(255,255,255,0.1) 1.5px, transparent 1.5px)",
-                            backgroundSize: "22px 38px",
-                            backgroundPosition: "0 0, 11px 19px",
-                          }}
-                        />
-                        <div
-                          className="absolute -top-10 left-1/2 -translate-x-1/2 w-80 h-52"
-                          style={{
-                            background: "radial-gradient(ellipse at 50% 20%, rgba(58,170,106,0.25) 0%, transparent 68%)",
-                          }}
-                        />
-                      </>
-                    )}
-                  </div>
-
-                  {/* Top circle icon badge */}
-                  <div
-                    className={`absolute -top-5 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full flex items-center justify-center z-10 ${
-                      plan.variant === "pro"
-                        ? "bg-green shadow-[0_4px_16px_rgba(58,170,106,0.55)]"
-                        : plan.variant === "premium"
-                        ? "bg-gradient-to-br from-amber-400 to-amber-600 shadow-[0_4px_16px_rgba(245,158,11,0.5)]"
-                        : "bg-white border border-gray-200 shadow-[0_2px_10px_rgba(0,0,0,0.09)]"
-                    }`}
-                  >
-                    {plan.variant === "pro"     && <Zap      size={17} className="text-white"    strokeWidth={2.5} />}
-                    {plan.variant === "premium" && <Crown    size={17} className="text-white"    strokeWidth={2.5} />}
-                    {plan.variant === "free"    && <BookOpen size={16} className="text-gray-400" strokeWidth={2}   />}
-                  </div>
-
-                  {/* Hanging side badge */}
-                  {plan.badge && (
-                    <div className={`absolute ${isRTL ? "-left-1" : "-right-1"} top-10 z-10 flex items-center`}>
-                      <div
-                        className={`pl-3.5 pr-4 py-1.5 text-white text-[10px] font-bold tracking-wide ${isRTL ? "rounded-r-full" : "rounded-l-full"} ${
-                          plan.variant === "pro"
-                            ? "bg-green shadow-[0_3px_14px_rgba(58,170,106,0.55)]"
-                            : "bg-amber-500 shadow-[0_3px_14px_rgba(245,158,11,0.55)]"
-                        }`}
-                      >
-                        {plan.badge}
-                      </div>
-                      <div
-                        className={`w-0 h-0 border-y-[11px] border-y-transparent ${isRTL ? "border-r-[7px]" : "border-l-[7px]"} ${
-                          plan.variant === "pro"
-                            ? isRTL ? "border-r-green" : "border-l-green"
-                            : isRTL ? "border-r-amber-500" : "border-l-amber-500"
-                        }`}
-                      />
-                    </div>
-                  )}
-
-                  {/* Plan name + price */}
-                  <div className="mb-5 mt-1">
-                    <div
-                      className={`text-[11px] font-bold uppercase tracking-widest mb-2 ${
-                        plan.variant === "premium" ? "text-white/40" : "text-gray-400"
-                      }`}
-                    >
-                      {plan.name}
-                    </div>
-                    <div className="flex items-baseline gap-1 overflow-hidden">
-                      <AnimatePresence mode="popLayout" initial={false}>
-                        <motion.span
-                          key={plan.price}
-                          initial={{ opacity: 0, y: 12 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -12 }}
-                          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                          style={{ display: "inline-block" }}
-                          className={`text-[44px] font-bold leading-none tracking-tight ${
-                            plan.variant === "premium" ? "text-white" : "text-dark"
-                          }`}
-                        >
-                          {plan.price}
-                        </motion.span>
-                      </AnimatePresence>
-                      <motion.span
-                        key={plan.priceSuffix}
-                        initial={false}
-                        animate={{ opacity: 1 }}
-                        className={`text-sm ml-1 ${
-                          plan.variant === "premium" ? "text-white/50" : "text-gray-400"
-                        }`}
-                      >
-                        {plan.priceSuffix}
-                      </motion.span>
-                    </div>
-                    <p
-                      className={`text-xs mt-2.5 leading-relaxed ${
-                        plan.variant === "premium" ? "text-white/50" : "text-gray-500"
-                      }`}
-                    >
-                      {plan.desc}
-                    </p>
-                  </div>
-
-                  {/* Feature list */}
-                  <ul className="space-y-2.5 mb-4 flex-1">
-                    {plan.features.map((f, fi) => (
-                      <li key={`${plan.key}-${fi}`} className="flex items-start gap-2.5 text-sm">
-                        <Check
-                          size={14}
-                          className={`mt-0.5 flex-shrink-0 ${
-                            plan.variant === "premium" || plan.variant === "pro"
-                              ? "text-green"
-                              : "text-gray-400"
-                          }`}
-                          strokeWidth={2.5}
-                        />
-                        <span className={plan.variant === "premium" ? "text-white/75" : "text-gray-600"}>
-                          {f}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* AI chip */}
-                  <div
-                    className={`mb-5 flex items-center gap-2 px-3 py-2 rounded-xl ${
-                      plan.variant === "premium"
-                        ? "bg-white/10 border border-white/10"
-                        : "bg-violet-50 border border-violet-100"
-                    }`}
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 flex-shrink-0">
-                      <path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.2L12 16.5l-6.2 4.4 2.4-7.2L2 9.2h7.6z" fill="#8b5cf6"/>
-                    </svg>
-                    <span className={`text-xs font-semibold ${
-                      plan.variant === "premium" ? "text-violet-300" : "text-violet-600"
-                    }`}>
-                      {plan.aiLabel}
-                    </span>
-                  </div>
-
-                  {/* CTA */}
-                  <div>
-                    {plan.key === "free" ? (
-                      <Link
-                        href="/courses"
-                        className="block text-center py-3.5 px-6 rounded-2xl font-semibold text-sm border border-gray-200 text-gray-600 hover:border-green hover:text-green transition-colors"
-                      >
-                        {plan.cta}
-                      </Link>
-                    ) : (
-                      <button
-                        onClick={() => setActivePlan(plan.key as PaidPlan)}
-                        className={`w-full py-3.5 px-6 rounded-2xl font-semibold text-sm transition-all active:scale-[0.98] ${
-                          plan.variant === "pro"
-                            ? "bg-green text-white hover:bg-green/90 shadow-[0_4px_20px_rgba(58,170,106,0.35)]"
-                            : "bg-white text-dark hover:bg-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.12)]"
-                        }`}
-                      >
-                        {plan.cta}
-                      </button>
-                    )}
-                  </div>
+                  {renderPlanCardBody(plan)}
                 </motion.div>
               </motion.div>
             );
           })}
+        </div>
+
+        {/* Mobile carousel (<md) — Pro centered, side cards partially peeking */}
+        <div className="md:hidden py-8 overflow-hidden">
+          <motion.div
+            className="flex items-center"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.5}
+            dragMomentum={false}
+            animate={{ x: `${17.5 - 65 * activeIdx}%` }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            onPointerDown={() => { isHeldRef.current = true; bumpInteraction(); }}
+            onDragEnd={(_e, info) => {
+              isHeldRef.current = false;
+              bumpInteraction();
+              const threshold = 50;
+              if (info.offset.x < -threshold && activeIdx < plans.length - 1) {
+                setActiveIdx(activeIdx + 1);
+              } else if (info.offset.x > threshold && activeIdx > 0) {
+                setActiveIdx(activeIdx - 1);
+              }
+            }}
+            style={{ touchAction: "pan-y" }}
+          >
+            {plans.map((plan, i) => {
+              const isActive = i === activeIdx;
+              const absOff   = Math.abs(i - activeIdx);
+              return (
+                <motion.div
+                  key={`${plan.key}-${locale}-m`}
+                  animate={{
+                    scale:   isActive ? 1 : 0.8,
+                    opacity: absOff > 1 ? 0 : isActive ? 1 : 0.55,
+                    filter:  isActive ? "blur(0px)" : "blur(1.5px)",
+                  }}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                  onClick={() => { if (!isActive) { setActiveIdx(i); bumpInteraction(); } }}
+                  style={{ zIndex: 10 - absOff, transformOrigin: "center center" }}
+                  className="min-w-[65%] px-2 pt-6 cursor-pointer"
+                >
+                  {renderPlanCardBody(plan)}
+                </motion.div>
+              );
+            })}
+          </motion.div>
+
+          {/* Carousel dots */}
+          <div className="flex justify-center gap-2 mt-8">
+            {plans.map((p, i) => (
+              <button
+                key={p.key}
+                type="button"
+                onClick={() => { setActiveIdx(i); bumpInteraction(); }}
+                aria-label={`Show ${p.name}`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === activeIdx ? "w-8 bg-green" : "w-1.5 bg-gray-300 hover:bg-gray-400"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </section>
 

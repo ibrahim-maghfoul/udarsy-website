@@ -1,0 +1,319 @@
+/* Route-scoped CSS for /profile — moved out of globals.css so the landing
+   page doesn't pay the parse cost for ~310 lines of styles it doesn't use. */
+
+/* ─── Profile Service Cards (image-background variant) ─── */
+.profile-svc-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  border: 1.5px solid rgba(58, 170, 106, 0.55);
+  overflow: hidden;
+  background-color: #1a3a2a;
+  background-size: cover;
+  background-position: center;
+  text-decoration: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transform: translateZ(0);
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.28s ease;
+  will-change: transform;
+}
+.profile-svc-card:hover {
+  transform: translate3d(0, -5px, 0);
+  border-color: #3aaa6a;
+}
+.profile-svc-card:active {
+  transform: translate3d(0, -2px, 0);
+  transition-duration: 0.12s;
+}
+
+/* Contour trace */
+.profile-svc-card::before,
+.profile-svc-card::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 10px;
+  border: 2px solid #3aaa6a;
+  pointer-events: none;
+  transition: clip-path 0.45s cubic-bezier(0.34, 1.2, 0.64, 1);
+  z-index: 4;
+}
+.profile-svc-card::before { clip-path: inset(0 50% 100% 0); }
+.profile-svc-card::after  { clip-path: inset(0 0 100% 50%); }
+.profile-svc-card:hover::before { clip-path: inset(0 50% 0% 0); }
+.profile-svc-card:hover::after  { clip-path: inset(0 0 0% 50%); }
+
+.profile-svc-card-title-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 70%;
+  padding: 14px 12px 0 14px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.profile-svc-card .profile-svc-card-title {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #3aaa6a !important;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+}
+.profile-svc-card .profile-svc-card-subtitle {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(58, 170, 106, 0.75) !important;
+  line-height: 1.25;
+}
+
+.profile-svc-card-arrow {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 3;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #3aaa6a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  opacity: 0;
+  transform: translateY(7px);
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.profile-svc-card:hover .profile-svc-card-arrow {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 549px) {
+  .profile-svc-card-title { font-size: 1.05rem; }
+  .profile-svc-card-subtitle { font-size: 0.75rem; }
+  .profile-svc-card-arrow { width: 34px; height: 34px; bottom: 12px; left: 12px; }
+  .profile-svc-card-title-wrap { padding: 18px 14px 0 18px; }
+}
+
+/* ─── Last Visited Course Cards (16:9 image-background grid) ─── */
+.last-visited-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  border: 1.5px solid rgba(58, 170, 106, 0.55);
+  overflow: hidden;
+  background-color: #1a3a2a;
+  background-size: cover;
+  background-position: center;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transform: translateZ(0);
+  transition:
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.28s ease;
+  will-change: transform;
+}
+.last-visited-card:hover {
+  transform: translate3d(0, -5px, 0);
+  border-color: #3aaa6a;
+}
+.last-visited-card:active {
+  transform: translate3d(0, -2px, 0);
+  transition-duration: 0.12s;
+}
+.last-visited-card-fallback {
+  background-image: linear-gradient(135deg, #1a3a2a 0%, #2a5c3f 50%, #1e4a32 100%);
+}
+
+/* Contour trace */
+.last-visited-card::before,
+.last-visited-card::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 10px;
+  border: 2px solid #3aaa6a;
+  pointer-events: none;
+  transition: clip-path 0.45s cubic-bezier(0.34, 1.2, 0.64, 1);
+  z-index: 4;
+}
+.last-visited-card::before { clip-path: inset(0 50% 100% 0); }
+.last-visited-card::after  { clip-path: inset(0 0 100% 50%); }
+.last-visited-card:hover::before { clip-path: inset(0 50% 0% 0); }
+.last-visited-card:hover::after  { clip-path: inset(0 0 0% 50%); }
+
+.last-visited-card-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(26, 58, 42, 0.78) 0%, rgba(26, 58, 42, 0.45) 45%, rgba(15, 68, 40, 0.88) 100%);
+  z-index: 1;
+}
+
+.last-visited-card-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 14px 0 14px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  direction: ltr;
+  text-align: left;
+}
+.last-visited-card-eyebrow {
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1;
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate;
+}
+.last-visited-card-title {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 4px;
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate;
+}
+.last-visited-card-subject {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate;
+}
+
+.last-visited-card-bottom {
+  position: absolute;
+  bottom: 10px;
+  left: 14px;
+  right: 50px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  direction: ltr;
+}
+.last-visited-card-progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+.last-visited-card-progress-track {
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  min-width: 30px;
+}
+.last-visited-card-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3aaa6a, #5dc98a);
+  transition: width 0.7s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+.last-visited-card-progress-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+}
+.last-visited-card-date {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+
+.last-visited-card-arrow {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 3;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #3aaa6a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  opacity: 0;
+  transform: translateY(7px);
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.last-visited-card:hover .last-visited-card-arrow {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 549px) {
+  .last-visited-card-title { font-size: 1.05rem; }
+  .last-visited-card-subject { font-size: 0.78rem; }
+  .last-visited-card-top { padding: 16px 16px 0 16px; }
+  .last-visited-card-bottom { left: 16px; bottom: 12px; }
+  .last-visited-card-arrow { width: 34px; height: 34px; bottom: 10px; right: 10px; }
+}
+
+/* ─── Chart Card (contour trace for inline-styled charts) ─── */
+.chart-card { position: relative; }
+.chart-card::before,
+.chart-card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 10px;
+  border: 2px solid #3aaa6a;
+  pointer-events: none;
+  transition: clip-path 0.45s cubic-bezier(0.34, 1.2, 0.64, 1);
+  z-index: 3;
+}
+.chart-card::before { clip-path: inset(0 50% 100% 0); }
+.chart-card::after  { clip-path: inset(0 0 100% 50%); }
+.chart-card:hover::before { clip-path: inset(0 50% 0% 0); }
+.chart-card:hover::after  { clip-path: inset(0 0 0% 50%); }
+
+/* Reduce-motion override for profile-specific cards */
+@media (prefers-reduced-motion: reduce) {
+  .last-visited-card {
+    transition: none !important;
+    transform: none !important;
+  }
+}

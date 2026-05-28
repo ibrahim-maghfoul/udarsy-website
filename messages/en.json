@@ -18,6 +18,7 @@
     },
     "Hero": {
         "badge": "Morocco's Education Platform Powered With AI",
+        "section_title": "Everything you need, connected",
         "subtitle": "Access free courses, prepare for your exams, and join the first Moroccan platform powered by AI.",
         "title1": "Your complete ",
         "title_highlight": "Online School",
@@ -280,6 +281,14 @@
         "email": "Email",
         "password": "Password",
         "fullname": "Full Name",
+        "name": "Name",
+        "nickname": "Nickname",
+        "verify_email_resend": "Resend verification email",
+        "verify_email_resend_failed": "Couldn't send the email. Please try again.",
+        "verify_email_sent": "Verification email sent. Check your inbox.",
+        "verify_required_title": "Verify your email first",
+        "verify_required_desc": "Verify your email so your activities — progress, favorites, chats — get recorded to your account.",
+        "verify_required_home": "← Back to home",
         "forgot_password": "Forgot password?",
         "signin_btn": "Sign In",
         "signup_btn": "Create Account",
@@ -558,7 +567,8 @@
         "saved": "Saved",
         "mark_completed": "Mark as Completed",
         "sign_out": "Sign Out",
-        "change_language": "Change language"
+        "change_language": "Change language",
+        "close": "Close"
     },
     "Onboarding": {
         "school_title": "Choose your School",
@@ -566,9 +576,10 @@
         "level_title": "Education Level",
         "level_desc": "Which grade or level are you in?",
         "guest_explore_desc": "Select your level to browse our library and start learning today.",
-        "guidance_title": "Guidance (Stream)",
+        "guidance_title": "Your Track",
         "guidance_desc": "Choose your specialized area of study.",
         "back": "Back to previous step",
+        "confirm": "Confirm",
         "save_error": "Failed to save your selections. Please try again.",
         "personal_info_title": "Personal Information",
         "personal_info_desc": "Tell us a bit more about yourself to personalize your experience.",
@@ -1049,14 +1060,30 @@
         "contribute_error": "Failed to contribute"
     },
     "SubjectCards": {
-        "badge": "Subject Library",
-        "title": "Explore All Your Subjects",
-        "subtitle": "Access PDFs, videos, exercises and exam prep for every subject — built for Moroccan students.",
-        "subject_eyebrow": "Subject",
-        "lessons": "Lessons",
-        "videos": "Videos",
-        "progress": "Progress",
-        "cta": "Browse All Subjects"
+        "badge": "Your daily study toolkit",
+        "headline_a": "Show up.",
+        "headline_b": "Stick with it.",
+        "headline_c": "Get there.",
+        "lead": "Streaks that keep you going, a calendar that plans your week, and a grade calculator that shows where you really stand — everything you need to turn \"I'll study tomorrow\" into a habit you keep.",
+        "subjects": {
+            "maths": "Maths",
+            "pc": "Physics & Chemistry",
+            "svt": "Life & Earth Sciences",
+            "francais": "French",
+            "anglais": "English",
+            "arabe": "Arabic",
+            "histgeo": "History-Geography",
+            "philo": "Philosophy",
+            "islamique": "Islamic Education"
+        },
+        "card1_title": "Curriculum-aligned",
+        "card1_desc": "Built around the Moroccan school program",
+        "card2_title": "AI tutoring",
+        "card2_desc": "Explanations on demand, in your language",
+        "card3_title": "Track progress",
+        "card3_desc": "Streaks, milestones and clear insights",
+        "card4_title": "Trusted community",
+        "card4_desc": "Verified teachers, peers and mentors"
     },
     "CookieBanner": {
         "title": "We use cookies",

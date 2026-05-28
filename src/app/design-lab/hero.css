@@ -71,6 +71,16 @@
   z-index: 0;
 }
 
+/* The wave motion lives on each <path> via SMIL <animate> on the
+   `d` attribute — the curve shape itself morphs through 3 forms,
+   so each line ripples and reshapes rather than just bobbing.
+   No `will-change` here — SMIL on `d` doesn't benefit from compositor
+   promotion, and pinning 9 layers wastes memory during LCP. */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__curve animate { display: none; }
+}
+
 /* soft green wash behind the deck — keeps depth without warm pastels */
 .hero__blob {
   position: absolute;

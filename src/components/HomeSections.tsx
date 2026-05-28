@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef } from "react";
 import { trackEvent } from "@/lib/analytics";
 
-const SubjectCardsSection = dynamic(() => import("@/components/SubjectCardsSection").then(m => ({ default: m.SubjectCardsSection })), { ssr: false, loading: () => <div style={{ minHeight: 700 }} /> });
+const SubjectLibrarySection = dynamic(() => import("@/components/SubjectLibrarySection").then(m => ({ default: m.SubjectLibrarySection })), { ssr: false, loading: () => <div style={{ minHeight: 700 }} /> });
 const BelieveSection      = dynamic(() => import("@/components/BelieveSection").then(m => ({ default: m.BelieveSection })), { ssr: false, loading: () => <div style={{ minHeight: 600 }} /> });
 const ChatFeatureSection  = dynamic(() => import("@/components/ChatFeatureSection").then(m => ({ default: m.ChatFeatureSection })), { ssr: false, loading: () => <div style={{ minHeight: 500 }} /> });
 const CoursesSection      = dynamic(() => import("@/components/CoursesSection").then(m => ({ default: m.CoursesSection })), { ssr: false, loading: () => <div style={{ minHeight: 600 }} /> });
@@ -113,7 +113,7 @@ export function HomeSections() {
 
       <HeroSection />
 
-      <LazySection minHeight={700} rootMargin="2000px"><SubjectCardsSection /></LazySection>
+      <LazySection minHeight={700} rootMargin="2000px"><SubjectLibrarySection /></LazySection>
       <div className="hidden sm:block"><LazySection minHeight={600}><BelieveSection /></LazySection></div>
       <LazySection minHeight={500}><ChatFeatureSection /></LazySection>
       <LazySection minHeight={600}>

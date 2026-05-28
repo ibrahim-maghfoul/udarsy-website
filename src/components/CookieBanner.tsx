@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
@@ -33,40 +32,47 @@ function saveVisitorMeta(accepted: boolean) {
 
 export default function CookieBanner() {
     const t = useTranslations('CookieBanner');
+    const [mounted, setMounted] = useState(false);
     const [visible, setVisible] = useState(false);
     const [showDetails, setShowDetails] = useState(false);
 
     useEffect(() => {
         if (!getCookie(COOKIE_KEY)) {
-            const timer = setTimeout(() => setVisible(true), 900);
+            const timer = setTimeout(() => {
+                setMounted(true);
+                // double-rAF so the initial off-screen styles paint before transitioning in
+                requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+            }, 900);
             return () => clearTimeout(timer);
         }
     }, []);
 
+    const dismiss = () => {
+        setVisible(false);
+        // unmount after the transition finishes
+        setTimeout(() => setMounted(false), 320);
+    };
     const accept = () => {
         setCookie(COOKIE_KEY, 'accepted', CONSENT_DAYS);
         saveVisitorMeta(true);
-        setVisible(false);
+        dismiss();
     };
     const decline = () => {
         setCookie(COOKIE_KEY, 'declined', CONSENT_DAYS);
         saveVisitorMeta(false);
-        setVisible(false);
+        dismiss();
     };
 
+    if (!mounted) return null;
+
     return (
-        <AnimatePresence>
-            {visible && (
-                <motion.div
-                    initial={{ opacity: 0, y: 100, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 100, scale: 0.9 }}
-                    transition={{ type: 'spring', damping: 22, stiffness: 240 }}
-                    className="fixed bottom-6 right-6 z-[9999] w-[calc(100%-2rem)] sm:w-auto max-w-[320px] rounded-2xl bg-white [box-shadow:rgba(60,64,67,0.3)_0_1px_2px_0,rgba(60,64,67,0.15)_0_2px_6px_2px]"
-                    role="dialog"
-                    aria-live="polite"
-                    aria-label={t('title')}
-                >
+        <div
+            className="cookie-banner fixed bottom-6 right-6 z-[9999] w-[calc(100%-2rem)] sm:w-auto max-w-[320px] rounded-2xl bg-white [box-shadow:rgba(60,64,67,0.3)_0_1px_2px_0,rgba(60,64,67,0.15)_0_2px_6px_2px]"
+            data-visible={visible ? 'true' : 'false'}
+            role="dialog"
+            aria-live="polite"
+            aria-label={t('title')}
+        >
                     <div className="flex flex-col items-center justify-between pt-9 px-6 pb-6 relative">
                         <span className="relative mx-auto -mt-16 mb-6">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" height="46" width="65" aria-hidden="true">
@@ -81,9 +87,9 @@ export default function CookieBanner() {
                             </svg>
                         </span>
 
-                        <h5 className="text-sm font-semibold mb-2 text-left mr-auto text-zinc-700">
+                        <h2 className="text-sm font-semibold mb-2 text-left mr-auto text-zinc-700">
                             {t('title')}
-                        </h5>
+                        </h2>
 
                         <p className="w-full mb-3 text-sm text-zinc-600 leading-snug">
                             {t('desc', { days: CONSENT_DAYS })}{' '}
@@ -95,28 +101,21 @@ export default function CookieBanner() {
                             </Link>
                         </p>
 
-                        <AnimatePresence initial={false}>
-                            {showDetails && (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    transition={{ duration: 0.18 }}
-                                    className="w-full mb-3 overflow-hidden"
-                                >
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div className="rounded-lg bg-green/5 border border-green/15 p-2.5">
-                                            <p className="text-[11px] font-bold text-zinc-700">{t('essential')}</p>
-                                            <p className="text-[11px] text-zinc-500 leading-tight mt-0.5">{t('essential_desc')}</p>
-                                        </div>
-                                        <div className="rounded-lg bg-blue-50 border border-blue-100 p-2.5">
-                                            <p className="text-[11px] font-bold text-zinc-700">{t('analytics')}</p>
-                                            <p className="text-[11px] text-zinc-500 leading-tight mt-0.5">{t('analytics_desc')}</p>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        <div
+                            className="cookie-details-row w-full mb-3 overflow-hidden"
+                            data-open={showDetails ? 'true' : 'false'}
+                        >
+                            <div className="grid grid-cols-2 gap-2 pt-px">
+                                <div className="rounded-lg bg-green/5 border border-green/15 p-2.5">
+                                    <p className="text-[11px] font-bold text-zinc-700">{t('essential')}</p>
+                                    <p className="text-[11px] text-zinc-500 leading-tight mt-0.5">{t('essential_desc')}</p>
+                                </div>
+                                <div className="rounded-lg bg-blue-50 border border-blue-100 p-2.5">
+                                    <p className="text-[11px] font-bold text-zinc-700">{t('analytics')}</p>
+                                    <p className="text-[11px] text-zinc-500 leading-tight mt-0.5">{t('analytics_desc')}</p>
+                                </div>
+                            </div>
+                        </div>
 
                         <button
                             onClick={() => setShowDetails(!showDetails)}
@@ -138,15 +137,13 @@ export default function CookieBanner() {
                             </button>
                             <button
                                 onClick={accept}
-                                className="font-semibold cursor-pointer py-2 px-6 w-max break-keep text-sm rounded-lg transition-colors text-white hover:text-white bg-green hover:bg-dark"
+                                className="font-semibold cursor-pointer py-2 px-6 w-max break-keep text-sm rounded-lg transition-colors text-white hover:text-white bg-green-deep hover:bg-dark"
                                 type="button"
                             >
                                 {t('accept')}
                             </button>
                         </div>
                     </div>
-                </motion.div>
-            )}
-        </AnimatePresence>
+                </div>
     );
 }

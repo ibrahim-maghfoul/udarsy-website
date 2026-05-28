@@ -20,13 +20,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, BookOpen, ChevronRight, ChevronLeft, ArrowLeft } from "lucide-react";
+import { Search, BookOpen, ChevronRight, ChevronLeft, ArrowLeft, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslations, useLocale } from "next-intl";
 import { resolveCurriculumPath, getSubjects, curriculumPath, type ResolvedPath, type CurriculumChain } from "@/services/data";
 import { getSubjectImage } from "@/lib/subjectImages";
 import LessonPageClient from "../../lesson/[lessonId]/LessonPageClient";
-import SubjectLessonsPage from "../../explore/subject/[subjectId]/page";
+import { SubjectLessonsView } from "../../explore/subject/[subjectId]/SubjectLessonsView";
 import "../../explore/subject-cards.css";
 
 function CurriculumNotFound() {
@@ -82,37 +82,43 @@ function GuidanceSubjectsView({ chain }: { chain: CurriculumChain }) {
             <header className="hidden md:block relative overflow-hidden bg-gradient-to-b from-[#f0f7f3] to-transparent border-b border-green/8 pt-32 pb-10 px-6">
                 <div className="absolute top-0 right-0 w-[420px] h-[420px] rounded-full bg-green/5 blur-3xl pointer-events-none" style={{ transform: 'translate3d(30%, -30%, 0)' }} />
                 <div className="max-w-7xl mx-auto relative">
-                    <div className={`flex items-center gap-2 text-sm text-dark/40 mb-3 ${isAr ? 'flex-row-reverse' : ''}`}>
-                        <Link href="/courses" className="hover:text-green transition-colors">Courses</Link>
-                        <span>/</span>
-                        <span className="text-dark/70">{chain.school.title}</span>
-                        <span>/</span>
-                        <span className="text-dark/70">{chain.level?.title}</span>
-                        <span>/</span>
-                        <span className="text-dark/70">{chain.guidance?.title}</span>
-                    </div>
+                    <Link href="/courses" className={`btn-back mb-5 ${isAr ? 'rtl flex-row-reverse' : ''}`}>
+                        <ArrowLeft size={15} className={`btn-back-arrow ${isAr ? 'rotate-180' : ''}`} />
+                        Courses
+                    </Link>
                     <h1 className="text-2xl md:text-4xl font-bold text-dark">{chain.guidance?.title}</h1>
-                    <div className="mt-6 relative w-72">
-                        <Search size={15} className={`absolute top-1/2 -translate-y-1/2 text-green/40 pointer-events-none ${isAr ? 'right-3' : 'left-3'}`} />
+                    <div className={`u-search mt-6 ${isAr ? 'rtl' : ''}`}>
+                        <Search size={16} className="u-search-icon" strokeWidth={2.2} />
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
                             placeholder={t('search_placeholder')}
-                            className={`w-full py-2.5 text-sm bg-white border border-green/20 rounded-xl text-dark placeholder:text-gray-400 focus:outline-none focus:border-green/40 ${isAr ? 'pr-9 pl-4' : 'pl-9 pr-4'}`}
+                            className="u-search-input"
+                            dir={isAr ? 'rtl' : undefined}
                         />
+                        <button
+                            type="button"
+                            aria-label="Clear search"
+                            onClick={() => setSearchQuery('')}
+                            className={`u-search-clear ${searchQuery ? 'is-visible' : ''}`}
+                        >
+                            <X size={13} strokeWidth={2.4} />
+                        </button>
                     </div>
                 </div>
             </header>
 
             <main className="max-w-7xl mx-auto pt-8 px-5 md:px-10" style={{ paddingBottom: '8rem' }}>
                 {!loading && filtered.length > 0 && (
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="flex-1 h-px bg-green/10" />
-                        <span className="px-3.5 py-1 bg-green text-white text-xs font-bold rounded-full">
-                            {filtered.length} {filtered.length === 1 ? 'subject' : 'subjects'}
+                    <div className="u-filter-row">
+                        <div className="u-filter-divider left" />
+                        <span className="u-filter-chip" key={filtered.length}>
+                            <span className="u-filter-chip-dot" />
+                            <span className="u-filter-chip-num" key={`n-${filtered.length}`}>{filtered.length}</span>
+                            <span>{filtered.length === 1 ? 'subject' : 'subjects'}</span>
                         </span>
-                        <div className="flex-1 h-px bg-green/10" />
+                        <div className="u-filter-divider right" />
                     </div>
                 )}
                 {loading ? (
@@ -240,7 +246,7 @@ export default function CurriculumCatchAll() {
     if (resolved.kind === 'lesson' && resolved.chain.lesson)
         return <LessonPageClient lessonId={resolved.chain.lesson._id} />;
     if (resolved.kind === 'subject' && resolved.chain.subject)
-        return <SubjectLessonsPage subjectId={resolved.chain.subject._id} chain={resolved.chain} />;
+        return <SubjectLessonsView subjectId={resolved.chain.subject._id} chain={resolved.chain} />;
     if (resolved.kind === 'guidance' && resolved.chain.guidance)
         return <GuidanceSubjectsView chain={resolved.chain} />;
     // school / level fall back to the legacy 1-2 segment routes.

@@ -1,3 +1,4 @@
+import "./news.css";
 import type { Metadata } from "next";
 import { pageTitle } from "@/lib/page-title";
 

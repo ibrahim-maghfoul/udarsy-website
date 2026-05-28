@@ -18,6 +18,7 @@
     },
     "Hero": {
         "badge": "Plateforme Éducative du Maroc Propulsée par l'IA",
+        "section_title": "Tout ce dont vous avez besoin, connecté",
         "subtitle": "Accédez à des cours gratuits, préparez vos examens et rejoignez la première plateforme marocaine propulsée par l'IA.",
         "title1": "Votre ",
         "title_highlight": "École en Ligne",
@@ -280,6 +281,14 @@
         "email": "E-mail",
         "password": "Mot de passe",
         "fullname": "Nom complet",
+        "name": "Prénom",
+        "nickname": "Surnom",
+        "verify_email_resend": "Renvoyer l'e-mail de vérification",
+        "verify_email_resend_failed": "Impossible d'envoyer l'e-mail. Veuillez réessayer.",
+        "verify_email_sent": "E-mail de vérification envoyé. Vérifiez votre boîte de réception.",
+        "verify_required_title": "Vérifiez d'abord votre e-mail",
+        "verify_required_desc": "Vérifiez votre e-mail pour que vos activités — progression, favoris, chats — soient enregistrées sur votre compte.",
+        "verify_required_home": "← Retour à l'accueil",
         "forgot_password": "Mot de passe oublié ?",
         "signin_btn": "Connexion",
         "signup_btn": "Créer un compte",
@@ -557,7 +566,8 @@
         "saved": "Enregistré",
         "mark_completed": "Marquer comme terminé",
         "sign_out": "Se déconnecter",
-        "change_language": "Changer de langue"
+        "change_language": "Changer de langue",
+        "close": "Fermer"
     },
     "Onboarding": {
         "school_title": "Choisissez votre école",
@@ -565,9 +575,10 @@
         "level_title": "Niveau d'éducation",
         "level_desc": "En quel grade ou niveau êtes-vous ?",
         "guest_explore_desc": "Sélectionnez votre niveau pour parcourir notre bibliothèque et commencez à apprendre dès aujourd'hui.",
-        "guidance_title": "Orientation (Filière)",
+        "guidance_title": "Votre Filière",
         "guidance_desc": "Choisissez votre domaine d'étude spécialisé.",
         "back": "Retour à l'étape précédente",
+        "confirm": "Confirmer",
         "save_error": "Échec de l'enregistrement de vos sélections. Veuillez réessayer.",
         "personal_info_title": "Informations Personnelles",
         "personal_info_desc": "Parlez-nous un peu plus de vous pour personnaliser votre expérience.",
@@ -1048,14 +1059,30 @@
         "contribute_error": "Échec de la contribution"
     },
     "SubjectCards": {
-        "badge": "Bibliothèque des Matières",
-        "title": "Explorez Toutes Vos Matières",
-        "subtitle": "Accédez aux PDFs, vidéos, exercices et préparation aux examens — conçus pour les élèves marocains.",
-        "subject_eyebrow": "Matière",
-        "lessons": "Leçons",
-        "videos": "Vidéos",
-        "progress": "Progression",
-        "cta": "Parcourir les matières"
+        "badge": "Votre boîte à outils quotidienne",
+        "headline_a": "Présent.",
+        "headline_b": "Régulier.",
+        "headline_c": "Au but.",
+        "lead": "Des séries qui vous gardent en route, un calendrier qui organise votre semaine, et un calculateur de notes qui montre où vous en êtes vraiment — tout ce qu'il faut pour transformer « j'étudierai demain » en habitude que vous gardez.",
+        "subjects": {
+            "maths": "Maths",
+            "pc": "Physique-Chimie",
+            "svt": "SVT",
+            "francais": "Français",
+            "anglais": "Anglais",
+            "arabe": "Arabe",
+            "histgeo": "Histoire-Géo",
+            "philo": "Philosophie",
+            "islamique": "Éducation Islamique"
+        },
+        "card1_title": "Aligné au programme",
+        "card1_desc": "Conçu autour du programme scolaire marocain",
+        "card2_title": "Tutorat par IA",
+        "card2_desc": "Des explications à la demande, dans votre langue",
+        "card3_title": "Suivez vos progrès",
+        "card3_desc": "Séries, jalons et indicateurs clairs",
+        "card4_title": "Communauté de confiance",
+        "card4_desc": "Enseignants vérifiés, pairs et mentors"
     },
     "CookieBanner": {
         "title": "Nous utilisons des cookies",

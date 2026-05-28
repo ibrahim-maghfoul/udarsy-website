@@ -1,5 +1,6 @@
 'use client';
 
+import './apply-teacher.css';
 import { useState, useEffect, useRef } from 'react';
 import { UdarsyLoader } from '@/components/UdarsyLoader';
 import { useRouter } from 'next/navigation';

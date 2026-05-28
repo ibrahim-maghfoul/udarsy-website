@@ -11,6 +11,7 @@ import { getMessages, getLocale } from 'next-intl/server';
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import CookieBanner from "@/components/CookieBanner";
 import { PageTransition } from "@/components/PageTransition";
+import { VerifyDialog } from "@/components/VerifyDialog";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { MicrosoftClarity } from "@/components/MicrosoftClarity";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
@@ -197,6 +198,7 @@ export default async function RootLayout({
                   <LanguageSwitcher />
                   <Footer />
                   <CookieBanner />
+                  <VerifyDialog />
                 </AnalyticsProvider>
               </SnackbarProvider>
             </AuthProvider>

@@ -403,7 +403,7 @@ export const Navbar = () => {
                   </Link>
                   <Link
                     href="/signup"
-                    className="px-4 lg:px-8 py-2 lg:py-2.5 bg-green text-white font-bold rounded-full text-xs lg:text-sm shadow-[0_4px_14px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.23)] hover:-translate-y-0.5 active:scale-95 transition-all"
+                    className="px-4 lg:px-8 py-2 lg:py-2.5 bg-green-deep text-white font-bold rounded-full text-xs lg:text-sm shadow-[0_4px_14px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.23)] hover:-translate-y-0.5 active:scale-95 transition-all"
                   >
                     {t('getStarted')}
                   </Link>
