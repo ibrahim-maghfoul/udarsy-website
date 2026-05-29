@@ -2,10 +2,10 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ChevronLeft, Mail, ExternalLink, GraduationCap, Award, Briefcase } from "lucide-react";
-import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { ChevronLeft, Mail } from "lucide-react";
 
+// Must stay in sync with src/app/team/[id]/layout.tsx (metadata + JSON-LD)
+// and the team grid on src/app/about/page.tsx.
 const teamData = [
     {
         id: "ibrahim-maghfoul",
@@ -13,7 +13,8 @@ const teamData = [
         role: "Website Manager",
         initials: "IM",
         color: "bg-green",
-        bio: "Ibrahim is the visionary behind Udarsy platform. He ensures that every component is seamlessly integrated, and the user experience is world-class. With his profound knowledge in platform architecture and digital strategy, he has scaled Udarsy to reach thousands of learners."
+        img: "/team/ibrahim-maghfoul.webp",
+        bio: "Ibrahim is the visionary behind Udarsy. He leads platform architecture and digital strategy, scaling Morocco's freemium learning platform to reach tens of thousands of students."
     },
     {
         id: "abderrahman-aouinat",
@@ -21,23 +22,26 @@ const teamData = [
         role: "Multimedia Responsable",
         initials: "AA",
         color: "bg-blue-500",
-        bio: "Abderrahman handles all things visual and interactive. From video production to interactive media, he ensures that the content provided is engaging and retains high production value, transforming complex topics into visually accessible learning experiences."
+        img: "/team/abderrahman-aouinat.webp",
+        bio: "Abderrahman directs Udarsy's video production and interactive media. He turns complex Moroccan curriculum topics into engaging, visual learning experiences for students at every level."
     },
     {
-        id: "mouhamed-demo",
-        name: "Mouhamed Demo",
+        id: "abdelhakim-taouqi",
+        name: "Abdelhakim Taouqi",
         role: "Marketing Manager",
-        initials: "MD",
+        initials: "AT",
         color: "bg-amber-500",
-        bio: "Mouhamed is the engine behind our growth. His strategic vision and marketing expertise have been crucial in expanding our user base. He focuses on data-driven marketing, brand building, and reaching students who need Udarsy the most."
+        img: "/team/abdelhakim-taouqi.webp",
+        bio: "Abdelhakim drives Udarsy's growth across Morocco. He combines data-driven marketing with strong brand building, reaching the students who need Udarsy most as they prepare for BAC and Brevet."
     },
     {
-        id: "ayman-nouri",
-        name: "Ayman Nouri",
+        id: "mouhamed-el-wardi",
+        name: "Mouhamed El Wardi",
         role: "Developer",
-        initials: "AN",
+        initials: "MW",
         color: "bg-purple-500",
-        bio: "Ayman is the core architect of our technical solutions. He writes the code that powers Udarsy, ensuring that the platform is robust, fast, and scalable. He is passionate about modern web technologies and optimizing performance."
+        img: "/team/mouhamed-el-wardi.webp",
+        bio: "Mouhamed builds and maintains the technical foundations of Udarsy. From the lesson platform to the mobile apps, he ensures the systems keeping thousands of Moroccan students learning every day are robust, fast, and scalable."
     },
     {
         id: "asmae-monaghim",
@@ -45,7 +49,8 @@ const teamData = [
         role: "Finance Manager",
         initials: "AM",
         color: "bg-red-500",
-        bio: "Asmae is responsible for the financial health of the project. She oversees budgeting, financial planning, and resource allocation. Her meticulous attention to detail ensures that the company remains on a strong, sustainable trajectory."
+        img: "/team/asmae-monaghim.webp",
+        bio: "Asmae oversees the financial health of Udarsy. She manages budgeting, planning, and resource allocation with the meticulous attention to detail that keeps the platform on a sustainable trajectory."
     },
     {
         id: "safae-el-oujdi",
@@ -53,7 +58,8 @@ const teamData = [
         role: "Logistic",
         initials: "SO",
         color: "bg-cyan-500",
-        bio: "Safae ensures the smooth operation of all behind-the-scenes activities. Her logistical expertise helps streamline internal processes and operations, making sure the team has everything they need to execute their goals efficiently."
+        img: "/team/safae-el-oujdi.webp",
+        bio: "Safae runs Udarsy's day-to-day operations. Her logistical expertise streamlines internal processes and coordinates between teams, suppliers, and partners across the Kingdom."
     }
 ];
 
@@ -61,7 +67,6 @@ export default function TeamMemberPage() {
     const params = useParams();
     const router = useRouter();
     const id = params.id as string;
-    const t = useTranslations('Common');
 
     const member = teamData.find(m => m.id === id);
 
@@ -91,8 +96,16 @@ export default function TeamMemberPage() {
                     transition={{ duration: 0.5 }}
                     className="flex flex-col md:flex-row gap-10 items-start"
                 >
-                    <div className={`w-40 h-40 md:w-56 md:h-56 shrink-0 rounded-[2rem] flex items-center justify-center text-white text-3xl md:text-5xl lg:text-7xl font-black shadow-2xl ${member.color}`}>
-                        {member.initials}
+                    <div className={`w-40 h-40 md:w-56 md:h-56 shrink-0 rounded-[2rem] overflow-hidden shadow-2xl ${member.img ? "" : `flex items-center justify-center text-white text-3xl md:text-5xl lg:text-7xl font-black ${member.color}`}`}>
+                        {member.img ? (
+                            <img
+                                src={member.img}
+                                alt={member.name}
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            member.initials
+                        )}
                     </div>
 
                     <div className="space-y-6 flex-1">

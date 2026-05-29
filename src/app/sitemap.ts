@@ -21,8 +21,8 @@ function toSlug(title: string): string {
 const TEAM_SLUGS = [
   "ibrahim-maghfoul",
   "abderrahman-aouinat",
-  "mouhamed-demo",
-  "ayman-nouri",
+  "abdelhakim-taouqi",
+  "mouhamed-el-wardi",
   "asmae-monaghim",
   "safae-el-oujdi",
 ];
