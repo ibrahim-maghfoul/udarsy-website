@@ -144,7 +144,13 @@ export default async function RootLayout({
                     "contactType": "customer support",
                     "areaServed": "MA",
                   },
-                  "sameAs": ["https://twitter.com/UdarsyMa"],
+                  "sameAs": [
+                    "https://twitter.com/udarsyschool",
+                    "https://instagram.com/udarsy",
+                    "https://facebook.com/udarsy",
+                    "https://youtube.com/@udarsyschool",
+                    "https://tiktok.com/@udarsyschool",
+                  ],
                 },
                 {
                   "@type": "WebSite",

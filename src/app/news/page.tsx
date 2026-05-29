@@ -82,8 +82,50 @@ export default async function NewsPage() {
         getNewsItems(),
     ]);
 
+    // CollectionPage + ItemList for the news listing. Item @ids resolve to
+    // the NewsArticle nodes /news/[id]/layout.tsx emits, so the listing
+    // surface and individual article nodes describe one shared entity graph.
+    const newsListJsonLd = {
+        '@context': 'https://schema.org',
+        '@graph': [
+            {
+                '@type': 'CollectionPage',
+                '@id': `${SITE_URL}/news#collection`,
+                url: `${SITE_URL}/news`,
+                name: 'Udarsy — Actualités éducation Maroc',
+                description: 'Dernières actualités sur l\'éducation, les concours, les bourses et les examens au Maroc.',
+                inLanguage: ['ar', 'fr'],
+                isPartOf: { '@id': `${SITE_URL}/#website` },
+                about: { '@id': `${SITE_URL}/#organization` },
+            },
+            {
+                '@type': 'ItemList',
+                '@id': `${SITE_URL}/news#list`,
+                name: 'Latest Udarsy education news',
+                numberOfItems: newsItems.length,
+                itemListElement: newsItems.slice(0, 50).map((n: any, i: number) => ({
+                    '@type': 'ListItem',
+                    position: i + 1,
+                    url: `${SITE_URL}/news/${n.slug || n.id}`,
+                    name: n.title,
+                })),
+            },
+            {
+                '@type': 'BreadcrumbList',
+                itemListElement: [
+                    { '@type': 'ListItem', position: 1, name: 'Udarsy', item: SITE_URL },
+                    { '@type': 'ListItem', position: 2, name: 'News', item: `${SITE_URL}/news` },
+                ],
+            },
+        ],
+    };
+
     return (
         <div className="min-h-screen pt-8 md:pt-24 lg:pt-36 pb-32 px-[clamp(16px,5vw,48px)]">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(newsListJsonLd) }}
+            />
             <div className="max-w-7xl mx-auto space-y-10">
 
                 {/* Pill */}
