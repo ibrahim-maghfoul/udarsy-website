@@ -47,9 +47,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/services`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/pricing`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     // SEO flagship hubs (Phase 3)
+    // /bourses absorbed by /news (scholarships already covered there).
+    // /calendrier-scolaire absorbed by /calendar (rich SEO appended to the
+    // existing calendar layout instead of a duplicate static page).
     { url: `${SITE_URL}/concours`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${SITE_URL}/bourses`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${SITE_URL}/calendrier-scolaire`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     // Apply / Join
     { url: `${SITE_URL}/apply-instructor`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${SITE_URL}/apply-teacher`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },

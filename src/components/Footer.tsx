@@ -67,8 +67,7 @@ export function Footer() {
                         <h3 className="text-[11px] font-black tracking-widest uppercase text-white mb-1">{t('product')}</h3>
                         <Link href="/courses" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('explore')}</Link>
                         <Link href="/concours" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('concours')}</Link>
-                        <Link href="/bourses" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('bourses')}</Link>
-                        <Link href="/calendrier-scolaire" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('calendrier_scolaire')}</Link>
+                        <Link href="/calendar" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('calendrier_scolaire')}</Link>
                         <Link href="/news" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('news')}</Link>
                         <Link href="/blog" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('blog')}</Link>
                         <Link href="/pricing" className="text-[13px] text-white/50 hover:text-white transition-colors py-1.5 -my-1.5 inline-block">{t('pricing')}</Link>
