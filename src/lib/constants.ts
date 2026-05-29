@@ -10,7 +10,7 @@ export const SOCIALS = {
     youtube: 'https://youtube.com/@udarsyschool',
     website: 'https://udarsy.com',
     tiktok: 'https://tiktok.com/@udarsyschool',
-    linkedin: '',     // add when ready
+    linkedin: 'https://www.linkedin.com/in/udarsy/',
     github: '',       // add when ready
 } as const;
 

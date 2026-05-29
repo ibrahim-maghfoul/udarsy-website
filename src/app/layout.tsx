@@ -145,6 +145,7 @@ export default async function RootLayout({
                     "areaServed": "MA",
                   },
                   "sameAs": [
+                    "https://www.linkedin.com/in/udarsy/",
                     "https://twitter.com/udarsyschool",
                     "https://instagram.com/udarsy",
                     "https://facebook.com/udarsy",
