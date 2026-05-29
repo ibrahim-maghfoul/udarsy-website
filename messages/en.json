@@ -72,7 +72,7 @@
         "diam2": "Teachers"
     },
     "Trusted": {
-        "text": "Trusted by leading educational institutions nationally",
+        "text": "Trusted by 50,000+ Moroccan students across the Kingdom",
         "subjectsTitle": "Built to Teach Every Subject"
     },
     "Believe": {
@@ -496,13 +496,13 @@
         "m2_title": "First 1,000 Students",
         "m2_desc": "Word spread quickly. Within months, students across Morocco were using Udarsy to prepare for exams.",
         "m3_title": "National Expansion",
-        "m3_desc": "We partnered with 20 schools and launched our mobile apps, reaching 10,000 active users.",
+        "m3_desc": "We partnered with 20 schools across the Kingdom, reaching 10,000 active users.",
         "m4_title": "Kingdom-wide Success",
         "m4_desc": "Udarsy now serves students across the Moroccan kingdom and beyond, ensuring quality education for all.",
         "m5_title": "AI Integration",
         "m5_desc": "Launched personalized AI learning paths that adapt to every student's individual pace and style.",
-        "m6_title": "Vision 2026",
-        "m6_desc": "Aiming to become the leading digital education hub in Africa, reaching 1 million learners.",
+        "m6_title": "Mobile Apps & Vision 2026",
+        "m6_desc": "Launching our iOS and Android apps and aiming to become the leading digital education hub in Africa, reaching 1 million learners.",
         "team_title": "Meet the people behind Udarsy",
         "cta_title": "Ready to start your journey?",
         "start_btn": "Start Learning",
@@ -510,7 +510,7 @@
         "stats_students": "Active Students",
         "stats_courses": "Courses Available",
         "stats_lessons": "Lessons",
-        "stats_schools": "Partner Schools",
+        "stats_schools": "Expert Educators",
         "stats_rating": "Average Rating",
         "mission_kicker": "Mission",
         "mission_stat1_label": "Interactive Lessons",
@@ -1235,5 +1235,13 @@
         "create_account": "Create my account",
         "related_articles": "Related articles",
         "back_to_blog": "Back to blog"
+    },
+    "ServicesPage": {
+        "kicker": "Official Hub",
+        "title": "Services & Info",
+        "desc": "Official educational resources and school information for Morocco.",
+        "back": "Back to Profile",
+        "empty_title": "No services available",
+        "empty_desc": "Check back later for new updates."
     }
 }

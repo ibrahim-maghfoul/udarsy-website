@@ -15,7 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSnackbar } from "@/contexts/SnackbarContext";
 import { useTranslations } from "next-intl";
 import ImageCropper from "@/components/ImageCropper";
-import "../explore/subject-cards.css";
+import "../courses/subject-cards.css";
 
 const moroccanCities = [
     "Casablanca", "Rabat", "Marrakech", "Fes", "Tangier", "Agadir", "Meknes", "Oujda", "Kenitra", "Tetouan",
@@ -71,7 +71,7 @@ export default function OnboardingPage() {
     const alreadyOnboarded = !!user?.selectedPath?.guidanceId;
     useEffect(() => {
         if (alreadyOnboarded && !pathOnly) {
-            router.replace('/explore');
+            router.replace('/courses');
         }
     }, [alreadyOnboarded, pathOnly, router]);
 

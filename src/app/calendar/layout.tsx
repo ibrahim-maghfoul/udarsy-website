@@ -19,6 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: "التقويم الدراسي | Udarsy",
       description: "نظم جدولك الدراسي مع تقويم يودرسي.",
     },
+    alternates: { canonical: "/calendar" },
   };
 }
 

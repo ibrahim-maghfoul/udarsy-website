@@ -26,8 +26,8 @@ import { useTranslations, useLocale } from "next-intl";
 import { resolveCurriculumPath, getSubjects, curriculumPath, type ResolvedPath, type CurriculumChain } from "@/services/data";
 import { getSubjectImage } from "@/lib/subjectImages";
 import LessonPageClient from "../../lesson/[lessonId]/LessonPageClient";
-import { SubjectLessonsView } from "../../explore/subject/[subjectId]/SubjectLessonsView";
-import "../../explore/subject-cards.css";
+import { SubjectLessonsView } from "../subject/[subjectId]/SubjectLessonsView";
+import "../subject-cards.css";
 
 function CurriculumNotFound() {
     return (

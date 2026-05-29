@@ -74,7 +74,7 @@ export const posts: BlogPost[] = [
         type: 'p',
         parts: [
           { text: "La fonctionnalité centrale d'Udarsy est la navigation dans le curriculum marocain. Depuis la " },
-          { text: "page Explorer", href: '/explore' },
+          { text: "page Cours", href: '/courses' },
           { text: ", vous sélectionnez votre niveau scolaire (collège ou lycée), votre filière, puis votre matière. Vous accédez aussitôt à toutes les leçons disponibles : cours PDF complets, vidéos explicatives tournées par des enseignants expérimentés, exercices corrigés pas à pas, et examens nationaux des années précédentes avec leurs corrections détaillées. Vous pouvez aussi " },
           { text: "parcourir l'ensemble des cours par filière", href: '/courses' },
           { text: " pour avoir une vue d'ensemble de tout le contenu disponible sur la plateforme." },
@@ -229,7 +229,7 @@ export const posts: BlogPost[] = [
         type: 'p',
         parts: [
           { text: "Aucune technique de révision n'est plus efficace que de résoudre des examens nationaux des années précédentes. En vous confrontant aux vraies épreuves, vous apprenez à gérer le temps, à identifier les types de questions récurrents et à comprendre le niveau d'exigence exact du jury. Udarsy met à disposition des centaines d'examens corrigés classés par matière, filière et année depuis la " },
-          { text: "page Explorer", href: '/explore' },
+          { text: "page Cours", href: '/courses' },
           { text: ". Commencez par les examens des trois dernières années pour chaque matière, puis remontez progressivement. Notez vos erreurs dans un carnet dédié : ce sont elles qui vous feront progresser le plus rapidement." },
         ],
       },
@@ -303,7 +303,7 @@ export const posts: BlogPost[] = [
       {
         type: 'cta',
         text: "Accédez à tous les cours, exercices et examens du BAC gratuitement sur Udarsy.",
-        href: '/explore',
+        href: '/courses',
         label: "Explorer les cours BAC",
       },
     ],
@@ -338,7 +338,7 @@ export const posts: BlogPost[] = [
         type: 'p',
         parts: [
           { text: "Udarsy propose une bibliothèque pédagogique complète pour tous les niveaux du lycée marocain. Chaque cours est conçu en accord avec le programme officiel du Ministère de l'Éducation Nationale et peut être consulté gratuitement depuis n'importe quel appareil. Depuis la " },
-          { text: "page Explorer", href: '/explore' },
+          { text: "page Cours", href: '/courses' },
           { text: ", vous sélectionnez votre niveau (1ère Bac, 2ème Bac), votre filière, puis la matière souhaitée pour accéder à l'ensemble des leçons disponibles. Vous pouvez aussi " },
           { text: "parcourir les cours par filière", href: '/courses' },
           { text: " pour avoir une vue d'ensemble organisée de tout le contenu de votre cursus." },
@@ -422,7 +422,7 @@ export const posts: BlogPost[] = [
       {
         type: 'cta',
         text: "Accédez gratuitement à des milliers de cours PDF, vidéos et exercices pour le lycée marocain.",
-        href: '/explore',
+        href: '/courses',
         label: "Explorer les cours",
       },
     ],
@@ -493,7 +493,7 @@ export const posts: BlogPost[] = [
         type: 'p',
         parts: [
           { text: "Depuis le menu principal, cliquez sur « Explorer » pour naviguer dans le curriculum marocain. Sélectionnez votre niveau, votre filière, puis la matière souhaitée. Vous accédez aussitôt à la liste des leçons disponibles. La " },
-          { text: "page Explorer", href: '/explore' },
+          { text: "page Cours", href: '/courses' },
           { text: " suit la hiérarchie officielle : École → Niveau → Filière → Matière → Leçon. Pour une vue différente, la " },
           { text: "page Cours", href: '/courses' },
           { text: " vous permet de naviguer directement par filière et d'accéder à des matières spécifiques en un ou deux clics." },
@@ -938,7 +938,7 @@ export const posts: BlogPost[] = [
         type: 'p',
         parts: [
           { text: "Naviguez vers la leçon qui vous intéresse depuis la " },
-          { text: "page Explorer", href: '/explore' },
+          { text: "page Cours", href: '/courses' },
           { text: " ou depuis la " },
           { text: "page Cours", href: '/courses' },
           { text: ". Sur la page de la leçon, cliquez sur le bouton « Télécharger » à côté du PDF souhaité. Le fichier se sauvegarde immédiatement dans vos téléchargements de l'appareil. Sur mobile, retrouvez-le dans votre application Fichiers. Sur PC, il apparaît dans votre dossier Téléchargements. Vous pouvez ensuite l'ouvrir avec n'importe quel lecteur PDF." },
@@ -1154,7 +1154,7 @@ export const posts: BlogPost[] = [
           { text: "Les épreuves du Brevet se tiennent généralement fin juin. La proclamation des résultats intervient environ deux semaines après les dernières épreuves. Les candidats qui échouent à la session normale peuvent présenter la session de rattrapage en juillet. Suivez les annonces officielles en temps réel dans la section " },
           { text: "Actualités d'Udarsy", href: '/news' },
           { text: " et préparez-vous avec les " },
-          { text: "examens passés disponibles sur la plateforme", href: '/explore' },
+          { text: "examens passés disponibles sur la plateforme", href: '/courses' },
           { text: "." },
         ],
       },
@@ -1176,7 +1176,7 @@ export const posts: BlogPost[] = [
           { text: "Connaître les dates d'examen est inutile sans un plan de révision. Comptez à rebours depuis les épreuves et calculez combien de semaines il vous reste par matière. Utilisez le " },
           { text: "calculateur de notes", href: '/grades-calculator' },
           { text: " pour estimer la note à atteindre aux épreuves finales selon vos résultats de contrôle continu. Puis accédez aux " },
-          { text: "cours et examens officiels sur Udarsy", href: '/explore' },
+          { text: "cours et examens officiels sur Udarsy", href: '/courses' },
           { text: " pour structurer vos sessions de révision. Vous pouvez télécharger vos ressources à l'avance depuis le " },
           { text: "hub de téléchargements", href: '/download' },
           { text: " pour étudier même sans connexion pendant les périodes de révision intensive." },

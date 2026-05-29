@@ -37,7 +37,7 @@ export default function SignupPage() {
         if (!user) return;
         const dest = user.role === 'teacher' ? '/teacher/dashboard'
             : user.role === 'instructor' ? '/instructor-dashboard'
-            : '/explore';
+            : '/courses';
         router.replace(dest);
     }, [user, router]);
 

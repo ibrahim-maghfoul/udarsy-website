@@ -91,7 +91,7 @@ export default function VerifyEmailPage() {
                             </p>
                         </div>
                         <Link
-                            href="/explore"
+                            href="/courses"
                             className="inline-block w-full py-4 bg-green text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-green/20 transition-all active:scale-95"
                         >
                             Continue to Udarsy

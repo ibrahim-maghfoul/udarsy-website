@@ -34,8 +34,11 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // /explore was consolidated into /courses for SEO (one canonical URL).
+      // The subject + catch-all rules cover every legacy /explore/* deep link.
       { source: '/explore', destination: '/courses', permanent: true },
       { source: '/explore/subject/:path*', destination: '/courses/subject/:path*', permanent: true },
+      { source: '/explore/:path*', destination: '/courses/:path*', permanent: true },
     ];
   },
   async headers() {

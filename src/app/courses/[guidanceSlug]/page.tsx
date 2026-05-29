@@ -11,7 +11,7 @@ import { getGuidanceBySlug, getGuidanceById, getSubjects, getSchools, getLevels,
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslations, useLocale } from "next-intl";
 import { getSubjectImage } from "@/lib/subjectImages";
-import "../../explore/subject-cards.css";
+import "../subject-cards.css";
 
 export default function GuidanceSubjectsPage() {
     const params = useParams();
@@ -34,7 +34,7 @@ export default function GuidanceSubjectsPage() {
     // hierarchical /courses/<school>/<level>/<guidance>/<subject> URLs on subject cards.
     // Without this, guests landing here from the GuestLevelSelector ended up with ugly
     // /courses/subject/<uuid> links because the chain was only available to authed users
-    // (via user.level) on /explore.
+    // (via user.level) on /courses.
     const [chain, setChain] = useState<Partial<CurriculumChain> | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);

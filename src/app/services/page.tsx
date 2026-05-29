@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { Calendar, School, Info, Database, ArrowLeft, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { getSchoolServices } from "@/services/services";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function ServicesPage() {
     const locale = useLocale();
+    const t = useTranslations("ServicesPage");
     const isAr = locale === 'ar';
     const [services, setServices] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -41,17 +42,17 @@ export default function ServicesPage() {
                             <div className="svc-icon" style={{ background: 'rgba(58,170,106,0.10)', color: '#3aaa6a' }}>
                                 <LayoutGrid size={22} />
                             </div>
-                            <span className="text-xs font-black uppercase tracking-widest text-green/60">Official Hub</span>
+                            <span className="text-xs font-black uppercase tracking-widest text-green/60" dir="auto">{t("kicker")}</span>
                         </div>
-                        <h1 className="text-2xl md:text-4xl lg:text-5xl font-black text-dark">Services &amp; Info</h1>
-                        <p className="text-dark/40 text-sm">Official educational resources and school information for Morocco.</p>
+                        <h1 className="text-2xl md:text-4xl lg:text-5xl font-black text-dark" dir="auto">{t("title")}</h1>
+                        <p className="text-dark/40 text-sm" dir="auto">{t("desc")}</p>
                     </div>
                     <Link
                         href="/profile"
                         className={`hidden md:flex btn-back ${isAr ? "rtl" : ""}`}
                     >
                         <ArrowLeft size={14} className={`btn-back-arrow ${isAr ? "rotate-180" : ""}`} />
-                        Back to Profile
+                        {t("back")}
                     </Link>
                 </div>
 
@@ -97,8 +98,8 @@ export default function ServicesPage() {
                         <div className="w-16 h-16 rounded-[14px] mx-auto mb-4 flex items-center justify-center" style={{ background: 'rgba(58,170,106,0.10)' }}>
                             <Database size={22} className="text-green" />
                         </div>
-                        <h3 className="text-lg font-bold text-dark mb-1">No services available</h3>
-                        <p className="text-sm" style={{ color: 'rgba(26,58,42,0.4)' }}>Check back later for new updates.</p>
+                        <h3 className="text-lg font-bold text-dark mb-1" dir="auto">{t("empty_title")}</h3>
+                        <p className="text-sm" style={{ color: 'rgba(26,58,42,0.4)' }} dir="auto">{t("empty_desc")}</p>
                     </div>
                 )}
             </div>

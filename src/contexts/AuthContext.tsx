@@ -32,7 +32,7 @@ const CHECK_AUTH_THROTTLE = 10_000; // 10 seconds
 function getDashboardPath(role: string) {
     if (role === 'teacher') return '/teacher/dashboard';
     if (role === 'instructor') return '/instructor-dashboard';
-    return '/explore';
+    return '/courses';
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

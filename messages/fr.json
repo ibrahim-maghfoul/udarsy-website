@@ -72,7 +72,7 @@
         "diam2": "Professionnels"
     },
     "Trusted": {
-        "text": "Reconnu par les principales institutions éducatives à l'échelle nationale",
+        "text": "Plébiscité par plus de 50 000 étudiants marocains à travers le Royaume",
         "subjectsTitle": "Conçu pour enseigner chaque matière"
     },
     "Believe": {
@@ -496,20 +496,20 @@
         "m2_title": "Les 1 000 Premiers Étudiants",
         "m2_desc": "Le bouche-à-oreille s'est rapidement propagé. En quelques mois, des étudiants de tout le Maroc utilisaient Udarsy.",
         "m3_title": "Expansion Nationale",
-        "m3_desc": "Nous nous sommes associés à 20 écoles et avons lancé nos applications mobiles, atteignant 10 000 utilisateurs actifs.",
+        "m3_desc": "Nous nous sommes associés à 20 écoles à travers le Royaume, atteignant 10 000 utilisateurs actifs.",
         "m4_title": "Succès dans tout le Royaume",
         "m4_desc": "Udarsy sert désormais les étudiants dans tout le royaume marocain et au-delà, garantissant une éducation de qualité pour tous.",
         "m5_title": "Intégration de l'IA",
         "m5_desc": "Lancement de parcours d'apprentissage personnalisés par l'IA qui s'adaptent au rythme et au style de chaque étudiant.",
-        "m6_title": "Vision 2026",
-        "m6_desc": "Visant à devenir le principal pôle d'éducation numérique en Afrique, touchant 1 million d'apprenants.",
+        "m6_title": "Applications Mobiles & Vision 2026",
+        "m6_desc": "Lancement de nos applications iOS et Android, et ambition de devenir le principal pôle d'éducation numérique en Afrique, touchant 1 million d'apprenants.",
         "team_title": "Rencontrez les gens derrière Udarsy",
         "cta_title": "Prêt à commencer votre voyage ?",
         "start_btn": "Commencer à Apprendre",
         "blog_btn": "Actualités",
         "stats_students": "Étudiants Actifs",
         "stats_lessons": "Leçons Disponibles",
-        "stats_schools": "Écoles Partenaires",
+        "stats_schools": "Éducateurs Experts",
         "stats_rating": "Note Moyenne",
         "mission_kicker": "Mission",
         "mission_stat1_label": "Leçons Interactives",
@@ -1234,5 +1234,13 @@
         "create_account": "Créer mon compte",
         "related_articles": "Articles similaires",
         "back_to_blog": "Retour au blog"
+    },
+    "ServicesPage": {
+        "kicker": "Pôle officiel",
+        "title": "Services & Infos scolaires",
+        "desc": "Ressources éducatives officielles et informations scolaires pour le Maroc.",
+        "back": "Retour au profil",
+        "empty_title": "Aucun service disponible",
+        "empty_desc": "Revenez plus tard pour de nouvelles mises à jour."
     }
 }

@@ -23,7 +23,7 @@ function GuestLevelSelector({ onSelect }: { onSelect: (url: string, title: strin
     const [options, setOptions] = useState<any[]>([]);
     // Stash the school + level the user picked along the way — we need their titles
     // (not just IDs) to build the hierarchical URL at the end, matching what authed
-    // users get from /explore without a redirect bounce through the UUID URL.
+    // users get from /courses without a redirect bounce through the UUID URL.
     const [selections, setSelections] = useState<{
         school?: { id: string; title: string };
         level?: { id: string; title: string };
@@ -237,7 +237,7 @@ function GuestLevelSelector({ onSelect }: { onSelect: (url: string, title: strin
 }
 
 // ---------- Main page ----------
-export default function ExplorePage() {
+export default function CoursesBrowser() {
     const { user } = useAuth();
     const t = useTranslations('Subjects');
     const nt = useTranslations('Navbar');

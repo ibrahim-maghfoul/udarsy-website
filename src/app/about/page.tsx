@@ -38,7 +38,7 @@ const values = [
 const stats = [
     { value: "50K+", label: "Active Students" },
     { value: "1,200+", label: "Lessons Available" },
-    { value: "50+", label: "Partner Schools" },
+    { value: "120+", label: "Expert Educators" },
     { value: "4.9★", label: "Average Rating" },
 ];
 
@@ -52,12 +52,12 @@ const team = [
 ];
 
 const milestones = [
-    { year: "2021", title: "Founded in Algiers", desc: "Udarsy was born out of a shared frustration — quality education felt out of reach for many students." },
-    { year: "2022", title: "First 1,000 Students", desc: "Word spread quickly. Within months, students across Algeria were using Udarsy to prepare for exams." },
-    { year: "2023", title: "National Expansion", desc: "We partnered with 20 schools and launched our mobile apps, reaching 10,000 active users." },
-    { year: "2024", title: "Kingdom Success", desc: "Udarsy expanded into Morocco, serving students across the kingdom and beyond." },
-    { year: "2025", title: "Smart Learning", desc: "Launched personalized learning modules that adapt to every student's pace and learning style." },
-    { year: "2026", title: "Vision 2026", desc: "Aiming to become the leading digital education hub in Africa, reaching 1 million learners." },
+    { year: "2021", title: "Founded in Rabat", desc: "Udarsy was born out of a shared frustration — quality education felt out of reach for many Moroccan students." },
+    { year: "2022", title: "First 1,000 Students", desc: "Word spread quickly. Within months, students across Morocco were using Udarsy to prepare for exams." },
+    { year: "2023", title: "National Expansion", desc: "We partnered with 20 schools across the Kingdom, reaching 10,000 active users." },
+    { year: "2024", title: "Kingdom-Wide Reach", desc: "Udarsy now serves students across the Moroccan Kingdom, ensuring quality education for all." },
+    { year: "2025", title: "AI-Powered Learning", desc: "Launched AI-personalized learning paths that adapt to every student's pace and style." },
+    { year: "2026", title: "Mobile Apps & Vision 2026", desc: "Launching our iOS and Android apps and aiming to become Africa's leading digital education hub." },
 ];
 
 const fadeUp = {
@@ -106,7 +106,7 @@ export default function AboutPage() {
     const stats = [
         { value: "50K+", label: t('stats_students') },
         { value: "1,200+", label: t('stats_lessons') },
-        { value: "50+", label: t('stats_schools') },
+        { value: "120+", label: t('stats_schools') },
         { value: "4.9★", label: t('stats_rating') },
     ];
 
