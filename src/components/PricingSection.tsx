@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Check, X, Crown, Zap, BookOpen } from "lucide-react";
-import { motion, AnimatePresence, useAnimationControls, type Variants } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 
@@ -231,53 +231,7 @@ export function PricingSection() {
   const [cycle, setCycle]           = useState<Cycle>("monthly");
   const [activePlan, setActivePlan] = useState<PaidPlan | null>(null);
   const [activeIdx, setActiveIdx]   = useState<number>(1);
-  const lastBumpRef                  = useRef<number>(Date.now());
-  const isHeldRef                    = useRef<boolean>(false);
-  const bumpInteraction              = () => { lastBumpRef.current = Date.now(); };
-
-  const ctrl0 = useAnimationControls();
-  const ctrl1 = useAnimationControls();
-  const ctrl2 = useAnimationControls();
-  const ctrls = [ctrl0, ctrl1, ctrl2];
-
-  useEffect(() => {
-    ctrls.forEach((ctrl, i) => {
-      setTimeout(() => {
-        ctrl.start({
-          x: [0, -7, 7, -4, 4, -2, 2, 0],
-          transition: { duration: 0.4, ease: "easeOut" },
-        });
-      }, i * 55);
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cycle]);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      if (!isHeldRef.current && Date.now() - lastBumpRef.current >= 3500) {
-        setActiveIdx((i) => (i + 1) % 3);
-        lastBumpRef.current = Date.now();
-      }
-    }, 250);
-
-    const onScroll = () => { lastBumpRef.current = Date.now(); };
-    const releaseHold = () => {
-      if (isHeldRef.current) {
-        isHeldRef.current = false;
-        lastBumpRef.current = Date.now();
-      }
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("pointerup", releaseHold);
-    window.addEventListener("pointercancel", releaseHold);
-
-    return () => {
-      clearInterval(id);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("pointerup", releaseHold);
-      window.removeEventListener("pointercancel", releaseHold);
-    };
-  }, []);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
 
   const plans = [
     {
@@ -595,36 +549,34 @@ export function PricingSection() {
           {plans.map((plan, i) => {
             const rotation = i === 0 ? -4 : i === 2 ? 4 : 0;
             return (
-              <motion.div key={`${plan.key}-${locale}`} animate={ctrls[i]} style={{ zIndex: i === 1 ? 2 : 1 }}>
-                <motion.div
-                  custom={i}
-                  variants={CARD_VARS}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.15 }}
-                  style={{ rotate: rotation }}
-                >
-                  {renderPlanCardBody(plan)}
-                </motion.div>
+              <motion.div
+                key={`${plan.key}-${locale}`}
+                custom={i}
+                variants={CARD_VARS}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.15 }}
+                style={{ rotate: rotation, zIndex: i === 1 ? 2 : 1 }}
+              >
+                {renderPlanCardBody(plan)}
               </motion.div>
             );
           })}
         </div>
 
         {/* Plan cards — mobile carousel (<md) */}
-        <div className="md:hidden py-8 -mx-[clamp(20px,6vw,80px)] overflow-hidden">
+        <div className="md:hidden py-8 overflow-hidden">
           <motion.div
-            className="flex items-center"
+            className="flex"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.5}
+            dragElastic={0.15}
             dragMomentum={false}
-            animate={{ x: `${17.5 - 65 * activeIdx}%` }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
-            onPointerDown={() => { isHeldRef.current = true; bumpInteraction(); }}
+            animate={{ x: `${7.5 - 85 * activeIdx}%` }}
+            transition={isDragging ? { duration: 0 } : { type: "spring", damping: 30, stiffness: 280 }}
+            onDragStart={() => { setIsDragging(true); }}
             onDragEnd={(_e, info) => {
-              isHeldRef.current = false;
-              bumpInteraction();
+              setIsDragging(false);
               const threshold = 50;
               if (info.offset.x < -threshold && activeIdx < plans.length - 1) {
                 setActiveIdx(activeIdx + 1);
@@ -634,26 +586,14 @@ export function PricingSection() {
             }}
             style={{ touchAction: "pan-y" }}
           >
-            {plans.map((plan, i) => {
-              const isActive = i === activeIdx;
-              const absOff   = Math.abs(i - activeIdx);
-              return (
-                <motion.div
-                  key={`${plan.key}-${locale}-m`}
-                  animate={{
-                    scale:   isActive ? 1 : 0.8,
-                    opacity: absOff > 1 ? 0 : isActive ? 1 : 0.55,
-                    filter:  isActive ? "blur(0px)" : "blur(1.5px)",
-                  }}
-                  transition={{ duration: 0.8, ease: "easeInOut" }}
-                  onClick={() => { if (!isActive) { setActiveIdx(i); bumpInteraction(); } }}
-                  style={{ zIndex: 10 - absOff, transformOrigin: "center center" }}
-                  className="min-w-[65%] px-2 pt-6 cursor-pointer"
-                >
-                  {renderPlanCardBody(plan)}
-                </motion.div>
-              );
-            })}
+            {plans.map((plan) => (
+              <div
+                key={`${plan.key}-${locale}-m`}
+                className="min-w-[85%] px-2 pt-6"
+              >
+                {renderPlanCardBody(plan)}
+              </div>
+            ))}
           </motion.div>
 
           {/* Carousel dots */}
@@ -662,7 +602,7 @@ export function PricingSection() {
               <button
                 key={p.key}
                 type="button"
-                onClick={() => { setActiveIdx(i); bumpInteraction(); }}
+                onClick={() => setActiveIdx(i)}
                 aria-label={`Show ${p.name}`}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
                   i === activeIdx ? "w-8 bg-green" : "w-1.5 bg-gray-300 hover:bg-gray-400"

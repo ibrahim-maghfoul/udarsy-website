@@ -65,8 +65,13 @@
 .ag-card {
   position: relative;
   display: flex;
-  flex-direction: column;
-  background: #ffffff;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: clamp(48px, 6vw, 96px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: #3aaa6a;
   border: 1px solid rgba(58, 170, 106, 0.18);
   border-radius: 10px;
   padding: 22px 24px;
@@ -152,9 +157,7 @@
 
 /* ── intro / anchor card ─────────────────────── */
 .ag-card--intro {
-  background:
-    radial-gradient(120% 80% at 100% 100%, rgba(58, 170, 106, 0.08) 0%, transparent 60%),
-    #ffffff;
+  background: #3aaa6a;
   padding: 32px;
 }
 .ag-card--intro .ag-pill {
@@ -229,20 +232,11 @@
   height: 175px;
 }
 
-/* ── scholarship feature card — L-shape ──────── */
+/* ── scholarship feature card — L-shape (rounded corners via JS) ──────── */
 .ag-card--scholarship {
-  background:
-    radial-gradient(110% 80% at 100% 100%, rgba(124, 92, 255, 0.16) 0%, transparent 65%),
-    linear-gradient(155deg, rgba(167, 139, 250, 0.18) 0%, rgba(167, 139, 250, 0.06) 55%, #faf8ff 100%);
-  border: none;
-  border-radius: 22px;
-  padding: 30px 34px;
-  /* L-shape: kept cells = C3R3 + C4R3 + C4R4. Cutout = C3R4 (where B's right cell sits).
-     X cut at calc(50% + 12px) → L's vertical-bar left edge at C4's left edge
-       (gives a real 24px gap to B's right edge in row R4).
-     Y cut at calc(50% - 12px) → L's horizontal-bar bottom edge at R3's bottom edge
-       (gives a real 24px gap above B's top edge in column C3).
-     Asymmetric because the gap sits on opposite sides of the kept region on each axis. */
+  /* JS hook (useRoundedLClip) overrides clip-path with a path() that rounds
+     every corner — including the inner concave corner of the L. This polygon
+     is just a fallback before the hook runs. */
   clip-path: polygon(
     0% 0%,
     100% 0%,
@@ -251,67 +245,18 @@
     calc(50% + 12px) calc(50% - 12px),
     0% calc(50% - 12px)
   );
-  /* clip-path clips box-shadow — use drop-shadow filter so the L casts a real shadow */
-  box-shadow: none;
-  filter: drop-shadow(0 10px 24px rgba(124, 92, 255, 0.16));
-  transition:
-    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
-    filter 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-/* the contour-trace pseudos draw rectangular borders — they wouldn't trace the L outline */
-.ag-card--scholarship::before,
-.ag-card--scholarship::after { display: none; }
-.ag-card--scholarship:hover {
-  transform: translateY(-3px);
-  filter: drop-shadow(0 16px 40px rgba(124, 92, 255, 0.26));
-  border-color: transparent;
-  box-shadow: none;
-}
-.ag-card--scholarship .ag-pill {
-  background: #ffffff;
-  color: #5a3fc4;
-  border: 1px solid rgba(124, 92, 255, 0.28);
-  letter-spacing: 0.06em;
-}
-.ag-card--scholarship .ag-title {
-  font-size: 24px;
-  line-height: 1.16;
-  letter-spacing: -0.018em;
-  /* keep the title within the top-left quadrant so the clip doesn't slice it */
-  max-width: 45%;
-  margin-top: 14px;
-}
-.ag-card--scholarship .ag-meta {
-  color: rgba(60, 40, 100, 0.55);
-  /* anchor meta to the top-left block, not bottom (bottom-left is clipped away) */
-  margin-top: 12px;
-  padding-top: 0;
-}
-.ag-card--scholarship .ag-illo {
-  /* illustration sits in the right column (TR + BR — both kept) */
-  right: -4px;
-  bottom: -8px;
-  width: 55%;
-  height: auto;
+  border: none;
+  /* center "3" within the visible top horizontal bar (top half of the box) */
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 50%;
 }
 
-/* drop the L-shape on tablet/mobile — it only makes sense in the 6-col layout */
 @media (max-width: 1024px) {
   .ag-card--scholarship {
     clip-path: none;
-    border: 1px solid rgba(124, 92, 255, 0.18);
-    box-shadow:
-      0 1px 2px rgba(40, 20, 80, 0.04),
-      0 10px 30px rgba(124, 92, 255, 0.10);
-    filter: none;
+    padding-bottom: 22px;
   }
-  .ag-card--scholarship::before,
-  .ag-card--scholarship::after {
-    display: block;
-    border-color: #7c5cff;
-    border-radius: 22px;
-  }
-  .ag-card--scholarship .ag-title { max-width: none; }
 }
 
 /* ── wide bottom strip (B = remote) ──────────── */

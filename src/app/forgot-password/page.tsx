@@ -1,21 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, ArrowLeft, Loader2, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import api from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function ForgotPasswordPage() {
+    const locale = useLocale();
+    const router = useRouter();
+    const { user } = useAuth();
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const [sent, setSent] = useState(false);
+
+    useEffect(() => {
+        if (user) router.replace('/settings');
+    }, [user, router]);
+
+    if (user) return null;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await api.post("/auth/forgot-password", { email });
+            await api.post("/auth/forgot-password", { email, locale });
         } catch {
             // always show success to avoid email enumeration
         } finally {

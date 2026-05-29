@@ -11,6 +11,8 @@ interface DatePickerProps {
   placeholder?: string;
   className?: string;
   dropdownAlign?: 'left' | 'right';
+  minDate?: string;     // YYYY-MM-DD inclusive lower bound
+  maxDate?: string;     // YYYY-MM-DD inclusive upper bound
 }
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -29,7 +31,24 @@ function fmtDisplay(str: string) {
   return `${MONTHS[d.getMonth()].slice(0,3)} ${d.getDate()}, ${d.getFullYear()}`;
 }
 
-export default function DatePicker({ value, onChange, placeholder = 'Pick a date', className = '', dropdownAlign = 'left' }: DatePickerProps) {
+export default function DatePicker({ value, onChange, placeholder = 'Pick a date', className = '', dropdownAlign = 'left', minDate, maxDate }: DatePickerProps) {
+  const isDateDisabled = (dateStr: string) => {
+    if (minDate && dateStr < minDate) return true;
+    if (maxDate && dateStr > maxDate) return true;
+    return false;
+  };
+  const isYearDisabled = (y: number) => {
+    if (minDate && y < parseInt(minDate.slice(0, 4), 10)) return true;
+    if (maxDate && y > parseInt(maxDate.slice(0, 4), 10)) return true;
+    return false;
+  };
+  const isMonthDisabled = (y: number, m: number) => {
+    const monthStart = `${y}-${String(m + 1).padStart(2, '0')}-01`;
+    const monthEnd = `${y}-${String(m + 1).padStart(2, '0')}-${String(new Date(y, m + 1, 0).getDate()).padStart(2, '0')}`;
+    if (maxDate && monthStart > maxDate) return true;
+    if (minDate && monthEnd < minDate) return true;
+    return false;
+  };
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<View>('day');
   const [cursor, setCursor] = useState(() => {
@@ -91,6 +110,7 @@ export default function DatePicker({ value, onChange, placeholder = 'Pick a date
   }
 
   const handleSelect = (dateStr: string) => {
+    if (isDateDisabled(dateStr)) return;
     onChange(dateStr);
     setOpen(false);
     setView('day');
@@ -117,6 +137,7 @@ export default function DatePicker({ value, onChange, placeholder = 'Pick a date
 
   const goToday = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isDateDisabled(todayStr)) return;
     const now = new Date(); now.setHours(0,0,0,0);
     setCursor(new Date(now.getFullYear(), now.getMonth(), 1));
     handleSelect(todayStr);
@@ -124,12 +145,14 @@ export default function DatePicker({ value, onChange, placeholder = 'Pick a date
 
   const selectYear = (y: number, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isYearDisabled(y)) return;
     setCursor(new Date(y, month, 1));
     setView('month');
   };
 
   const selectMonth = (m: number, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isMonthDisabled(year, m)) return;
     setCursor(new Date(year, m, 1));
     setView('day');
   };
@@ -183,47 +206,64 @@ export default function DatePicker({ value, onChange, placeholder = 'Pick a date
                 {DAYS.map(d => <span key={d}>{d}</span>)}
               </div>
               <div className="gp-grid">
-                {cells.map((c, i) => (
-                  <div
-                    key={i}
-                    className={`gp-day ${c.isOther ? 'other' : ''} ${c.date === todayStr ? 'today' : ''} ${c.date === value ? 'selected' : ''}`}
-                    onClick={e => { e.stopPropagation(); handleSelect(c.date); }}
-                  >
-                    {c.day}
-                  </div>
-                ))}
+                {cells.map((c, i) => {
+                  const disabled = isDateDisabled(c.date);
+                  return (
+                    <div
+                      key={i}
+                      className={`gp-day ${c.isOther ? 'other' : ''} ${c.date === todayStr ? 'today' : ''} ${c.date === value ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
+                      onClick={e => { e.stopPropagation(); if (!disabled) handleSelect(c.date); }}
+                    >
+                      {c.day}
+                    </div>
+                  );
+                })}
               </div>
               <div className="gp-footer">
-                <button className="gp-today-btn" onClick={goToday}>Today</button>
+                <button
+                  className="gp-today-btn"
+                  onClick={goToday}
+                  disabled={isDateDisabled(todayStr)}
+                >
+                  Today
+                </button>
               </div>
             </>
           )}
 
           {view === 'month' && (
             <div className="gp-month-grid">
-              {MONTHS_SHORT.map((m, i) => (
-                <button
-                  key={m}
-                  className={`gp-month-cell ${i === month ? 'selected' : ''}`}
-                  onClick={e => selectMonth(i, e)}
-                >
-                  {m}
-                </button>
-              ))}
+              {MONTHS_SHORT.map((m, i) => {
+                const disabled = isMonthDisabled(year, i);
+                return (
+                  <button
+                    key={m}
+                    className={`gp-month-cell ${i === month ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
+                    onClick={e => selectMonth(i, e)}
+                    disabled={disabled}
+                  >
+                    {m}
+                  </button>
+                );
+              })}
             </div>
           )}
 
           {view === 'year' && (
             <div className="gp-year-grid">
-              {years.map(y => (
-                <button
-                  key={y}
-                  className={`gp-year-cell ${y === year ? 'selected' : ''}`}
-                  onClick={e => selectYear(y, e)}
-                >
-                  {y}
-                </button>
-              ))}
+              {years.map(y => {
+                const disabled = isYearDisabled(y);
+                return (
+                  <button
+                    key={y}
+                    className={`gp-year-cell ${y === year ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
+                    onClick={e => selectYear(y, e)}
+                    disabled={disabled}
+                  >
+                    {y}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

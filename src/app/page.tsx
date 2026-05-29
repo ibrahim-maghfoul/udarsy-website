@@ -37,7 +37,30 @@ export default async function Home() {
         <div className="md:-mt-[72px]"><LabHero /></div>
 
         {/* Trusted Strip (server-rendered, no JS needed) */}
-        <div className="bg-green p-[40px_0_48px] relative z-5">
+        <div className="bg-green p-[40px_0_48px] relative z-5 overflow-hidden">
+          {/* Decorative leaves — behind content
+              Mobile: height = 50% of viewport width; left shifted up, right shifted down.
+              Desktop: 70% of section height, centered vertically. */}
+          <Image
+            src="https://files.udarsy.com/decorations/left-leafs.webp"
+            alt=""
+            aria-hidden
+            width={600}
+            height={810}
+            unoptimized
+            className="pointer-events-none select-none absolute top-1/2 left-0 z-0 h-[50vw] md:h-[70%] w-auto opacity-70 -translate-y-[70%] md:-translate-y-1/2"
+          />
+          <Image
+            src="https://files.udarsy.com/decorations/right-leafs.webp"
+            alt=""
+            aria-hidden
+            width={600}
+            height={810}
+            unoptimized
+            className="pointer-events-none select-none absolute top-1/2 right-0 z-0 h-[50vw] md:h-[70%] w-auto opacity-70 -translate-y-[30%] md:-translate-y-1/2"
+          />
+
+          <div className="relative z-10">
           <div className="text-center text-[10.5px] font-semibold tracking-[0.12em] uppercase text-white/80 mb-7">
             {t('text')}
           </div>
@@ -76,8 +99,17 @@ export default async function Home() {
             </div>
           </div>
 
+          {/* Section divider title — bridges institutions and subjects */}
+          <div className="mt-12 mb-8 flex items-center justify-center gap-4 px-4">
+            <span className="h-px w-10 sm:w-16 bg-white/25" />
+            <h2 className="text-center text-white text-[16px] sm:text-[18px] font-semibold tracking-[0.01em]">
+              {t('subjectsTitle')}
+            </h2>
+            <span className="h-px w-10 sm:w-16 bg-white/25" />
+          </div>
+
           {/* Subject pills — 5 short on row 1, 4 long on row 2 */}
-          <div className="mt-10 flex flex-col items-center gap-3 px-4">
+          <div className="flex flex-col items-center gap-3 px-4">
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               {TRUSTED_PILLS_ROW1.map((s) => (
                 <span
@@ -116,6 +148,7 @@ export default async function Home() {
                 </span>
               ))}
             </div>
+          </div>
           </div>
         </div>
 

@@ -271,18 +271,27 @@ export function Diagram() {
                     <AnimatedShapePop x={250} y={326} delay={3.6} />
                 </g>
 
+                <defs>
+                    {[15, 95, 196, 308, 435].map((_, i) => (
+                        <clipPath key={i} id={`stu${uid}_${i}`}>
+                            <circle cx="25" cy="25" r="25" />
+                        </clipPath>
+                    ))}
+                </defs>
                 {[
-                    { x: 15, y: 500, color: "#b07040", shirt: "#8b5530", skin: "#d4a06a", hair: "#2d1a0e" },
-                    { x: 95, y: 502, color: "#e05535", shirt: "#b83820", skin: "#f4b090", hair: "#8b1a10" },
-                    { x: 196, y: 497, color: "#c88830", shirt: "#8a5518", skin: "#e0a860", hair: "#3d1f0a" },
-                    { x: 308, y: 502, color: "#5a8a6a", shirt: "#3a6048", skin: "#90c0a0", hair: "#1e3826" },
-                    { x: 435, y: 500, color: "#4a6e9a", shirt: "#2a4e7a", skin: "#a0c0d8", hair: "#1a2f48" },
+                    { x: 15, y: 500, src: "/students/student-1.webp" },
+                    { x: 95, y: 502, src: "/students/student-2.webp" },
+                    { x: 196, y: 497, src: "/students/student-3.webp" },
+                    { x: 308, y: 502, src: "/students/student-4.webp" },
+                    { x: 435, y: 500, src: "/students/student-5.webp" },
                 ].map((av, i) => (
                     <g key={i} transform={`translate(${av.x},${av.y})`} className="drop-shadow-[0_3px_8px_rgba(0,0,0,0.18)]">
-                        <circle cx="25" cy="25" r="25" fill={av.color} />
-                        <ellipse cx="25" cy="42" rx="14" ry="10" fill={av.shirt} />
-                        <circle cx="25" cy="20" r="9" fill={av.skin} />
-                        <ellipse cx="25" cy="12" rx="10" ry="7" fill={av.hair} />
+                        <image
+                            href={av.src}
+                            x="0" y="0" width="50" height="50"
+                            preserveAspectRatio="xMidYMid slice"
+                            clipPath={`url(#stu${uid}_${i})`}
+                        />
                         <circle cx="25" cy="25" r="25" fill="none" stroke="white" strokeWidth="3" />
                     </g>
                 ))}

@@ -172,154 +172,137 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-dark/95 backdrop-blur-md overflow-y-auto"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)' }}
+            onClick={onClose}
         >
-            <div className="min-h-full flex items-center justify-center p-4 py-10">
-                <motion.div
-                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    className="bg-white rounded-[32px] md:rounded-[40px] w-full max-w-4xl shadow-2xl flex flex-col md:flex-row overflow-hidden"
+            <motion.div
+                initial={{ opacity: 0, scale: 0.92, y: 16 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.92, y: 16 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                className="bg-white rounded-[10px] w-full max-w-sm shadow-2xl shadow-green/10 border border-green/10 relative overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div className="px-5 pt-5 pb-3 flex items-center justify-between">
+                    <h3 className="text-base font-black text-dark tracking-tight">قص الصورة</h3>
+                    <button
+                        onClick={onClose}
+                        aria-label="إغلاق"
+                        className="w-8 h-8 rounded-full bg-green/8 flex items-center justify-center text-green hover:bg-green/15 transition-colors"
+                    >
+                        <X size={14} />
+                    </button>
+                </div>
+
+                {/* Crop stage */}
+                <div
+                    ref={containerRef}
+                    className="relative w-full aspect-square select-none cursor-grab active:cursor-grabbing rounded-[10px] overflow-hidden mx-auto"
+                    style={{ background: '#f0f0f0', touchAction: 'none', maxWidth: 320 }}
+                    onPointerDown={onPtrDown}
+                    onPointerMove={onPtrMove}
+                    onPointerUp={onPtrUp}
+                    onPointerCancel={onPtrUp}
                 >
-                    {/* ── Left column: cropper ── */}
-                    <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-gray-100">
-                        {/* Header */}
-                        <div className="px-6 py-4 md:px-8 md:py-6 flex items-center justify-between border-b border-gray-100 flex-shrink-0">
-                            <div>
-                                <h3 className="text-xl font-black text-dark tracking-tight">قص وتأكيد الصورة</h3>
-                                <p className="text-[10px] text-dark/40 font-bold uppercase tracking-wider">Cut & Confirm Picture</p>
-                            </div>
-                            <button
-                                onClick={onClose}
-                                className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl bg-gray-50 flex items-center justify-center text-dark/40 hover:text-red-500 hover:bg-red-50 transition-all"
-                            >
-                                <X size={18} />
-                            </button>
-                        </div>
+                    <img
+                        ref={imgRef}
+                        src={image}
+                        alt=""
+                        onLoad={onImgLoad}
+                        crossOrigin="anonymous"
+                        draggable={false}
+                        style={{
+                            position: 'absolute',
+                            left: rendered.left,
+                            top: rendered.top,
+                            width: rendered.width,
+                            height: rendered.height,
+                            maxWidth: 'none',
+                            maxHeight: 'none',
+                            transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
+                            transformOrigin: 'center center',
+                            pointerEvents: 'none',
+                            userSelect: 'none',
+                            willChange: 'transform, left, top',
+                        }}
+                    />
 
-                        {/* Crop stage */}
+                    {ready && (
+                        <>
+                            <div style={{ position: 'absolute', left: 0, top: 0, width: cSize.w, height: base.top, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
+                            <div style={{ position: 'absolute', left: 0, top: base.top + base.height, width: cSize.w, height: cSize.h - base.top - base.height, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
+                            <div style={{ position: 'absolute', left: 0, top: base.top, width: base.left, height: base.height, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
+                            <div style={{ position: 'absolute', left: base.left + base.width, top: base.top, width: cSize.w - base.left - base.width, height: base.height, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
+                        </>
+                    )}
+
+                    {ready && (
                         <div
-                            ref={containerRef}
-                            className="relative w-full max-w-[480px] mx-auto aspect-square flex-shrink-0 overflow-hidden select-none cursor-grab active:cursor-grabbing"
-                            style={{ background: '#f0f0f0', touchAction: 'none' }}
-                            onPointerDown={onPtrDown}
-                            onPointerMove={onPtrMove}
-                            onPointerUp={onPtrUp}
-                            onPointerCancel={onPtrUp}
+                            style={{
+                                position: 'absolute',
+                                left: base.left,
+                                top: base.top,
+                                width: base.width,
+                                height: base.height,
+                                boxSizing: 'border-box',
+                                border: '1.5px solid rgba(255,255,255,0.85)',
+                                pointerEvents: 'none',
+                            }}
                         >
-                            {/* Image — absolutely positioned at computed rendered rect */}
-                            <img
-                                ref={imgRef}
-                                src={image}
-                                alt=""
-                                onLoad={onImgLoad}
-                                crossOrigin="anonymous"
-                                draggable={false}
-                                style={{
-                                    position: 'absolute',
-                                    left: rendered.left,
-                                    top: rendered.top,
-                                    width: rendered.width,
-                                    height: rendered.height,
-                                    transform: rotation !== 0 ? `rotate(${rotation}deg)` : undefined,
-                                    transformOrigin: 'center center',
-                                    pointerEvents: 'none',
-                                    userSelect: 'none',
-                                    willChange: 'transform, left, top',
-                                }}
-                            />
-
-                            {/* Dark masks — 4 rects surrounding the crop frame */}
-                            {ready && (
-                                <>
-                                    {/* top */}
-                                    <div style={{ position: 'absolute', left: 0, top: 0, width: cSize.w, height: base.top, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
-                                    {/* bottom */}
-                                    <div style={{ position: 'absolute', left: 0, top: base.top + base.height, width: cSize.w, height: cSize.h - base.top - base.height, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
-                                    {/* left */}
-                                    <div style={{ position: 'absolute', left: 0, top: base.top, width: base.left, height: base.height, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
-                                    {/* right */}
-                                    <div style={{ position: 'absolute', left: base.left + base.width, top: base.top, width: cSize.w - base.left - base.width, height: base.height, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
-                                </>
-                            )}
-
-                            {/* Crop frame — positioned exactly at the image's contain rect */}
-                            {ready && (
-                                <div
-                                    style={{
-                                        position: 'absolute',
-                                        left: base.left,
-                                        top: base.top,
-                                        width: base.width,
-                                        height: base.height,
-                                        boxSizing: 'border-box',
-                                        border: '2px solid rgba(255,255,255,0.85)',
-                                        pointerEvents: 'none',
-                                    }}
-                                >
-                                    {/* Rule-of-thirds grid */}
-                                    <div style={{ position: 'absolute', left: '33.33%', top: 0, width: 1, height: '100%', background: 'rgba(255,255,255,0.3)' }} />
-                                    <div style={{ position: 'absolute', left: '66.66%', top: 0, width: 1, height: '100%', background: 'rgba(255,255,255,0.3)' }} />
-                                    <div style={{ position: 'absolute', top: '33.33%', left: 0, width: '100%', height: 1, background: 'rgba(255,255,255,0.3)' }} />
-                                    <div style={{ position: 'absolute', top: '66.66%', left: 0, width: '100%', height: 1, background: 'rgba(255,255,255,0.3)' }} />
-                                    {/* L-shaped corner handles */}
-                                    <div style={{ position: 'absolute', left: 0, top: 0, width: 20, height: 20, borderTop: '3px solid white', borderLeft: '3px solid white' }} />
-                                    <div style={{ position: 'absolute', right: 0, top: 0, width: 20, height: 20, borderTop: '3px solid white', borderRight: '3px solid white' }} />
-                                    <div style={{ position: 'absolute', left: 0, bottom: 0, width: 20, height: 20, borderBottom: '3px solid white', borderLeft: '3px solid white' }} />
-                                    <div style={{ position: 'absolute', right: 0, bottom: 0, width: 20, height: 20, borderBottom: '3px solid white', borderRight: '3px solid white' }} />
-                                </div>
-                            )}
+                            <div style={{ position: 'absolute', left: '33.33%', top: 0, width: 1, height: '100%', background: 'rgba(255,255,255,0.25)' }} />
+                            <div style={{ position: 'absolute', left: '66.66%', top: 0, width: 1, height: '100%', background: 'rgba(255,255,255,0.25)' }} />
+                            <div style={{ position: 'absolute', top: '33.33%', left: 0, width: '100%', height: 1, background: 'rgba(255,255,255,0.25)' }} />
+                            <div style={{ position: 'absolute', top: '66.66%', left: 0, width: '100%', height: 1, background: 'rgba(255,255,255,0.25)' }} />
                         </div>
+                    )}
+                </div>
+
+                {/* Sliders */}
+                <div className="px-5 pt-4 pb-3 space-y-3">
+                    <div className="space-y-1.5">
+                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-dark/50">
+                            <span className="flex items-center gap-1.5"><ZoomIn size={11} className="text-green" /> Zoom</span>
+                            <span className="text-green">{Math.round(zoom * 100)}%</span>
+                        </div>
+                        <input
+                            type="range" value={zoom} min={1} max={3} step={0.05}
+                            onChange={(e) => onZoomChange(Number(e.target.value))}
+                            className="w-full h-1 bg-green/10 rounded-full appearance-none cursor-pointer accent-green"
+                        />
                     </div>
-
-                    {/* ── Right column: controls ── */}
-                    <div className="w-full md:w-[320px] flex flex-col flex-shrink-0 bg-white md:min-h-[400px]">
-                        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-5">
-                            {/* Zoom */}
-                            <div className="space-y-3">
-                                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-dark/40">
-                                    <span className="flex items-center gap-1.5"><ZoomIn size={12} /> التكبير / Zoom</span>
-                                    <span>{Math.round(zoom * 100)}%</span>
-                                </div>
-                                <input
-                                    type="range" value={zoom} min={1} max={3} step={0.05}
-                                    onChange={(e) => onZoomChange(Number(e.target.value))}
-                                    className="w-full h-1.5 bg-green/10 rounded-full appearance-none cursor-pointer accent-green"
-                                />
-                            </div>
-                            {/* Rotation */}
-                            <div className="space-y-3">
-                                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-dark/40">
-                                    <span className="flex items-center gap-1.5"><RotateCcw size={12} /> التدوير / Rotation</span>
-                                    <span>{rotation}°</span>
-                                </div>
-                                <input
-                                    type="range" value={rotation} min={0} max={360} step={1}
-                                    onChange={(e) => setRotation(Number(e.target.value))}
-                                    className="w-full h-1.5 bg-green/10 rounded-full appearance-none cursor-pointer accent-green"
-                                />
-                            </div>
+                    <div className="space-y-1.5">
+                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-dark/50">
+                            <span className="flex items-center gap-1.5"><RotateCcw size={11} className="text-green" /> Rotation</span>
+                            <span className="text-green">{rotation}°</span>
                         </div>
-
-                        {/* Actions pinned to bottom */}
-                        <div className="flex-shrink-0 p-5 md:p-6 border-t border-gray-100 bg-white flex flex-col gap-3 z-10 w-full mt-auto">
-                            <button
-                                onClick={onClose}
-                                className="w-full py-4 bg-gray-50 text-dark/60 font-bold rounded-2xl hover:bg-gray-100 transition-all text-sm"
-                            >
-                                إلغاء / Cancel
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={isSaving}
-                                className={`w-full py-4 bg-green text-white font-bold rounded-2xl shadow-xl shadow-green/20 hover:shadow-green/30 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm ${isSaving ? 'opacity-70 cursor-not-allowed' : 'hover:scale-[1.02]'}`}
-                            >
-                                {isSaving ? <Loader2 className="animate-spin" size={18} /> : <Check size={18} />}
-                                {isSaving ? 'جاري الحفظ...' : 'قص وتأكيد'}
-                            </button>
-                        </div>
+                        <input
+                            type="range" value={rotation} min={0} max={360} step={1}
+                            onChange={(e) => setRotation(Number(e.target.value))}
+                            className="w-full h-1 bg-green/10 rounded-full appearance-none cursor-pointer accent-green"
+                        />
                     </div>
-                </motion.div>
-            </div>
+                </div>
+
+                {/* Actions */}
+                <div className="px-5 pb-5 pt-2 flex gap-2">
+                    <button
+                        onClick={onClose}
+                        className="flex-1 py-2.5 bg-green/5 text-dark/70 font-bold rounded-[10px] hover:bg-green/10 transition-colors text-sm"
+                    >
+                        إلغاء
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="flex-1 py-2.5 bg-green text-white font-bold rounded-[10px] hover:shadow-xl hover:shadow-green/20 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-60"
+                    >
+                        {isSaving ? <Loader2 className="animate-spin" size={14} /> : <Check size={14} />}
+                        {isSaving ? '...' : 'حفظ'}
+                    </button>
+                </div>
+            </motion.div>
         </motion.div>
     );
 };

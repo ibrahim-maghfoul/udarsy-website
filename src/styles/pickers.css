@@ -153,6 +153,13 @@
 .gp-day.today { border-color: var(--green); color: var(--green); font-weight: 900; }
 .gp-day.selected { background: var(--green); color: #fff; font-weight: 900; }
 .gp-day.selected.today { background: var(--green); border-color: var(--green); }
+.gp-day.disabled { color: #e5e7eb; cursor: not-allowed; pointer-events: none; }
+.gp-month-cell.disabled,
+.gp-year-cell.disabled { color: #d1d5db; background: #f9fafb; cursor: not-allowed; opacity: .55; }
+.gp-month-cell.disabled:hover,
+.gp-year-cell.disabled:hover { background: #f9fafb; color: #d1d5db; }
+.gp-today-btn:disabled { opacity: .4; cursor: not-allowed; }
+.gp-today-btn:disabled:hover { background: var(--green-dim); color: var(--green); }
 
 .gp-footer { margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9; display: flex; justify-content: center; }
 .gp-today-btn {

@@ -94,7 +94,7 @@ const DesktopCard = memo(function DesktopCard({ card, phase, isActive, badgeVal 
                 }`}
             style={{
                 width: 'clamp(142px,15.5vw,192px)',
-                borderRadius: '18px',
+                borderRadius: '10px',
                 padding: '11px 13px',
             }}>
             <BlobWave phase={phase} />
@@ -215,7 +215,7 @@ const MobileCardList = memo(function MobileCardList({ cards }: {
 
                 return (
                     <div key={card.id} id={`${card.id}-mobile`}
-                        className={`rounded-2xl p-3 flex items-center gap-3 relative overflow-hidden
+                        className={`rounded-[10px] p-3 flex items-center gap-3 relative overflow-hidden
                             transition-[box-shadow,background] duration-500 border
                             ${isLight ? 'bg-green-deep border-green-deep shadow-[0_4px_20px_rgba(45,138,82,0.3)]' : 'bg-white border-gray-100 shadow-sm'}`}>
                         <BlobWave phase={phase} />

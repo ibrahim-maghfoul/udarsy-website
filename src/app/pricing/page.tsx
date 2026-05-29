@@ -225,6 +225,48 @@ export default function PricingPage() {
   const isHeldRef                        = useRef<boolean>(false);
   const bumpInteraction                  = () => { lastBumpRef.current = Date.now(); };
 
+  // ─── Embla "Scale" variant (inlined — native scroll-snap + tweened scale) ───
+  const trackRef     = useRef<HTMLDivElement>(null);
+  const rafRef       = useRef<number | null>(null);
+  const activeIdxRef = useRef<number>(1);
+
+  const applyScale = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    const center = track.scrollLeft + track.clientWidth / 2;
+    const slides = Array.from(track.children) as HTMLDivElement[];
+    let closestIdx = 0;
+    let closestDist = Infinity;
+    slides.forEach((slide, i) => {
+      const slideCenter = slide.offsetLeft + slide.offsetWidth / 2;
+      const distance = Math.abs(slideCenter - center);
+      const progress = Math.min(distance / slide.offsetWidth, 1);
+      const scale = 1 - progress * 0.22;
+      slide.style.transform = `scale(${scale})`;
+      slide.style.opacity = String(1 - progress * 0.45);
+      if (distance < closestDist) {
+        closestDist = distance;
+        closestIdx = i;
+      }
+    });
+    activeIdxRef.current = closestIdx;
+    setActiveIdx((prev) => (prev === closestIdx ? prev : closestIdx));
+  };
+
+  const onTrackScroll = () => {
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(applyScale);
+  };
+
+  const scrollToSlide = (idx: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const slide = track.children[idx] as HTMLDivElement | undefined;
+    if (!slide) return;
+    const left = slide.offsetLeft + slide.offsetWidth / 2 - track.clientWidth / 2;
+    track.scrollTo({ left, behavior: "smooth" });
+  };
+
   const ctrl0 = useAnimationControls();
   const ctrl1 = useAnimationControls();
   const ctrl2 = useAnimationControls();
@@ -237,7 +279,7 @@ export default function PricingPage() {
   useEffect(() => {
     const id = setInterval(() => {
       if (!isHeldRef.current && Date.now() - lastBumpRef.current >= 3500) {
-        setActiveIdx((i) => (i + 1) % 3);
+        scrollToSlide((activeIdxRef.current + 1) % 3);
         lastBumpRef.current = Date.now();
       }
     }, 250);
@@ -272,6 +314,23 @@ export default function PricingPage() {
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cycle]);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const track = trackRef.current;
+      if (!track) return;
+      const slide = track.children[1] as HTMLDivElement | undefined;
+      if (slide) {
+        track.scrollLeft = slide.offsetLeft + slide.offsetWidth / 2 - track.clientWidth / 2;
+      }
+      applyScale();
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const plans = [
     {
@@ -636,50 +695,33 @@ export default function PricingPage() {
           })}
         </div>
 
-        {/* Mobile carousel (<md) — Pro centered, side cards partially peeking */}
-        <div className="md:hidden py-8 overflow-hidden">
-          <motion.div
-            className="flex items-center"
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.5}
-            dragMomentum={false}
-            animate={{ x: `${17.5 - 65 * activeIdx}%` }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
+        {/* Mobile carousel (<md) — Embla "Scale" variant inlined (no library) */}
+        <div className="md:hidden py-8">
+          <div
+            ref={trackRef}
+            onScroll={onTrackScroll}
             onPointerDown={() => { isHeldRef.current = true; bumpInteraction(); }}
-            onDragEnd={(_e, info) => {
-              isHeldRef.current = false;
-              bumpInteraction();
-              const threshold = 50;
-              if (info.offset.x < -threshold && activeIdx < plans.length - 1) {
-                setActiveIdx(activeIdx + 1);
-              } else if (info.offset.x > threshold && activeIdx > 0) {
-                setActiveIdx(activeIdx - 1);
-              }
+            className="flex overflow-x-auto snap-x snap-mandatory px-[17.5%] pt-6 pb-2 [&::-webkit-scrollbar]:hidden"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              WebkitOverflowScrolling: "touch",
             }}
-            style={{ touchAction: "pan-y" }}
           >
-            {plans.map((plan, i) => {
-              const isActive = i === activeIdx;
-              const absOff   = Math.abs(i - activeIdx);
-              return (
-                <motion.div
-                  key={`${plan.key}-${locale}-m`}
-                  animate={{
-                    scale:   isActive ? 1 : 0.8,
-                    opacity: absOff > 1 ? 0 : isActive ? 1 : 0.55,
-                    filter:  isActive ? "blur(0px)" : "blur(1.5px)",
-                  }}
-                  transition={{ duration: 0.8, ease: "easeInOut" }}
-                  onClick={() => { if (!isActive) { setActiveIdx(i); bumpInteraction(); } }}
-                  style={{ zIndex: 10 - absOff, transformOrigin: "center center" }}
-                  className="min-w-[65%] px-2 pt-6 cursor-pointer"
-                >
-                  {renderPlanCardBody(plan)}
-                </motion.div>
-              );
-            })}
-          </motion.div>
+            {plans.map((plan, i) => (
+              <div
+                key={`${plan.key}-${locale}-m`}
+                onClick={() => { if (i !== activeIdx) { scrollToSlide(i); bumpInteraction(); } }}
+                className="flex-none w-[65%] px-2 snap-center cursor-pointer"
+                style={{
+                  transformOrigin: "center center",
+                  willChange: "transform, opacity",
+                }}
+              >
+                {renderPlanCardBody(plan)}
+              </div>
+            ))}
+          </div>
 
           {/* Carousel dots */}
           <div className="flex justify-center gap-2 mt-8">
@@ -687,7 +729,7 @@ export default function PricingPage() {
               <button
                 key={p.key}
                 type="button"
-                onClick={() => { setActiveIdx(i); bumpInteraction(); }}
+                onClick={() => { scrollToSlide(i); bumpInteraction(); }}
                 aria-label={`Show ${p.name}`}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
                   i === activeIdx ? "w-8 bg-green" : "w-1.5 bg-gray-300 hover:bg-gray-400"

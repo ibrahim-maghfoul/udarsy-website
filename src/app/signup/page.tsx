@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { User, Mail, Lock, UserPlus, Gift, Eye, EyeOff } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSnackbar } from "@/contexts/SnackbarContext";
 import { trackEvent } from "@/lib/analytics";
@@ -13,9 +13,10 @@ import TurnstileWidget, { verifyTurnstileToken } from "@/components/TurnstileWid
 import { TurnstileInstance } from "@marsidev/react-turnstile";
 
 export default function SignupPage() {
-    const { register } = useAuth();
+    const { user, register } = useAuth();
     const { showSnackbar } = useSnackbar();
     const t = useTranslations('Auth');
+    const router = useRouter();
     const searchParams = useSearchParams();
     const [name, setName] = useState("");
     const [nickname, setNickname] = useState("");
@@ -31,6 +32,16 @@ export default function SignupPage() {
         const ref = searchParams.get('ref');
         if (ref) setReferralCode(ref.toUpperCase());
     }, [searchParams]);
+
+    useEffect(() => {
+        if (!user) return;
+        const dest = user.role === 'teacher' ? '/teacher/dashboard'
+            : user.role === 'instructor' ? '/instructor-dashboard'
+            : '/explore';
+        router.replace(dest);
+    }, [user, router]);
+
+    if (user) return null;
 
 
 
@@ -60,7 +71,7 @@ export default function SignupPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-white to-green/10 px-4 pt-24 md:pt-32 pb-10">
+        <div className="flex justify-center bg-gradient-to-br from-white via-white to-green/10 px-4 pt-20 md:pt-32 pb-10">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -81,8 +92,7 @@ export default function SignupPage() {
                 {/* Form side */}
                 <div className="p-5 sm:p-6 md:p-8 space-y-4">
                     <div className="space-y-1">
-                        <h1 className="text-2xl md:text-3xl font-black text-dark tracking-tight">{t('signup_title')}</h1>
-                        <p className="text-sm text-muted-foreground">{t('signup_desc')}</p>
+                        <h1 className="text-3xl md:text-4xl font-black text-green tracking-tight text-center md:text-left py-3 md:py-0">{t('signup_title')}</h1>
                     </div>
 
                     {referralCode && (

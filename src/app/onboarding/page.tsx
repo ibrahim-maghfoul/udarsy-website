@@ -66,6 +66,15 @@ export default function OnboardingPage() {
     const [options, setOptions] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
 
+    // Already-onboarded users shouldn't see this page (unless they're explicitly
+    // re-picking their study path via ?pathOnly=1).
+    const alreadyOnboarded = !!user?.selectedPath?.guidanceId;
+    useEffect(() => {
+        if (alreadyOnboarded && !pathOnly) {
+            router.replace('/explore');
+        }
+    }, [alreadyOnboarded, pathOnly, router]);
+
     // Pre-fill from existing user data
     useEffect(() => {
         if (!user) return;
@@ -288,7 +297,16 @@ export default function OnboardingPage() {
         }
     };
 
+    if (alreadyOnboarded && !pathOnly) return null;
+
     const age = selections.birthday ? calculateAge(selections.birthday) : null;
+    const MIN_AGE = 7;
+    const maxBirthday = (() => {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - MIN_AGE);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    })();
+    const tooYoung = age !== null && age < MIN_AGE;
     const labelClass = "text-xs font-black uppercase tracking-widest px-0.5 flex items-center gap-2 text-dark/50" as const;
     const inputClass = "w-full pl-10 pr-3 py-3 rounded-[10px] bg-green/5 border border-transparent focus:border-green focus:bg-white focus:ring-4 focus:ring-green/5 outline-none transition-all font-medium text-dark placeholder:text-dark/30 text-sm" as const;
     const optionalBadge = (
@@ -299,13 +317,13 @@ export default function OnboardingPage() {
 
     return (
         <div
-            className="min-h-screen flex items-center justify-center px-4 pt-24 md:pt-32 pb-10"
+            className="flex justify-center px-4 pt-20 md:pt-32 pb-10"
             style={{ background: "linear-gradient(160deg, #ffffff 0%, #f4fbf7 55%, #eaf5ef 100%)" }}
         >
-            <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 md:min-h-[640px] bg-white rounded-[10px] border border-green/10 shadow-2xl shadow-green/5 overflow-hidden">
+            <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 bg-white rounded-[10px] border border-green/10 shadow-2xl shadow-green/5 overflow-hidden">
 
                 {/* Image side — fixed height so it doesn't grow with content */}
-                <div className="relative hidden md:block bg-green/5 border-r border-green/15 md:h-[640px] md:sticky md:top-0">
+                <div className="relative hidden md:block bg-green/5 border-r border-green/15">
                     <Image
                         src="/Home page card/All subjects.webp"
                         alt="Udarsy — learn everything"
@@ -343,7 +361,7 @@ export default function OnboardingPage() {
                         {currentStep === 0 && (
                             <div>
                                 <div className="mb-5">
-                                    <h1 className="text-2xl md:text-3xl font-black text-dark tracking-tight">{t("personal_info_title")}</h1>
+                                    <h1 className="text-3xl md:text-4xl font-black text-dark tracking-tight text-center md:text-left py-3 md:py-0">{t("personal_info_title")}</h1>
                                 </div>
 
                                 <div className="space-y-4">
@@ -353,7 +371,12 @@ export default function OnboardingPage() {
                                             <label className={labelClass}>
                                                 {t("birthday")}
                                                 {age !== null && (
-                                                    <span className="ml-auto text-[10px] font-bold normal-case tracking-normal rounded-full px-2 py-0.5" style={{ background: "rgba(58,170,106,0.10)", color: "#3aaa6a" }}>
+                                                    <span
+                                                        className="ml-auto text-[10px] font-bold normal-case tracking-normal rounded-full px-2 py-0.5"
+                                                        style={tooYoung
+                                                            ? { background: "rgba(220,38,38,0.10)", color: "#dc2626" }
+                                                            : { background: "rgba(58,170,106,0.10)", color: "#3aaa6a" }}
+                                                    >
                                                         {age}y
                                                     </span>
                                                 )}
@@ -362,6 +385,7 @@ export default function OnboardingPage() {
                                                 value={selections.birthday}
                                                 onChange={(val: string) => setSelections(prev => ({ ...prev, birthday: val }))}
                                                 placeholder={t("pick_date")}
+                                                maxDate={maxBirthday}
                                             />
                                         </div>
 
@@ -500,7 +524,7 @@ export default function OnboardingPage() {
 
                                     <button
                                         onClick={handleStep0Next}
-                                        disabled={!selections.birthday || !selections.gender}
+                                        disabled={!selections.birthday || !selections.gender || tooYoung}
                                         className="w-full py-3 bg-green text-white font-bold rounded-[10px] hover:shadow-xl hover:shadow-green/20 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-40 text-sm mt-1"
                                     >
                                         {t("next")} <ChevronRight size={18} />
@@ -520,7 +544,7 @@ export default function OnboardingPage() {
                         {currentStep === 1 && (
                             <div>
                                 <div className="space-y-1 mb-5">
-                                    <h1 className="text-2xl md:text-3xl font-black text-dark tracking-tight">Profile Picture</h1>
+                                    <h1 className="text-3xl md:text-4xl font-black text-dark tracking-tight text-center md:text-left py-3 md:py-0">Profile Picture</h1>
                                     <p className="text-sm text-muted-foreground">Choose your look</p>
                                 </div>
 
@@ -659,7 +683,7 @@ export default function OnboardingPage() {
                                 <div className="animate-slide-up">
                                     <div className="mb-5 space-y-3">
                                         <div className="space-y-1">
-                                            <h1 className="text-2xl md:text-3xl font-black text-dark tracking-tight">
+                                            <h1 className="text-3xl md:text-4xl font-black text-dark tracking-tight text-center md:text-left py-3 md:py-0">
                                                 {wizardStepLabels[wizardStep - 1]}
                                             </h1>
                                             <p className="text-sm text-muted-foreground">

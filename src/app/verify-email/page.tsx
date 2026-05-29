@@ -6,10 +6,12 @@ import { CheckCircle, XCircle, Loader2, Mail } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function VerifyEmailPage() {
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
+    const { forceRefreshUser } = useAuth();
 
     const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
     const [error, setError] = useState("");
@@ -25,12 +27,18 @@ export default function VerifyEmailPage() {
         }
 
         api.post("/auth/verify-email", { token })
-            .then(() => setStatus("success"))
+            .then(async () => {
+                setStatus("success");
+                // Refresh AuthContext so isVerified flips to true immediately —
+                // otherwise VerifyRequired-gated pages (services, explore, lesson,
+                // favorites) stay locked until the user manually reloads.
+                try { await forceRefreshUser(); } catch { /* non-fatal */ }
+            })
             .catch((err) => {
                 setStatus("error");
                 setError(err.response?.data?.error || "Invalid or expired verification link.");
             });
-    }, [token]);
+    }, [token, forceRefreshUser]);
 
     const handleResend = async (e: React.FormEvent) => {
         e.preventDefault();
