@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     description:
       "يودرسي — دروس مجانية، تمارين تفاعلية وامتحانات نموذجية وفق المنهج المغربي. للتلاميذ من الابتدائي إلى الباكالوريا في المغرب.",
     images: ["/og-image.png"],
-    creator: "@UdarsyMa",
+    creator: "@udarsyschool",
   },
   alternates: {
     canonical: "/",

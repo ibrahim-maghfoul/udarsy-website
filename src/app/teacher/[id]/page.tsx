@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       images: [image],
-      creator: "@UdarsyMa",
+      creator: "@udarsyschool",
     },
   };
 }

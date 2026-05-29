@@ -52,7 +52,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       images: [`${SITE_URL}/og-image.png`],
-      creator: "@UdarsyMa",
+      creator: "@udarsyschool",
     },
   };
 }

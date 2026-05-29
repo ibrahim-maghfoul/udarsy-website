@@ -28,7 +28,7 @@ export const metadata: Metadata = {
         title: "أخبار التعليم في المغرب | Udarsy",
         description: "آخر أخبار التعليم والتوجيه في المغرب — باكالوريا، بريفي، مستجدات وزارة التربية الوطنية وجداول الامتحانات.",
         images: [`${SITE_URL}/og-image.png`],
-        creator: "@UdarsyMa",
+        creator: "@udarsyschool",
     },
 };
 
