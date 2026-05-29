@@ -175,13 +175,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lessonRoutes: MetadataRoute.Sitemap = lessonList.flatMap(l => {
     const u = lessonPath(l);
     if (!u) return [];
-    const full = `${SITE_URL}${enc(u)}`;
-    // /preview pages live at the legacy /lesson/<_id>/preview path (no hierarchical
-    // equivalent yet); the lesson player URL itself uses the pretty hierarchical form.
-    return [
-      { url: full, changeFrequency: "monthly" as const, priority: 0.7 },
-      { url: `${SITE_URL}/lesson/${l._id}/preview`, changeFrequency: "monthly" as const, priority: 0.5 },
-    ];
+    return [{ url: `${SITE_URL}${enc(u)}`, changeFrequency: "monthly" as const, priority: 0.7 }];
   });
 
   const teacherRoutes: MetadataRoute.Sitemap = teacherList.map((t) => ({
