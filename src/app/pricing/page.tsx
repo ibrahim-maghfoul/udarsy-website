@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useAnimationControls, type Variants } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { trackEvent } from "@/lib/analytics";
 import { Check, X, Crown, Zap, BookOpen, ArrowRight, CreditCard } from "lucide-react";
 import Link from "next/link";
@@ -220,116 +220,9 @@ export default function PricingPage() {
   const [cycle, setCycle]               = useState<Cycle>("monthly");
   const [activePlan, setActivePlan]     = useState<PaidPlan | null>(null);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
-  const [activeIdx, setActiveIdx]       = useState<number>(1);
-  const lastBumpRef                      = useRef<number>(Date.now());
-  const isHeldRef                        = useRef<boolean>(false);
-  const bumpInteraction                  = () => { lastBumpRef.current = Date.now(); };
-
-  // ─── Embla "Scale" variant (inlined — native scroll-snap + tweened scale) ───
-  const trackRef     = useRef<HTMLDivElement>(null);
-  const rafRef       = useRef<number | null>(null);
-  const activeIdxRef = useRef<number>(1);
-
-  const applyScale = () => {
-    const track = trackRef.current;
-    if (!track) return;
-    const center = track.scrollLeft + track.clientWidth / 2;
-    const slides = Array.from(track.children) as HTMLDivElement[];
-    let closestIdx = 0;
-    let closestDist = Infinity;
-    slides.forEach((slide, i) => {
-      const slideCenter = slide.offsetLeft + slide.offsetWidth / 2;
-      const distance = Math.abs(slideCenter - center);
-      const progress = Math.min(distance / slide.offsetWidth, 1);
-      const scale = 1 - progress * 0.22;
-      slide.style.transform = `scale(${scale})`;
-      slide.style.opacity = String(1 - progress * 0.45);
-      if (distance < closestDist) {
-        closestDist = distance;
-        closestIdx = i;
-      }
-    });
-    activeIdxRef.current = closestIdx;
-    setActiveIdx((prev) => (prev === closestIdx ? prev : closestIdx));
-  };
-
-  const onTrackScroll = () => {
-    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(applyScale);
-  };
-
-  const scrollToSlide = (idx: number) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const slide = track.children[idx] as HTMLDivElement | undefined;
-    if (!slide) return;
-    const left = slide.offsetLeft + slide.offsetWidth / 2 - track.clientWidth / 2;
-    track.scrollTo({ left, behavior: "smooth" });
-  };
-
-  const ctrl0 = useAnimationControls();
-  const ctrl1 = useAnimationControls();
-  const ctrl2 = useAnimationControls();
-  const ctrls = [ctrl0, ctrl1, ctrl2];
 
   useEffect(() => {
     trackEvent({ event: 'pricing_view', category: 'Conversion' });
-  }, []);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      if (!isHeldRef.current && Date.now() - lastBumpRef.current >= 3500) {
-        scrollToSlide((activeIdxRef.current + 1) % 3);
-        lastBumpRef.current = Date.now();
-      }
-    }, 250);
-
-    const onScroll = () => { lastBumpRef.current = Date.now(); };
-    const releaseHold = () => {
-      if (isHeldRef.current) {
-        isHeldRef.current = false;
-        lastBumpRef.current = Date.now();
-      }
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("pointerup", releaseHold);
-    window.addEventListener("pointercancel", releaseHold);
-
-    return () => {
-      clearInterval(id);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("pointerup", releaseHold);
-      window.removeEventListener("pointercancel", releaseHold);
-    };
-  }, []);
-
-  useEffect(() => {
-    ctrls.forEach((ctrl, i) => {
-      setTimeout(() => {
-        ctrl.start({
-          x: [0, -7, 7, -4, 4, -2, 2, 0],
-          transition: { duration: 0.4, ease: "easeOut" },
-        });
-      }, i * 55);
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cycle]);
-
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      const track = trackRef.current;
-      if (!track) return;
-      const slide = track.children[1] as HTMLDivElement | undefined;
-      if (slide) {
-        track.scrollLeft = slide.offsetLeft + slide.offsetWidth / 2 - track.clientWidth / 2;
-      }
-      applyScale();
-    });
-    return () => {
-      cancelAnimationFrame(frame);
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const plans = [
@@ -680,61 +573,37 @@ export default function PricingPage() {
           {plans.map((plan, i) => {
             const rotation = i === 0 ? -4 : i === 2 ? 4 : 0;
             return (
-              <motion.div key={`${plan.key}-${locale}`} animate={ctrls[i]} style={{ zIndex: i === 1 ? 2 : 1 }}>
-                <motion.div
-                  custom={i}
-                  variants={CARD_VARS}
-                  initial={false}
-                  animate="visible"
-                  style={{ rotate: rotation }}
-                >
-                  {renderPlanCardBody(plan)}
-                </motion.div>
+              <motion.div
+                key={`${plan.key}-${locale}`}
+                custom={i}
+                variants={CARD_VARS}
+                initial={false}
+                animate="visible"
+                style={{ rotate: rotation, zIndex: i === 1 ? 2 : 1 }}
+              >
+                {renderPlanCardBody(plan)}
               </motion.div>
             );
           })}
         </div>
 
-        {/* Mobile carousel (<md) — Embla "Scale" variant inlined (no library) */}
+        {/* Mobile (<md) — simple horizontal scroll with snap */}
         <div className="md:hidden py-8">
           <div
-            ref={trackRef}
-            onScroll={onTrackScroll}
-            onPointerDown={() => { isHeldRef.current = true; bumpInteraction(); }}
-            className="flex overflow-x-auto snap-x snap-mandatory px-[17.5%] pt-6 pb-2 [&::-webkit-scrollbar]:hidden"
+            className="flex overflow-x-auto snap-x snap-mandatory px-[10%] pt-6 pb-4 [&::-webkit-scrollbar]:hidden"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
               WebkitOverflowScrolling: "touch",
             }}
           >
-            {plans.map((plan, i) => (
+            {plans.map((plan) => (
               <div
                 key={`${plan.key}-${locale}-m`}
-                onClick={() => { if (i !== activeIdx) { scrollToSlide(i); bumpInteraction(); } }}
-                className="flex-none w-[65%] px-2 snap-center cursor-pointer"
-                style={{
-                  transformOrigin: "center center",
-                  willChange: "transform, opacity",
-                }}
+                className="flex-none w-[80%] px-2 snap-center"
               >
                 {renderPlanCardBody(plan)}
               </div>
-            ))}
-          </div>
-
-          {/* Carousel dots */}
-          <div className="flex justify-center gap-2 mt-8">
-            {plans.map((p, i) => (
-              <button
-                key={p.key}
-                type="button"
-                onClick={() => { scrollToSlide(i); bumpInteraction(); }}
-                aria-label={`Show ${p.name}`}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === activeIdx ? "w-8 bg-green" : "w-1.5 bg-gray-300 hover:bg-gray-400"
-                }`}
-              />
             ))}
           </div>
         </div>

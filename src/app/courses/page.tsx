@@ -67,6 +67,25 @@ function prettify(slug: string): string {
   return slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
 
+// Curriculum order for the footer link strip: primaire → collège → lycée, then
+// by grade within each school (tronc commun first, then ascending year number).
+function levelOrder(lv: Level): number {
+  const s = (lv.schoolSlug || "").toLowerCase();
+  let school = 3;
+  if (s.includes("prim") || s.includes("ابتدا")) school = 0;
+  else if (s.includes("coll") || s.includes("إعدا") || s.includes("aadadi")) school = 1;
+  else if (s.includes("lyc") || s.includes("ثانو") || s.includes("bac")) school = 2;
+
+  const l = (lv.levelSlug || "").toLowerCase();
+  let grade = 50;
+  if (l.includes("tronc") || l.includes("جذع")) grade = 0;
+  else {
+    const m = l.match(/\d+/);
+    if (m) grade = parseInt(m[0], 10);
+  }
+  return school * 100 + grade;
+}
+
 // --- Page -------------------------------------------------------------------
 export default async function CoursesPage() {
   const locale = await getLocale();
@@ -79,7 +98,9 @@ export default async function CoursesPage() {
   ]);
 
   const schoolList = Array.isArray(schools) ? schools : [];
-  const levelList = Array.isArray(levels) ? levels : [];
+  const levelList = (Array.isArray(levels) ? [...levels] : []).sort(
+    (a, b) => levelOrder(a) - levelOrder(b)
+  );
   const subjectList = Array.isArray(subjects) ? subjects : [];
   const lessonCount = Array.isArray(lessons) ? lessons.length : 0;
 
@@ -175,24 +196,10 @@ export default async function CoursesPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
 
-      {/* Compact SEO header — small enough to sit above the existing onboarding
-          flow without dominating it. Hidden for logged-in users to restore the
-          original /courses look. */}
-      <GuestOnly>
-        <section className="px-[clamp(20px,6vw,80px)] pt-24 md:pt-32 pb-4 max-w-5xl mx-auto">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-dark leading-tight" dir="auto">
-            {c.h1}
-          </h1>
-          <p className="mt-3 text-base md:text-lg text-muted-foreground max-w-3xl leading-relaxed" dir="auto">
-            {c.lead}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="px-3 py-1 rounded-full bg-green/10 text-green text-xs font-bold" dir="auto">{c.stats_lessons}</span>
-            <span className="px-3 py-1 rounded-full bg-green/10 text-green text-xs font-bold" dir="auto">{c.stats_subjects}</span>
-            <span className="px-3 py-1 rounded-full bg-green/10 text-green text-xs font-bold" dir="auto">{c.stats_levels}</span>
-          </div>
-        </section>
-      </GuestOnly>
+      {/* SEO h1/lead/stats now live beside the onboarding wizard inside
+          CoursesBrowser (see _CoursesBrowser.tsx) to avoid a duplicate header.
+          The JSON-LD above + the footer link strip below still carry the
+          crawlable signals regardless of the visible layout. */}
 
       {/* Existing interactive UX — visible to everyone, original design preserved. */}
       <CoursesBrowser />

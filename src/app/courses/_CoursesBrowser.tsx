@@ -15,9 +15,20 @@ import { GraduationCap, School, UserPlus } from "lucide-react";
 
 // onSelect receives a ready-to-navigate hierarchical /courses URL. We keep the title
 // only for callers that want to set a display name; the URL is already canonical.
+// Localized SEO copy shown beside the wizard. Mirrors the localized strings that
+// used to live in the server header (courses/page.tsx) so guests in every locale
+// get a real, keyword-rich <h1> next to the onboarding flow.
+const GUEST_SEO_COPY: Record<string, { h1: string; lead: string; free: string; lessons: string; subjects: string; levels: string }> = {
+    en: { h1: 'The entire Moroccan curriculum in one place', lead: 'Lessons, graded exercises, regional and national exams.', free: 'Free to start.', lessons: 'lessons', subjects: 'subjects', levels: 'grade levels' },
+    fr: { h1: 'Tout le programme marocain en un seul endroit', lead: 'Cours, exercices corrigés, examens régionaux et nationaux.', free: 'Gratuit pour commencer.', lessons: 'leçons', subjects: 'matières', levels: 'niveaux' },
+    ar: { h1: 'كل المنهج المغربي في مكان واحد', lead: 'دروس، تمارين مصححة، امتحانات جهوية ووطنية.', free: 'مجاني للبدء.', lessons: 'درس', subjects: 'مادة', levels: 'مستوى' },
+};
+
 function GuestLevelSelector({ onSelect }: { onSelect: (url: string, title: string) => void }) {
     const t = useTranslations('Onboarding');
-    const router = useRouter();
+    const locale = useLocale();
+    const seo = GUEST_SEO_COPY[locale] ?? GUEST_SEO_COPY.fr;
+    const isAr = locale === 'ar';
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(true);
     const [options, setOptions] = useState<any[]>([]);
@@ -120,33 +131,41 @@ function GuestLevelSelector({ onSelect }: { onSelect: (url: string, title: strin
     ];
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-start px-4 py-8 pt-6 md:pt-32 bg-[#fafbfc]">
-            <div className="w-full max-w-md space-y-4">
+        <div className="min-h-screen flex flex-col items-center justify-start px-4 py-8 pt-28 md:pt-36 bg-[#fafbfc]">
+            <div className="w-full max-w-4xl flex flex-col md:flex-row md:items-start md:justify-center gap-8 md:gap-14">
 
-                {/* Login banner */}
-                <div
-                    className="relative overflow-hidden rounded-2xl px-4 py-3 shadow-md"
-                    style={{ backgroundImage: `repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 8px), linear-gradient(135deg, #1e7a46 0%, #0f4428 100%)` }}
-                >
-                    <div className="relative z-10 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                            <UserPlus size={16} strokeWidth={2} className="text-white/80 shrink-0" />
-                            <div className="min-w-0">
-                                <p className="font-bold text-white text-xs leading-tight">Save your progress — sign in free</p>
-                                <p className="text-white/60 text-[11px] leading-snug hidden sm:block">Track lessons, earn points, save favorites.</p>
+                {/* Marketing side panel — SEO copy, visible on all viewports.
+                    Pinned to the top (md:items-start above) so it doesn't jump
+                    when the wizard card height changes between steps. */}
+                <div className="w-full md:max-w-sm md:shrink-0 md:pt-2 animate-slide-up" dir={isAr ? 'rtl' : 'ltr'}>
+                    <h1 className="text-2xl md:text-3xl font-black text-dark tracking-tight leading-tight mb-4">
+                        {seo.h1}
+                    </h1>
+                    <p className="text-dark/60 text-base leading-relaxed mb-8">
+                        {seo.lead}{' '}
+                        <span className="font-bold text-green">{seo.free}</span>
+                    </p>
+                    <div className="flex items-center gap-8">
+                        {[
+                            { value: '2631+', label: seo.lessons },
+                            { value: '298+', label: seo.subjects },
+                            { value: '12+', label: seo.levels },
+                        ].map((stat) => (
+                            <div key={stat.label}>
+                                <p className="text-2xl font-black text-green leading-none">{stat.value}</p>
+                                <p className="text-xs font-medium text-dark/45 mt-1.5">{stat.label}</p>
                             </div>
-                        </div>
-                        <button onClick={() => router.push('/login')} className="btn-signin">
-                            <LogIn size={13} />
-                            Sign In
-                        </button>
+                        ))}
                     </div>
                 </div>
+
+                {/* Wizard column */}
+                <div className="w-full max-w-md space-y-4">
 
                 {/* Wizard panel */}
                 <div
                     key={step}
-                    className="bg-white rounded-[28px] border border-green/8 shadow-xl shadow-green/5 overflow-hidden animate-slide-up"
+                    className="bg-white rounded-[10px] border border-green/8 shadow-xl shadow-green/5 overflow-hidden animate-slide-up"
                 >
                     {/* Header with dot texture */}
                     <div
@@ -230,6 +249,7 @@ function GuestLevelSelector({ onSelect }: { onSelect: (url: string, title: strin
                             </button>
                         </div>
                     )}
+                </div>
                 </div>
             </div>
         </div>

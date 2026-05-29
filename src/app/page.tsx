@@ -83,19 +83,58 @@ export default async function Home() {
           </div>
           <div className="flex items-center justify-center gap-[clamp(32px,8vw,100px)]">
             <div className="opacity-[0.65] hover:opacity-100 transition-opacity cursor-default flex items-center">
-              <svg height="24" viewBox="0 0 100 100" className="fill-white">
-                <path d="M50 0C22.4 0 0 22.4 0 50s22.4 50 50 50 50-22.4 50-50S77.6 0 50 0zm0 88c-21 0-38-17-38-38s17-38 38-38 38 17 38 38-17 38-38 38zm-5-58h10v40H45V30zm0 50h10v8H45v-8z" />
-              </svg>
+              <span
+                aria-hidden
+                className="block bg-white"
+                style={{
+                  height: 26,
+                  width: 23,
+                  WebkitMaskImage: 'url("/brands%20icons/fauna-icon.svg")',
+                  maskImage: 'url("/brands%20icons/fauna-icon.svg")',
+                  WebkitMaskRepeat: 'no-repeat',
+                  maskRepeat: 'no-repeat',
+                  WebkitMaskPosition: 'center',
+                  maskPosition: 'center',
+                  WebkitMaskSize: 'contain',
+                  maskSize: 'contain',
+                }}
+              />
             </div>
             <div className="opacity-[0.65] hover:opacity-100 transition-opacity cursor-default flex items-center">
-              <svg height="22" viewBox="0 0 100 100" className="fill-white">
-                <path d="M50 5L10 95h80L50 5zm0 25l25 55H25l25-55zm-3 18v18h6V48h-6zm0 22v6h6v-6h-6z" />
-              </svg>
+              <span
+                aria-hidden
+                className="block bg-white"
+                style={{
+                  height: 26,
+                  width: 26,
+                  WebkitMaskImage: 'url("/brands%20icons/hootsuite-icon.svg")',
+                  maskImage: 'url("/brands%20icons/hootsuite-icon.svg")',
+                  WebkitMaskRepeat: 'no-repeat',
+                  maskRepeat: 'no-repeat',
+                  WebkitMaskPosition: 'center',
+                  maskPosition: 'center',
+                  WebkitMaskSize: 'contain',
+                  maskSize: 'contain',
+                }}
+              />
             </div>
             <div className="opacity-[0.65] hover:opacity-100 transition-opacity cursor-default flex items-center">
-              <svg height="24" viewBox="0 0 100 100" className="fill-white">
-                <path d="M10 10h35v35H10V10zm45 0h35v35H55V10zM10 55h35v35H10V55zm45 0h35v35H55V55zM20 20v15h15V20H20zm45 0v15h15V20H65zM20 65v15h15V65H20zm45 0v15h15V65H65z" />
-              </svg>
+              <span
+                aria-hidden
+                className="block bg-white"
+                style={{
+                  height: 26,
+                  width: 22,
+                  WebkitMaskImage: 'url("/brands%20icons/planless-icon.svg")',
+                  maskImage: 'url("/brands%20icons/planless-icon.svg")',
+                  WebkitMaskRepeat: 'no-repeat',
+                  maskRepeat: 'no-repeat',
+                  WebkitMaskPosition: 'center',
+                  maskPosition: 'center',
+                  WebkitMaskSize: 'contain',
+                  maskSize: 'contain',
+                }}
+              />
             </div>
           </div>
 

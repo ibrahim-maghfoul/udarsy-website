@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, Check, ZoomIn, RotateCcw, Loader2 } from 'lucide-react';
 
@@ -13,18 +14,6 @@ interface ImageCropperProps {
 interface Rect { left: number; top: number; width: number; height: number }
 interface Vec2 { x: number; y: number }
 interface Size { w: number; h: number }
-
-/**
- * Returns the largest rect that fits (nW × nH) inside (cW × cH) using object-fit: contain math.
- * This is the "crop frame" — the exact region the image occupies at zoom = 1.
- */
-function containRect(cW: number, cH: number, nW: number, nH: number): Rect {
-    const imgAspect = nW / nH;
-    const conAspect = cW / cH;
-    const w = imgAspect >= conAspect ? cW : cH * imgAspect;
-    const h = imgAspect >= conAspect ? cW / imgAspect : cH;
-    return { left: (cW - w) / 2, top: (cH - h) / 2, width: w, height: h };
-}
 
 function clamp(v: number, lo: number, hi: number) { return Math.max(lo, Math.min(hi, v)); }
 
@@ -84,18 +73,27 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
     const [pan, setPan] = useState<Vec2>({ x: 0, y: 0 });
     const [rotation, setRotation] = useState(0);
     const [isSaving, setIsSaving] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
-    // Track container dimensions with ResizeObserver
+    // Portal target only exists in the browser
+    useEffect(() => { setMounted(true); }, []);
+
+    // Track container dimensions with ResizeObserver.
+    // Depends on `mounted` so it (re)attaches after the portal renders the container —
+    // otherwise the ref is null on first run and the size stays 0 (image renders at 0×0).
     useEffect(() => {
         const el = containerRef.current;
         if (!el) return;
+        // Measure synchronously so the frame is correct on first paint
+        const rect = el.getBoundingClientRect();
+        if (rect.width > 0) setCSize({ w: rect.width, h: rect.height });
         const ro = new ResizeObserver(([e]) => {
             const { width, height } = e.contentRect;
             setCSize({ w: width, h: height });
         });
         ro.observe(el);
         return () => ro.disconnect();
-    }, []);
+    }, [mounted]);
 
     const onImgLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
         const el = e.currentTarget;
@@ -105,27 +103,38 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
         setPan({ x: 0, y: 0 });
     }, []);
 
-    // Crop frame: the exact rect the image occupies at zoom=1
-    const base = (cSize.w > 0 && imageLoaded)
-        ? containRect(cSize.w, cSize.h, natural.w, natural.h)
+    // Crop frame: always a 1:1 square, centered in the container
+    const side = Math.min(cSize.w, cSize.h);
+    const base: Rect = (cSize.w > 0 && imageLoaded)
+        ? { left: (cSize.w - side) / 2, top: (cSize.h - side) / 2, width: side, height: side }
         : { left: 0, top: 0, width: 0, height: 0 };
+
+    // Image rect at zoom=1 — sized to "cover" the square frame (no letterboxing)
+    const imgBase: Rect = (() => {
+        if (base.width === 0) return { left: 0, top: 0, width: 0, height: 0 };
+        const scale = side / Math.min(natural.w, natural.h);
+        const w = natural.w * scale;
+        const h = natural.h * scale;
+        return { left: base.left + (side - w) / 2, top: base.top + (side - h) / 2, width: w, height: h };
+    })();
 
     // Current rendered image rect (accounting for zoom and pan)
     const rendered: Rect = {
-        left: base.left - (base.width * (zoom - 1)) / 2 + pan.x,
-        top: base.top - (base.height * (zoom - 1)) / 2 + pan.y,
-        width: base.width * zoom,
-        height: base.height * zoom,
+        left: imgBase.left - (imgBase.width * (zoom - 1)) / 2 + pan.x,
+        top: imgBase.top - (imgBase.height * (zoom - 1)) / 2 + pan.y,
+        width: imgBase.width * zoom,
+        height: imgBase.height * zoom,
     };
 
     const applyClamp = useCallback(
         (raw: Vec2, z: number): Vec2 => {
             if (base.width === 0) return { x: 0, y: 0 };
-            const mx = (base.width * (z - 1)) / 2;
-            const my = (base.height * (z - 1)) / 2;
+            // Keep the image covering the square frame at all times
+            const mx = Math.max(0, (imgBase.width * z - base.width) / 2);
+            const my = Math.max(0, (imgBase.height * z - base.height) / 2);
             return { x: clamp(raw.x, -mx, mx), y: clamp(raw.y, -my, my) };
         },
-        [base.width, base.height],
+        [base.width, imgBase.width, imgBase.height],
     );
 
     // Pointer-based drag (works for mouse and touch)
@@ -167,12 +176,14 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
 
     const ready = cSize.w > 0 && imageLoaded && base.width > 0;
 
-    return (
+    if (!mounted) return null;
+
+    return createPortal(
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto"
             style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)' }}
             onClick={onClose}
         >
@@ -181,7 +192,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.92, y: 16 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                className="bg-white rounded-[10px] w-full max-w-sm shadow-2xl shadow-green/10 border border-green/10 relative overflow-hidden"
+                className="bg-white rounded-[10px] w-full max-w-md my-auto shadow-2xl shadow-green/10 border border-green/10 relative overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -196,11 +207,13 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
                     </button>
                 </div>
 
+                {/* Body: crop stage (left) + horizontal sliders (right) */}
+                <div className="px-5 pb-3 flex gap-4 items-center">
                 {/* Crop stage */}
                 <div
                     ref={containerRef}
-                    className="relative w-full aspect-square select-none cursor-grab active:cursor-grabbing rounded-[10px] overflow-hidden mx-auto"
-                    style={{ background: '#f0f0f0', touchAction: 'none', maxWidth: 320 }}
+                    className="relative aspect-square w-1/2 max-w-[240px] shrink-0 select-none cursor-grab active:cursor-grabbing rounded-[10px] overflow-hidden"
+                    style={{ background: '#f0f0f0', touchAction: 'none' }}
                     onPointerDown={onPtrDown}
                     onPointerMove={onPtrMove}
                     onPointerUp={onPtrUp}
@@ -259,8 +272,8 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
                     )}
                 </div>
 
-                {/* Sliders */}
-                <div className="px-5 pt-4 pb-3 space-y-3">
+                {/* Sliders (right of the image) */}
+                <div className="flex-1 min-w-0 space-y-4">
                     <div className="space-y-1.5">
                         <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-dark/50">
                             <span className="flex items-center gap-1.5"><ZoomIn size={11} className="text-green" /> Zoom</span>
@@ -284,6 +297,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
                         />
                     </div>
                 </div>
+                </div>
 
                 {/* Actions */}
                 <div className="px-5 pb-5 pt-2 flex gap-2">
@@ -303,7 +317,8 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onClose, onCropSave 
                     </button>
                 </div>
             </motion.div>
-        </motion.div>
+        </motion.div>,
+        document.body,
     );
 };
 
