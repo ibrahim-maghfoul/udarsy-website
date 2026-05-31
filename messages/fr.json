@@ -319,6 +319,7 @@
     },
     "News": {
         "title": "Dernières Nouvelles",
+        "subtitle": "Actualités sur l'éducation, les concours, les bourses et les examens au Maroc.",
         "read": "Lire",
         "read_more": "Lire la Suite",
         "tab_all": "Tous",

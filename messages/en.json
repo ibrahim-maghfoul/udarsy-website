@@ -319,6 +319,7 @@
     },
     "News": {
         "title": "Latest News",
+        "subtitle": "The latest education, exam, scholarship and competition news in Morocco.",
         "read": "Read",
         "read_more": "Read More",
         "tab_all": "All",

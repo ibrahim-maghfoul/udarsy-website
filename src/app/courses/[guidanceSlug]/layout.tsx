@@ -12,6 +12,22 @@ async function fetchGuidance(param: string) {
   return g;
 }
 
+// 1-segment /courses/<slug> is also the "browse a school" entry point (e.g.
+// /courses/lycee). When the segment isn't a guidance, resolve it as a school so
+// the page still gets a real title instead of the generic fallback.
+async function fetchSchool(param: string) {
+  const decoded = (() => { try { return decodeURIComponent(param); } catch { return param; } })();
+  const resolved = await serverFetch<{ chain?: { school?: { title: string } } }>(
+    `/data/path-resolve?p=${encodeURIComponent(decoded)}`,
+    { revalidate: 3600 }
+  );
+  return resolved?.chain?.school ?? null;
+}
+
+function hreflang(url: string) {
+  return { fr: url, ar: url, en: url, "x-default": url };
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -22,6 +38,7 @@ export async function generateMetadata({
     const guidance = await fetchGuidance(param);
     if (!guidance) throw new Error("Not found");
     const canonicalId = guidance._id ?? param;
+    const url = `/courses/${canonicalId}`;
     return {
       title: `${guidance.title} — Udarsy`,
       description: `اكتشف مواد ${guidance.title} بالدروس والفيديوهات والتمارين على منصة درسي. Découvrez les matières de ${guidance.title} avec leçons, vidéos et exercices.`,
@@ -29,14 +46,27 @@ export async function generateMetadata({
         title: `${guidance.title} | Udarsy`,
         description: `تصفح مواد ${guidance.title} على منصة درسي التعليمية.`,
         type: "website",
-        url: `/courses/${canonicalId}`,
+        url,
       },
-      alternates: { canonical: `/courses/${canonicalId}` },
+      alternates: { canonical: url, languages: hreflang(url) },
     };
   } catch {
+    // Not a guidance — most likely a school landing page (/courses/lycee).
+    const selfPath = `/courses/${encodeURIComponent(param)}`;
+    const school = await fetchSchool(param).catch(() => null);
+    if (school) {
+      const description = `مستويات ومواد ${school.title} على منصة درسي. Niveaux et matières de ${school.title} sur Udarsy.`;
+      return {
+        title: `${school.title} — Udarsy`,
+        description,
+        openGraph: { title: `${school.title} | Udarsy`, description, type: "website", url: selfPath },
+        alternates: { canonical: selfPath, languages: hreflang(selfPath) },
+      };
+    }
     return {
       title: "المسار الدراسي — Udarsy",
       description: "اكتشف المواد الدراسية على منصة درسي.",
+      alternates: { canonical: selfPath, languages: hreflang(selfPath) },
     };
   }
 }

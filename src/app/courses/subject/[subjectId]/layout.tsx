@@ -3,6 +3,10 @@ import { serverFetch } from "@/lib/serverFetch";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.udarsy.com";
 
+function hreflang(url: string) {
+  return { fr: url, ar: url, en: url, "x-default": url };
+}
+
 async function fetchSubject(param: string) {
   let s = await serverFetch<{ _id: string; title: string; slug?: string } | null>(`/data/subject/${param}`, { revalidate: 3600 });
   if (!s || !s._id) {
@@ -32,12 +36,17 @@ export async function generateMetadata({
         type: "website",
         url: `/courses/subject/${canonicalId}`,
       },
-      alternates: { canonical: `/courses/subject/${canonicalId}` },
+      alternates: {
+        canonical: `/courses/subject/${canonicalId}`,
+        languages: hreflang(`/courses/subject/${canonicalId}`),
+      },
     };
   } catch {
+    const selfPath = `/courses/subject/${encodeURIComponent(param)}`;
     return {
-      title: "المادة الدراسية",
+      title: "المادة الدراسية — Udarsy",
       description: "اكتشف دروس وتمارين المادة على منصة درسي.",
+      alternates: { canonical: selfPath, languages: hreflang(selfPath) },
     };
   }
 }

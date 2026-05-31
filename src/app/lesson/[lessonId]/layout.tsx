@@ -3,6 +3,10 @@ import { serverFetch } from "@/lib/serverFetch";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.udarsy.com";
 
+function hreflang(url: string) {
+  return { fr: url, ar: url, en: url, "x-default": url };
+}
+
 // Try id first (canonical); fall back to slug for legacy URLs.
 async function fetchLessonForMeta(param: string) {
   let lesson = await serverFetch<Record<string, unknown> | null>(`/data/lesson/${param}`, { revalidate: 3600 });
@@ -37,12 +41,14 @@ export async function generateMetadata({
         title: `${title} | Udarsy`,
         description: `دروس وتمارين لـ "${title}" على منصة درسي.`,
       },
-      alternates: { canonical: `/lesson/${canonicalId}` },
+      alternates: { canonical: `/lesson/${canonicalId}`, languages: hreflang(`/lesson/${canonicalId}`) },
     };
   } catch {
+    const selfPath = `/lesson/${encodeURIComponent(param)}`;
     return {
-      title: "الدرس",
+      title: "الدرس — Udarsy",
       description: "اكتشف دروس وتمارين منصة درسي التعليمية المغربية.",
+      alternates: { canonical: selfPath, languages: hreflang(selfPath) },
     };
   }
 }
