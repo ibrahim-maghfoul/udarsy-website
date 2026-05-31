@@ -72,14 +72,14 @@ const nextConfig: NextConfig = {
           // XSS protection via CSP — unsafe-inline required for Next.js hydration without nonces
           { key: 'Content-Security-Policy', value: [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' https://accounts.google.com https://www.clarity.ms https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com",
+            "script-src 'self' 'unsafe-inline' https://accounts.google.com https://*.clarity.ms https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com",
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: blob: https:",
             "font-src 'self' data:",
             "connect-src 'self' ws: wss: https:",
             "media-src 'self' blob: https:",
             "object-src 'none'",
-            "frame-src 'self' https://accounts.google.com https://challenges.cloudflare.com",
+            "frame-src 'self' https: https://accounts.google.com https://challenges.cloudflare.com",
             "frame-ancestors 'self'",
             "base-uri 'self'",
             "form-action 'self' https://accounts.google.com",
