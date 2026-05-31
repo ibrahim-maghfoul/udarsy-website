@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Check, X, Crown, Zap, BookOpen } from "lucide-react";
+import { useState, useRef, useLayoutEffect } from "react";
+import { Check, X, Crown, Zap, BookOpen, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
@@ -213,11 +213,14 @@ function PaymentModal({
 
 // ─── Animation variants ───────────────────────────────────────────────────────
 const CARD_VARS: Variants = {
-  hidden: { opacity: 0, y: 28 },
+  // Middle card (i === 1, the Pro plan) leads the reveal with a subtle pop;
+  // the two side cards fan in together right after.
+  hidden: (i: number) => ({ opacity: 0, y: 28, scale: i === 1 ? 0.94 : 1 }),
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+    scale: 1,
+    transition: { delay: Math.abs(i - 1) * 0.12, duration: 0.5, ease: [0.22, 1, 0.36, 1] },
   }),
 };
 
@@ -230,8 +233,19 @@ export function PricingSection() {
 
   const [cycle, setCycle]           = useState<Cycle>("monthly");
   const [activePlan, setActivePlan] = useState<PaidPlan | null>(null);
-  const [activeIdx, setActiveIdx]   = useState<number>(1);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  // On mobile the cards are a horizontal snap-scroll; start it centered on the
+  // Pro card (the middle one) to match the desktop "middle first" emphasis.
+  const mobileScrollRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = mobileScrollRef.current;
+    if (!el || el.clientWidth === 0) return; // hidden on md+ → skip
+    const proCard = el.children[1] as HTMLElement | undefined;
+    if (!proCard) return;
+    const containerRect = el.getBoundingClientRect();
+    const cardRect = proCard.getBoundingClientRect();
+    el.scrollLeft += (cardRect.left - containerRect.left) - (el.clientWidth - cardRect.width) / 2;
+  }, [locale]);
 
   const plans = [
     {
@@ -272,9 +286,20 @@ export function PricingSection() {
     },
   ];
 
-  const renderPlanCardBody = (plan: (typeof plans)[number]) => (
+  // The Pro card defines the canonical height. Any card carrying more features
+  // than Pro is truncated to this budget and shows a muted "…and more" row, so
+  // every card lands at the same height.
+  const FEATURE_CAP = plans.find(p => p.key === "pro")!.features.length;
+
+  const renderPlanCardBody = (plan: (typeof plans)[number]) => {
+    const overflow = plan.features.length > FEATURE_CAP;
+    const visibleFeatures = overflow
+      ? plan.features.slice(0, FEATURE_CAP - 1)
+      : plan.features;
+
+    return (
     <div
-      className={`relative rounded-3xl px-7 pb-7 pt-10 flex flex-col ${
+      className={`relative rounded-3xl px-7 pb-7 pt-10 flex flex-col h-full ${
         plan.variant === "pro"
           ? "bg-white border-2 border-green shadow-[0_10px_48px_rgba(58,170,106,0.22)]"
           : plan.variant === "premium"
@@ -408,7 +433,7 @@ export function PricingSection() {
 
       {/* Features */}
       <ul className="space-y-2.5 mb-4 flex-1">
-        {plan.features.map((f, fi) => (
+        {visibleFeatures.map((f, fi) => (
           <li key={`${plan.key}-${fi}`} className="flex items-start gap-2.5 text-sm">
             <Check
               size={14}
@@ -424,6 +449,14 @@ export function PricingSection() {
             </span>
           </li>
         ))}
+        {overflow && (
+          <li key={`${plan.key}-more`} className="flex items-start gap-2.5 text-sm">
+            <span className="mt-0.5 flex-shrink-0 w-3.5" aria-hidden />
+            <span className={`italic ${plan.variant === "premium" ? "text-white/45" : "text-gray-400"}`}>
+              {t("and_more")}
+            </span>
+          </li>
+        )}
       </ul>
 
       {/* AI chip */}
@@ -467,7 +500,8 @@ export function PricingSection() {
         )}
       </div>
     </div>
-  );
+    );
+  };
 
   return (
     <section dir={isRTL ? "rtl" : "ltr"} className="bg-[#f8faf8] py-[60px] md:py-[100px] px-[clamp(20px,6vw,80px)] md:px-[clamp(24px,8vw,120px)]">
@@ -545,7 +579,7 @@ export function PricingSection() {
         </div>
 
         {/* Plan cards — desktop grid (md+) */}
-        <div className="hidden md:grid md:grid-cols-3 gap-8 md:items-start py-6">
+        <div className="hidden md:grid md:grid-cols-3 gap-8 md:items-stretch py-6">
           {plans.map((plan, i) => {
             const rotation = i === 0 ? -4 : i === 2 ? 4 : 0;
             return (
@@ -564,51 +598,42 @@ export function PricingSection() {
           })}
         </div>
 
-        {/* Plan cards — mobile carousel (<md) */}
-        <div className="md:hidden py-8 overflow-hidden">
-          <motion.div
-            className="flex"
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.15}
-            dragMomentum={false}
-            animate={{ x: `${7.5 - 85 * activeIdx}%` }}
-            transition={isDragging ? { duration: 0 } : { type: "spring", damping: 30, stiffness: 280 }}
-            onDragStart={() => { setIsDragging(true); }}
-            onDragEnd={(_e, info) => {
-              setIsDragging(false);
-              const threshold = 50;
-              if (info.offset.x < -threshold && activeIdx < plans.length - 1) {
-                setActiveIdx(activeIdx + 1);
-              } else if (info.offset.x > threshold && activeIdx > 0) {
-                setActiveIdx(activeIdx - 1);
-              }
+        {/* Plan cards — mobile horizontal scroll (<md) */}
+        <div className="md:hidden py-8">
+          <div
+            ref={mobileScrollRef}
+            className="flex overflow-x-auto snap-x snap-mandatory px-[7.5%] pt-6 pb-4 [&::-webkit-scrollbar]:hidden"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              WebkitOverflowScrolling: "touch",
             }}
-            style={{ touchAction: "pan-y" }}
           >
             {plans.map((plan) => (
               <div
                 key={`${plan.key}-${locale}-m`}
-                className="min-w-[85%] px-2 pt-6"
+                className="flex-none w-[85%] px-2 snap-center"
               >
                 {renderPlanCardBody(plan)}
               </div>
             ))}
-          </motion.div>
+          </div>
 
-          {/* Carousel dots */}
-          <div className="flex justify-center gap-2 mt-8">
-            {plans.map((p, i) => (
-              <button
-                key={p.key}
-                type="button"
-                onClick={() => setActiveIdx(i)}
-                aria-label={`Show ${p.name}`}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === activeIdx ? "w-8 bg-green" : "w-1.5 bg-gray-300 hover:bg-gray-400"
-                }`}
+          {/* Swipe hint — pill breathes symmetrically from both sides (width loops 3× ↔ 2.5× its height) */}
+          <div className="flex justify-center mt-6">
+            <motion.div
+              aria-hidden
+              className="flex items-center justify-end px-2.5 rounded-full bg-transparent border-[1.5px] border-green/70 shadow-[0_2px_10px_rgba(58,170,106,0.12)]"
+              style={{ height: 22 }}
+              animate={{ width: [55, 66, 55] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <ArrowRight
+                size={16}
+                strokeWidth={2.75}
+                className={`text-green ${isRTL ? "rotate-180" : ""}`}
               />
-            ))}
+            </motion.div>
           </div>
         </div>
       </div>

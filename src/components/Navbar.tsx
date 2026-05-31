@@ -306,10 +306,14 @@ export const Navbar = () => {
   ];
   const navLinks = isRTL ? [...navLinksBase].reverse() : navLinksBase;
 
+  // Bottom bar: guests get Home up front (Chat is hidden — it's auth-gated);
+  // authed users get Chat at the end. The trailing Me/Profile tab is appended
+  // inside BottomNavBar. Mirrors the navLinksBase logic above.
   const bottomTabs = [
+    ...(isAuthenticated ? [] : [{ href: "/", label: t('home'), icon: House }]),
     { href: "/courses", label: t('explore'), icon: LayoutGrid },
     { href: "/news", label: t('news'), icon: BookOpen },
-    { href: "/profile/chat", label: t('chat_room'), icon: MessageCircle },
+    ...(isAuthenticated ? [{ href: "/profile/chat", label: t('chat_room'), icon: MessageCircle }] : []),
   ];
 
   const isTabActive = (href: string) => {

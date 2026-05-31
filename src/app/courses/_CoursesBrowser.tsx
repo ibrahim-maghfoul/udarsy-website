@@ -431,7 +431,7 @@ export default function CoursesBrowser() {
                     </div>
                 )}
                 {loading ? (
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
+                    <div className="grid grid-cols-1 min-[550px]:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
                         {Array(6).fill(0).map((_, i) => (
                             <div
                                 key={i}
@@ -441,7 +441,7 @@ export default function CoursesBrowser() {
                         ))}
                     </div>
                 ) : filteredSubjects.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
+                    <div className="grid grid-cols-1 min-[550px]:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
                         {filteredSubjects.map((subject: any, index: number) => {
                             // Match by lessonId set (slug or _id) OR subjectId — whichever is current
                             const lessonIdSet: Set<string> = new Set(subject.lessonIds || []);

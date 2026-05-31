@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from 'next-intl';
 import { Facebook, Twitter, Linkedin, X } from "lucide-react";
@@ -21,7 +22,14 @@ export function TeamSection() {
     const [inView, setInView] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
+    const [mounted, setMounted] = useState(false);
     const sectionRef = useRef<HTMLElement>(null);
+
+    // Portal the bottom sheet to <body>, so it escapes the `.page-transition`
+    // stacking context (created by its opacity animation). Inside that context
+    // the sheet's z-50 is trapped below the sibling <Footer>; portaling to the
+    // root stacking context lets the fixed overlay cover the footer.
+    useEffect(() => setMounted(true), []);
 
     useEffect(() => {
         const check = () => {
@@ -159,7 +167,9 @@ export function TeamSection() {
                 ))}
             </div>
 
-            {/* Mobile bottom sheet */}
+            {/* Mobile bottom sheet — portaled to <body> to escape the
+                `.page-transition` stacking context (otherwise the footer paints over it) */}
+            {mounted && createPortal(
             <AnimatePresence>
                 {selectedMember && (
                     <motion.div
@@ -235,7 +245,9 @@ export function TeamSection() {
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence>,
+            document.body
+            )}
         </section>
     );
 }
