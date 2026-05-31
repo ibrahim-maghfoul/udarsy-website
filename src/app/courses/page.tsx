@@ -104,6 +104,22 @@ export default async function CoursesPage() {
   const subjectList = Array.isArray(subjects) ? subjects : [];
   const lessonCount = Array.isArray(lessons) ? lessons.length : 0;
 
+  // Group levels by school for the footer link strip so the flat list reads
+  // clearly under Primaire / Collège / Lycée headings instead of repeating
+  // "1ère Année" across schools. levelList is already ordered
+  // primaire → collège → lycée (grade ascending), so insertion order is correct.
+  const schoolTitleBySlug = new Map(schoolList.map((s) => [slugify(s.title), s.title]));
+  const schoolGroups: { slug: string; title: string; levels: Level[] }[] = [];
+  const groupIndexBySlug = new Map<string, number>();
+  for (const lv of levelList) {
+    const slug = lv.schoolSlug;
+    if (!groupIndexBySlug.has(slug)) {
+      groupIndexBySlug.set(slug, schoolGroups.length);
+      schoolGroups.push({ slug, title: schoolTitleBySlug.get(slug) || prettify(slug), levels: [] });
+    }
+    schoolGroups[groupIndexBySlug.get(slug)!].levels.push(lv);
+  }
+
   // --- Localized header copy ------------------------------------------------
   const copy = {
     fr: {
@@ -212,19 +228,28 @@ export default async function CoursesPage() {
           aria-label={c.footer_h2}
           className="border-t border-green/10 mt-8 px-[clamp(20px,6vw,80px)] py-6 max-w-6xl mx-auto"
         >
-          <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3" dir="auto">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4" dir="auto">
             {c.footer_h2}
           </h2>
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            {levelList.map((lv) => (
-              <Link
-                key={lv._id}
-                href={`/courses/${lv.schoolSlug}/${lv.levelSlug}`}
-                className="hover:text-green transition-colors"
-                dir="auto"
-              >
-                {prettify(lv.levelSlug)}
-              </Link>
+          <div className="space-y-4">
+            {schoolGroups.map((group) => (
+              <div key={group.slug}>
+                <h3 className="text-[11px] font-bold uppercase tracking-wide text-dark/70 mb-1.5" dir="auto">
+                  {group.title}
+                </h3>
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  {group.levels.map((lv) => (
+                    <Link
+                      key={lv._id}
+                      href={`/courses/${lv.schoolSlug}/${lv.levelSlug}`}
+                      className="hover:text-green transition-colors"
+                      dir="auto"
+                    >
+                      {prettify(lv.levelSlug)}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </footer>

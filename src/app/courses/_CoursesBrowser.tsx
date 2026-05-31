@@ -131,7 +131,7 @@ function GuestLevelSelector({ onSelect }: { onSelect: (url: string, title: strin
     ];
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-start px-4 py-8 pt-28 md:pt-36 bg-[#fafbfc]">
+        <div className="min-h-screen flex flex-col items-center justify-start px-4 py-8 pt-6 md:pt-36 bg-[#fafbfc]">
             <div className="w-full max-w-4xl flex flex-col md:flex-row md:items-start md:justify-center gap-8 md:gap-14">
 
                 {/* Marketing side panel — SEO copy, visible on all viewports.
