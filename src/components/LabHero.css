@@ -1,50 +1,9 @@
 /* ───────────────────────────────────────────────
-   Hero — fan-deck composition
+   Hero — fan-deck composition (homepage)
    6 portrait cards arranged as a curved arc at the
    bottom of the hero, centered text floating above.
+   Used by <LabHero> on the landing page.
    ─────────────────────────────────────────────── */
-
-.lab-root {
-  min-height: 100vh;
-  background: #ffffff;
-  font-family: var(--font-sans, "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
-  color: #1b1d1c;
-}
-
-/* tiny floating chip — design lab marker */
-.lab-chip {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 200;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 4px 20px rgba(20, 30, 40, 0.06);
-}
-.lab-chip__label {
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(20, 20, 20, 0.55);
-}
-.lab-chip__sep {
-  width: 1px;
-  height: 12px;
-  background: rgba(0, 0, 0, 0.12);
-}
-.lab-chip__link {
-  font-size: 11px;
-  color: rgba(20, 20, 20, 0.55);
-  text-decoration: none;
-}
-.lab-chip__link:hover { color: #1b1d1c; }
 
 /* ── hero shell ─────────────────────────────── */
 .hero {
@@ -55,9 +14,8 @@
   background: #ffffff;
   display: flex;
   flex-direction: column;
-  /* Self-contained typography so the hero looks the same regardless of
-     parent font (lab page uses Inter; home page <main> forces Roboto). */
-  font-family: var(--font-sans, "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  /* Match the site's single font family (Cairo — covers Latin + Arabic). */
+  font-family: var(--font-cairo), "Cairo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: #1b1d1c;
 }
 
@@ -141,6 +99,13 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  /* The italic slant + tight line-height made background-clip:text cut the
+     glyph ink (right edge of the last letter, and below-baseline Arabic
+     glyphs). Pad the paint box so the ink isn't clipped; the matching
+     negative margin keeps the line position/spacing identical. */
+  line-height: 1.18;
+  padding: 0.08em 0.18em;
+  margin: -0.08em -0.18em;
 }
 
 .hero__lead {

@@ -1186,6 +1186,22 @@
         "request_rejected": "Demande rejetée",
         "review_failed": "Échec de l'examen de la demande"
     },
+    "LabHero": {
+        "headline_1": "Apprendre",
+        "headline_2": "Mieux",
+        "headline_3": "Ensemble",
+        "lead": "Plateforme d'apprentissage propulsée par l'IA pour les élèves marocains. Cours structurés, progression personnalisée et préparation complète au BAC.",
+        "cta": "Commencer à apprendre",
+        "cards": {
+            "anglais": "Anglais",
+            "arabe": "Arabe",
+            "maths": "Mathématiques",
+            "physique": "Physique",
+            "svt": "SVT",
+            "philo": "Philosophie",
+            "islamique": "Éducation Islamique"
+        }
+    },
     "FuturisticHero": {
         "badge": "Votre réussite, notre mission",
         "headline_1": "Apprenez.",

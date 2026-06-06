@@ -121,6 +121,12 @@
   color: transparent;
   font-style: italic;
   font-weight: 500;
+  /* Same fix as the hero: the italic slant + tight line-height made
+     background-clip:text cut the glyph ink. Pad the paint box and offset
+     with a matching negative margin so the line position stays identical. */
+  line-height: 1.18;
+  padding: 0.08em 0.18em;
+  margin: -0.08em -0.18em;
 }
 
 .sl-lead {

@@ -29,7 +29,7 @@ export function Footer() {
     };
 
     return (
-        <footer className="bg-dark text-white/70 py-16 px-[clamp(24px,6vw,80px)] pb-32 md:pb-16 font-roboto relative overflow-hidden">
+        <footer className="bg-dark text-white/70 py-16 px-[clamp(24px,6vw,80px)] pb-32 md:pb-16 relative overflow-hidden">
             {/* Lines Texture Overlay */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
                 style={{

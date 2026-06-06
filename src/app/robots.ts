@@ -69,7 +69,6 @@ export default function robots(): MetadataRoute.Robots {
           "/instructor-dashboard",
           "/favorites/",
           "/design-test",
-          "/design-lab",
           "/teacher/join/",
           "/lesson/*/preview",
         ],

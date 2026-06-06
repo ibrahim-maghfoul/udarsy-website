@@ -3,20 +3,22 @@
 // waiting for hydration.
 import Link from "next/link";
 import Image from "next/image";
-import "../app/design-lab/hero.css";
+import { getTranslations } from "next-intl/server";
+import "./LabHero.css";
 
 const R2 = "https://files.udarsy.com/hero-cards";
 const CARDS = [
-  { src: `${R2}/anglais.webp`, title: "Anglais" },
-  { src: `${R2}/arabe.webp`, title: "Arabe" },
-  { src: `${R2}/mathematiques.webp`, title: "Mathématiques" },
-  { src: `${R2}/physique.webp`, title: "Physique" },
-  { src: `${R2}/sciences-de-la-vie-et-de-la-terre.webp`, title: "SVT" },
-  { src: `${R2}/philosophie.webp`, title: "Philosophie" },
-  { src: `${R2}/education-islamique.webp`, title: "Éducation Islamique" },
+  { src: `${R2}/anglais.webp`, key: "anglais" },
+  { src: `${R2}/arabe.webp`, key: "arabe" },
+  { src: `${R2}/mathematiques.webp`, key: "maths" },
+  { src: `${R2}/physique.webp`, key: "physique" },
+  { src: `${R2}/sciences-de-la-vie-et-de-la-terre.webp`, key: "svt" },
+  { src: `${R2}/philosophie.webp`, key: "philo" },
+  { src: `${R2}/education-islamique.webp`, key: "islamique" },
 ];
 
-export function LabHero() {
+export async function LabHero() {
+  const t = await getTranslations("LabHero");
   return (
     <section className="hero" aria-labelledby="hero-heading">
       {/* Decorative background curves — half the path count of the original.
@@ -111,19 +113,16 @@ export function LabHero() {
 
       <div className="hero__inner">
         <h1 id="hero-heading" className="hero__headline">
-          <span>Learn</span>
-          <span className="hero__headline-accent">Smarter</span>
-          <span>Together</span>
+          <span>{t("headline_1")}</span>
+          <span className="hero__headline-accent">{t("headline_2")}</span>
+          <span>{t("headline_3")}</span>
         </h1>
 
-        <p className="hero__lead">
-          AI-powered learning platform for Moroccan students. Structured courses,
-          personalised progress, BAC highschool elementary and secondary school.
-        </p>
+        <p className="hero__lead">{t("lead")}</p>
 
         <div className="hero__ctas">
           <Link href="/courses" className="hero__cta hero__cta--primary">
-            Start learning
+            {t("cta")}
           </Link>
         </div>
       </div>
@@ -138,7 +137,7 @@ export function LabHero() {
           const isInner = i >= 2 && i <= 4;
           return (
             <div className={`deck-card deck-card--${i}`} key={card.src}>
-              <span className="deck-card__title">{card.title}</span>
+              <span className="deck-card__title">{t(`cards.${card.key}`)}</span>
               <Image
                 src={card.src}
                 alt=""

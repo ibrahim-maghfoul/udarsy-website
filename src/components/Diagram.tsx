@@ -91,7 +91,7 @@ export function Diagram() {
 
     return (
         <div ref={rootRef} className="w-[clamp(300px,88vw,400px)] md:w-[clamp(300px,44vw,500px)] relative shrink-0 z-3 diagram-paused">
-            <svg viewBox="0 0 500 580" xmlns="http://www.w3.org/2000/svg" className="block w-full h-auto overflow-visible font-roboto">
+            <svg viewBox="0 0 500 580" xmlns="http://www.w3.org/2000/svg" className="block w-full h-auto overflow-visible">
                 <defs>
                     <radialGradient id={`gHex${uid}`} cx="50%" cy="50%" r="60%">
                         <stop offset="0%" stopColor="#7ddba8" />
@@ -219,7 +219,7 @@ export function Diagram() {
                         <circle className="scale-0 group-hover:scale-200 opacity-0 group-hover:opacity-100 transition-all duration-500 origin-[250px_90px]" cx="250" cy="90" r="60" fill={`url(#gHexH${uid})`} />
                         <circle className="scale-0 group-hover:scale-200 opacity-0 group-hover:opacity-100 transition-all duration-500 origin-[250px_90px] pointer-events-none" cx="250" cy="90" r="60" fill={`url(#patLines${uid})`} />
                     </g>
-                    <text className="origin-[250px_90px] font-roboto text-[13px] font-semibold fill-white text-center pointer-events-none transition-transform duration-[350ms] group-hover:scale-[1.08]">
+                    <text className="origin-[250px_90px] text-[13px] font-semibold fill-white text-center pointer-events-none transition-transform duration-[350ms] group-hover:scale-[1.08]">
                         <tspan x="250" y="86" textAnchor="middle">{t('hex1')}</tspan>
                         <tspan x="250" dy="17" textAnchor="middle">{t('hex2')}</tspan>
                     </text>
@@ -234,7 +234,7 @@ export function Diagram() {
                         <circle className="scale-0 group-hover:scale-200 opacity-0 group-hover:opacity-100 transition-all duration-500 origin-[110px_210px]" cx="110" cy="210" r="60" fill={`url(#gBlobH${uid})`} />
                         <circle className="scale-0 group-hover:scale-200 opacity-0 group-hover:opacity-100 transition-all duration-500 origin-[110px_210px] pointer-events-none" cx="110" cy="210" r="60" fill={`url(#patHive${uid})`} />
                     </g>
-                    <text className="origin-[110px_210px] font-roboto text-[13px] font-semibold fill-white text-center pointer-events-none transition-transform duration-[350ms] group-hover:scale-[1.08]">
+                    <text className="origin-[110px_210px] text-[13px] font-semibold fill-white text-center pointer-events-none transition-transform duration-[350ms] group-hover:scale-[1.08]">
                         <tspan x="110" y="205" textAnchor="middle">{t('blob1')}</tspan>
                         <tspan x="110" dy="17" textAnchor="middle">{t('blob2')}</tspan>
                     </text>
@@ -249,7 +249,7 @@ export function Diagram() {
                         <circle className="scale-0 group-hover:scale-200 opacity-0 group-hover:opacity-100 transition-all duration-500 origin-[390px_210px]" cx="390" cy="210" r="64" fill={`url(#gCircH${uid})`} />
                         <circle className="scale-0 group-hover:scale-200 opacity-0 group-hover:opacity-100 transition-all duration-500 origin-[390px_210px] pointer-events-none" cx="390" cy="210" r="64" fill={`url(#patDots${uid})`} />
                     </g>
-                    <text className="origin-[390px_210px] font-roboto text-[13px] font-semibold fill-white text-center pointer-events-none transition-transform duration-[350ms] group-hover:scale-[1.08]">
+                    <text className="origin-[390px_210px] text-[13px] font-semibold fill-white text-center pointer-events-none transition-transform duration-[350ms] group-hover:scale-[1.08]">
                         <tspan x="390" y="205" textAnchor="middle">{t('circ1')}</tspan>
                         <tspan x="390" dy="17" textAnchor="middle">{t('circ2')}</tspan>
                     </text>
@@ -264,7 +264,7 @@ export function Diagram() {
                         <circle className="scale-0 group-hover:scale-200 opacity-0 group-hover:opacity-100 transition-all duration-500 origin-[250px_326px]" cx="250" cy="326" r="80" fill={`url(#gDiamH${uid})`} />
                         <circle className="scale-0 group-hover:scale-200 opacity-0 group-hover:opacity-100 transition-all duration-500 origin-[250px_326px] pointer-events-none" cx="250" cy="326" r="80" fill={`url(#patGrid${uid})`} />
                     </g>
-                    <text className="origin-[250px_326px] font-roboto text-[13px] font-semibold fill-white text-center pointer-events-none transition-transform duration-[350ms] group-hover:scale-[1.08]">
+                    <text className="origin-[250px_326px] text-[13px] font-semibold fill-white text-center pointer-events-none transition-transform duration-[350ms] group-hover:scale-[1.08]">
                         <tspan x="250" y="320" textAnchor="middle">{t('diam1')}</tspan>
                         <tspan x="250" dy="17" textAnchor="middle">{t('diam2')}</tspan>
                     </text>

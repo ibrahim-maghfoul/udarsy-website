@@ -52,7 +52,7 @@ School → Level (Tronc Commun / 1ère Bac / 2ème Bac) → Track (Guidance: Sci
 
 ## Do not index
 /profile, /settings, /onboarding, /report, /teacher/dashboard,
-/instructor-dashboard, /favorites/, /design-test, /design-lab, /teacher/join/
+/instructor-dashboard, /favorites/, /design-test, /teacher/join/
 
 ## Contact
 Email: contact@udarsy.com

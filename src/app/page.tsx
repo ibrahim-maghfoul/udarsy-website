@@ -28,7 +28,7 @@ export default async function Home() {
   const tSubj = await getTranslations('SubjectCards');
 
   return (
-    <div className="min-h-screen font-roboto bg-white selection:bg-green/10 selection:text-green">
+    <div className="min-h-screen bg-white selection:bg-green/10 selection:text-green">
       <HomeAuthRedirect />
       <div className="absolute top-0 left-0 w-full h-[120vh] bg-gradient-to-b from-green/[0.03] to-transparent pointer-events-none" />
 

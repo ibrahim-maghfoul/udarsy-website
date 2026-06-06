@@ -90,7 +90,7 @@ export function TeamSection() {
     [currentPage, shuffledTeam, perPage]);
 
     return (
-        <section ref={sectionRef} className="bg-[#f0f2ee] pt-24 pb-16 md:pb-24 px-[clamp(24px,6vw,80px)] font-roboto">
+        <section ref={sectionRef} className="bg-[#f0f2ee] pt-24 pb-16 md:pb-24 px-[clamp(24px,6vw,80px)]">
             <div className="text-center mb-16">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green/30 bg-green/5 text-[13px] font-semibold text-green/80 shadow-[0_0_12px_rgba(58,170,106,0.15)] mb-4">
                     <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />

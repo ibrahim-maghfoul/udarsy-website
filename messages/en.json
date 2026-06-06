@@ -1187,6 +1187,22 @@
         "request_rejected": "Request rejected",
         "review_failed": "Failed to review request"
     },
+    "LabHero": {
+        "headline_1": "Learn",
+        "headline_2": "Smarter",
+        "headline_3": "Together",
+        "lead": "AI-powered learning platform for Moroccan students. Structured courses, personalised progress, and complete BAC preparation.",
+        "cta": "Start learning",
+        "cards": {
+            "anglais": "English",
+            "arabe": "Arabic",
+            "maths": "Mathematics",
+            "physique": "Physics",
+            "svt": "Life & Earth Sciences",
+            "philo": "Philosophy",
+            "islamique": "Islamic Education"
+        }
+    },
     "FuturisticHero": {
         "badge": "Your success, our mission",
         "headline_1": "Learn.",

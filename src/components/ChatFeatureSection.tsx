@@ -42,13 +42,20 @@ function ChatWindow({ msgs, roomTitle, roomStatus, showCta, active }: {
     return () => timers.forEach(clearTimeout);
   }, [active, msgs]);
 
+  // Keep the newest message in view: scroll the list to the bottom as each
+  // message is revealed, so it doesn't get clipped once they overflow.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [visible]);
+
 
   return (
     <div className="w-full max-w-[420px] mx-auto" style={{ fontFamily: "var(--font-cairo),sans-serif" }}>
         {/* Window chrome */}
         <div style={{
           background: "#ffffff",
-          borderRadius: 18,
+          borderRadius: 10,
           overflow: "hidden",
           boxShadow: "0 32px 80px rgba(1,8,4,0.60), 0 2px 12px rgba(58,170,106,0.10)",
           border: "1px solid rgba(255,255,255,0.10)",
